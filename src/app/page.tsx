@@ -17,11 +17,18 @@ export default function Dashboard() {
   const socket = useSocket();
   const [notifications, setNotifications] = useState<HelpRequest[]>([]);
   const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
-  const [audio] = useState(new Audio('/notification.mp3'));
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [totalOpen, setTotalOpen] = useState(0);
   const [totalInProgress, setTotalInProgress] = useState(0);
   const [totalResolved, setTotalResolved] = useState(0);
   const [isPanduanVisible, setIsPanduanVisible] = useState(true);
+
+  // Initialize audio after component mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAudio(new Audio('/notification.mp3'));
+    }
+  }, []);
 
   useEffect(() => {
     // Calculate totals
@@ -40,7 +47,7 @@ export default function Dashboard() {
     // Handle help request events
     const handleHelpRequest = (data: HelpRequest) => {
       setNotifications(prev => [data, ...prev]);
-      audio.play();
+      audio?.play();
       
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200]);

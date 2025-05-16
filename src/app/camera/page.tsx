@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSocket } from '@/hooks/useSocket';
+import Image from 'next/image';
 
 interface CameraFeed {
   id: string;
@@ -124,10 +125,12 @@ export default function CameraFeedPage() {
                 key={feed.id}
                 className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden"
               >
-                <img
+                <Image
                   src={feed.imageUrl}
                   alt={`Gate ${feed.gateId} - ${feed.timestamp}`}
                   className="w-full aspect-video object-cover"
+                  width={300}
+                  height={200}
                 />
                 <div className="p-3">
                   <p className="font-medium text-gray-800 dark:text-white">
