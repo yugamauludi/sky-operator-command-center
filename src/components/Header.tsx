@@ -18,15 +18,15 @@ export default function Header({ notifications }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 h-16 shadow-sm">
-      <div className="h-full px-6 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <header className="h-16 shadow-sm">
+      <div className="h-full px-6 flex justify-end">
+        {/* <div className="flex items-center space-x-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
             Command Center
           </h2>
-        </div>
+        </div> */}
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center align-end space-x-4">
           {/* Notifikasi */}
           <div className="relative">
             <button
@@ -42,7 +42,7 @@ export default function Header({ notifications }: HeaderProps) {
             </button>
 
             {isNotificationOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-50">
+              <div className="absolute right-0 mt-2 w-80 bg-[#222B36] dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-50">
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
                     Notifikasi

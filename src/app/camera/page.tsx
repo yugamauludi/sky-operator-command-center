@@ -62,7 +62,7 @@ export default function CameraFeedPage() {
       </div>
 
       {/* Panel Live Camera */}
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 
+      <div className={`bg-[#222B36] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 
         ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
@@ -113,7 +113,7 @@ export default function CameraFeedPage() {
       </div>
 
       {/* Histori Gambar */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <div className="bg-[#222B36] dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
           Histori Gambar
         </h2>

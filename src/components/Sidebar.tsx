@@ -8,13 +8,14 @@ export default function Sidebar() {
 
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: '📊' },
-    { href: '/gates', label: 'Gate Monitor', icon: '🚪' },
+    { href: '/location', label: 'Lokasi', icon: '📌' },
+    { href: '/master', label: 'Master', icon: '📁' },
     { href: '/reports', label: 'Laporan', icon: '📝' },
     { href: '/settings', label: 'Pengaturan', icon: '⚙️' },
   ];
 
   return (
-    <div className="w-64 bg-white dark:bg-gray-800 h-full shadow-lg">
+    <div className="w-64 h-full shadow-lg">
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Sky Command</h1>
       </div>
