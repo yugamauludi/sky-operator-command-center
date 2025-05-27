@@ -82,7 +82,7 @@ export default function Header({ notifications }: HeaderProps) {
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
               <Image
-                src="/default-avatar.png"
+                src="/images/logo.png"
                 alt="Profile"
                 width={32}
                 height={32}

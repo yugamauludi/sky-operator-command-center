@@ -27,7 +27,12 @@ export default function CommonTable<T>({ data, columns, className = '' }: TableP
         </thead>
         <tbody>
           {data.map((item, rowIndex) => (
-            <tr key={rowIndex} className="border-t border-gray-200 dark:border-gray-700">
+            <tr
+              key={rowIndex}
+              className={`border-t border-gray-200 dark:border-gray-700 ${
+                rowIndex % 2 === 0 ? 'bg-gray-100 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'
+              }`}
+            >
               {columns.map((column, colIndex) => (
                 <td key={colIndex} className="p-4">
                   {column.render
