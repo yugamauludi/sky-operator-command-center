@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import CommonTable, { Column } from '@/components/Table/CommonTable';
+import CommonTable, { Column } from '@/components/tables/CommonTable';
 
 interface Report {
   day: string;

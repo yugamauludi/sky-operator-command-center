@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import CommonTable, { Column } from '@/components/Table/CommonTable';
+import CommonTable, { Column } from '@/components/tables/CommonTable';
 
 interface Location {
   id: number;
