@@ -5,6 +5,7 @@ interface CustomSelectProps {
   value: number | string | null;
   onChange: (value: number) => void;
   placeholder?: string;
+  isDisabled?: boolean;
 }
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -12,6 +13,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   value,
   onChange,
   placeholder = "Pilih kategori",
+  isDisabled = false,
 }) => {
   const [open, setOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
@@ -39,7 +41,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="w-full text-left bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className={`${isDisabled ? "cursor-not-allowed" : "cursor-pointer"} w-full text-left bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        disabled={isDisabled}
       >
         {selected?.name || placeholder}
         <span className="float-right text-gray-400">▼</span>
@@ -55,9 +58,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 setOpen(false);
               }}
               className={`px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                value === option.id
-                  ? "bg-gray-200 dark:bg-gray-600"
-                  : ""
+                value === option.id ? "bg-gray-200 dark:bg-gray-600" : ""
               }`}
             >
               {option.name}

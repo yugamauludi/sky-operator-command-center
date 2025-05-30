@@ -17,6 +17,9 @@ import {
   addDescription,
   Description,
   fetchDescriptions,
+  fetchDescriptionDetail,
+  editDescription,
+  deleteDescription,
 } from "@/hooks/useDescriptions";
 import { CustomSelect } from "@/components/CustomSelect";
 
@@ -26,18 +29,28 @@ interface CategoryData {
 }
 
 export default function MasterPage() {
+  const [isDataLoading, setIsDataLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("category");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [descriptions, setDescriptions] = useState<Description[]>([]);
   const [newCategoryName, setNewCategoryName] = useState<CategoryData>({
     id: null,
     categoryName: "",
   });
-  const [isDataLoading, setIsDataLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [descriptions, setDescriptions] = useState<Description[]>([]);
   const [categoryName, setCategoryName] = useState<
     { id: number; name: string }[]
   >([]);
+  const [newDescription, setNewDescription] = useState<{
+    id?: number;
+    category: number | null;
+    desc: string;
+  }>({
+    category: null,
+    desc: "",
+  });
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const fetchCategoriesData = async () => {
     try {
@@ -92,6 +105,30 @@ export default function MasterPage() {
     }
   };
 
+  const fetchDescriptionDetailData = async (id: number) => {
+    try {
+      setIsDataLoading(true);
+      const descriptionDetailData = await fetchDescriptionDetail(id);
+      console.log(descriptionDetailData, "<<<<<description detail data");
+
+      const category = categories.find(
+        (cat) => cat.id === descriptionDetailData.id_category
+      );
+
+      setNewDescription({
+        id: descriptionDetailData.id,
+        category: category?.id || null,
+        desc: descriptionDetailData.object,
+      });
+      setShowAddModal(true);
+    } catch (error) {
+      setIsDataLoading(false);
+      console.error("Error fetching category detail:", error);
+    } finally {
+      setIsDataLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCategoriesData();
     fetchDescriptionData();
@@ -102,6 +139,16 @@ export default function MasterPage() {
     setIsEditing(true);
     fetchCategoryDetailData(id);
   };
+  const handleEditDescription = (id: number) => {
+    setIsEditing(true);
+    fetchDescriptionDetailData(id);
+  };
+
+  const handleDelete = (id: number) => {
+    setDeleteId(id);
+    setIsConfirmationOpen(true);
+  };
+
   // Define columns for Category table
   const categoryColumns: Column<Category>[] = [
     {
@@ -136,7 +183,7 @@ export default function MasterPage() {
             <FiEdit2 size={16} />
           </button>
           <button
-            onClick={() => handleDeleteCategory(item.id)}
+            onClick={() => handleDelete(item.id)}
             className="p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
           >
             <FiTrash2 size={16} />
@@ -173,26 +220,21 @@ export default function MasterPage() {
     {
       header: "Action",
       accessor: "id",
-      render: () => (
+      render: (value, item) => (
         <div className="flex space-x-2">
           <button className="p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
-            <FiEdit2 size={16} />
+            <FiEdit2 size={16} onClick={() => handleEditDescription(item.id)} />
           </button>
-          <button className="p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400">
+          <button
+            onClick={() => handleDelete(item.id)}
+            className="p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
+          >
             <FiTrash2 size={16} />
           </button>
         </div>
       ),
     },
   ];
-
-  const [newDescription, setNewDescription] = useState<{
-    category: number | null;
-    desc: string;
-  }>({
-    category: null,
-    desc: "",
-  });
 
   const handleAddCategory = async () => {
     try {
@@ -209,43 +251,88 @@ export default function MasterPage() {
         });
         toast.success("Kategori berhasil ditambahkan!");
       }
-      fetchCategoriesData();
-      setShowAddModal(false);
     } catch (error) {
       setShowAddModal(false);
-      setIsEditing(false);
       if (isEditing) {
         console.error("Gagal mengubah kategori:", error);
       } else {
         console.error("Gagal menambahkan kategori:", error);
       }
+    } finally {
+      fetchCategoriesData();
+      setShowAddModal(false);
+      resetFormState();
     }
   };
 
   const handleAddDescription = async () => {
     try {
-      await addDescription({
-        name: newDescription.desc,
-        idDescription: newDescription.category,
-      });
-      fetchDescriptionData();
-      toast.success("Deskripsi berhasil ditambahkan!");
-      setShowAddModal(false);
+      if (isEditing) {
+        await editDescription({
+          id: newDescription.id,
+          name: newDescription.desc,
+          idDescription: newDescription.id,
+        });
+        toast.success("Deskripsi berhasil diubah!");
+      } else {
+        await addDescription({
+          name: newDescription.desc,
+          idDescription: newDescription.category,
+        });
+        toast.success("Deskripsi berhasil ditambahkan!");
+      }
     } catch (error) {
       setShowAddModal(false);
-      console.error("Gagal menambahkan deskripsi:", error);
+      if (isEditing) {
+        console.error("Gagal mengubah deskripsi:", error);
+      } else {
+        console.error("Gagal menambahkan deskripsi:", error);
+      }
+      setIsEditing(false);
+    } finally {
+      fetchDescriptionData();
+      setShowAddModal(false);
+      resetFormState();
     }
   };
 
-  const handleDeleteCategory = async (id: number) => {
+  const actionDeleteCategory = async (id: number) => {
     try {
       await deleteCategory(id);
-      // setIsConfirmationOpen(false);
+      setIsConfirmationOpen(false);
       toast.success("Data kategori berhasil dihapus");
+      fetchCategoriesData();
     } catch (error) {
+      setIsConfirmationOpen(false);
       console.error("Error deleting category:", error);
       toast.error("Gagal menghapus data kategori");
     }
+  };
+
+  const actionDeleteDescription = async (id: number) => {
+    try {
+      await deleteDescription(id);
+      setIsConfirmationOpen(false);
+      toast.success("Data deskripsi berhasil dihapus");
+      fetchDescriptionData();
+    } catch (error) {
+      setIsConfirmationOpen(false);
+      console.error("Error deleting deskripsi:", error);
+      toast.error("Gagal menghapus data deskripsi");
+    }
+  };
+
+  const resetFormState = () => {
+    setNewCategoryName({
+      id: null,
+      categoryName: "",
+    });
+    setNewDescription({
+      category: null,
+      desc: "",
+    });
+    setDeleteId(null);
+    setIsEditing(false);
   };
 
   return (
@@ -283,17 +370,61 @@ export default function MasterPage() {
         </li>
       </ul>
 
+      {/* Content Container */}
+      <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
+        {/* Add Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+          >
+            + Tambah {activeTab === "category" ? "Kategori" : "Deskripsi"}
+          </button>
+        </div>
+
+        {/* Tables */}
+        <div className="overflow-x-auto">
+          {activeTab === "category" ? (
+            <>
+              {isDataLoading ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Memuat data kategori...
+                  </p>
+                </div>
+              ) : (
+                <CommonTable
+                  columns={categoryColumns}
+                  data={categories}
+                  className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                />
+              )}
+            </>
+          ) : (
+            <CommonTable
+              columns={descriptionColumns}
+              data={descriptions}
+              className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+            />
+          )}
+        </div>
+      </div>
+
       {/* Modal Add Category/Description */}
       {showAddModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center">
           <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                Tambah {activeTab === "category" ? "Kategori" : "Deskripsi"}{" "}
-                Baru
+                {isEditing ? "Ubah" : "Tambah"}{" "}
+                {activeTab === "category" ? "Kategori" : "Deskripsi"}{" "}
+                {isEditing ? "" : "Baru"}
               </h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  resetFormState();
+                }}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
               >
                 <FiX size={24} />
@@ -334,6 +465,7 @@ export default function MasterPage() {
                         category: value,
                       }))
                     }
+                    isDisabled={isEditing}
                     placeholder="Pilih kategori"
                   />
                 </div>
@@ -378,45 +510,50 @@ export default function MasterPage() {
         </div>
       )}
 
-      {/* Content Container */}
-      <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
-        {/* Add Button */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
-          >
-            + Tambah {activeTab === "category" ? "Kategori" : "Deskripsi"}
-          </button>
-        </div>
+      {/* Modal Delete Category/Description */}
+      {isConfirmationOpen && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center">
+          <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                Hapus {activeTab === "category" ? "Kategori" : "Deskripsi"}
+              </h3>
+              <button
+                onClick={() => setIsConfirmationOpen(false)}
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
 
-        {/* Tables */}
-        <div className="overflow-x-auto">
-          {activeTab === "category" ? (
-            <>
-              {isDataLoading ? (
-                <div className="text-center py-4">
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Memuat data kategori...
-                  </p>
-                </div>
-              ) : (
-                <CommonTable
-                  columns={categoryColumns}
-                  data={categories}
-                  className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
-                />
-              )}
-            </>
-          ) : (
-            <CommonTable
-              columns={descriptionColumns}
-              data={descriptions}
-              className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
-            />
-          )}
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              Apakah Anda yakin ingin menghapus{" "}
+              {activeTab === "category" ? "kategori" : "deskripsi"} ini?
+            </p>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setIsConfirmationOpen(false)}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  if (activeTab === "category" && deleteId) {
+                    actionDeleteCategory(deleteId);
+                  } else if (activeTab === "description" && deleteId) {
+                    actionDeleteDescription(deleteId);
+                  }
+                }}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

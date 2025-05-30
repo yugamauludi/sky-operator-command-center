@@ -61,7 +61,7 @@ export const fetchCategoryDetail = async (id: number) => {
     const data: CategoryResponse = await response.json();
     return data.data;
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error get detail category:', error);
     throw error;
   }
 };

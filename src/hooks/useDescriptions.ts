@@ -9,7 +9,7 @@ export interface Description {
     modifyBy: null;
 }
 
-interface ApiResponse {
+interface DescriptionResponse {
     code: number;
     message: string;
     data: Description[];
@@ -21,18 +21,22 @@ interface ApiResponse {
     };
 }
 
+interface DescriptionDetailResponse {
+    code: number;
+    message: string;
+    data: Description;
+}
+
 export const fetchDescriptions = async () => {
     try {
         // Menggunakan API route lokal untuk menyembunyikan URL asli
         const response = await fetch('/api/description');
-        console.log(response, "<<<<ini si response");
-
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
         }
 
-        const data: ApiResponse = await response.json();
+        const data: DescriptionResponse = await response.json();
 
         // Periksa apakah data.data ada dan merupakan array
         if (data.data && Array.isArray(data.data)) {
@@ -45,6 +49,21 @@ export const fetchDescriptions = async () => {
         console.error('Error fetching descriptions: ', err);
         throw err;
 
+    }
+};
+
+export const fetchDescriptionDetail = async (id: number) => {
+    try {
+        const response = await fetch(`/api/description/get-byid/${id.toString()}`);
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+        const data: DescriptionDetailResponse = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error('Error get detail description:', error);
+        throw error;
     }
 };
 
@@ -77,6 +96,52 @@ export const addDescription = async (category: any) => {
         return await response.json();
     } catch (error) {
         console.error('Error adding employee:', error);
+        throw error;
+    }
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const editDescription = async (description: any) => {
+    try {
+        const response = await fetch(`/api/description/update-byid/${description.id.toString()}`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: description?.name, idDescription: description?.idDescription
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Gagal merubah description');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error editing description:', error);
+        throw error;
+    }
+};
+
+export const deleteDescription = async (id: number): Promise<void> => {
+    try {
+
+        const response = await fetch(`/api/description/deleted-byid/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Gagal menghapus kategori');
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
         throw error;
     }
 };
