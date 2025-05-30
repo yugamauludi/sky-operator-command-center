@@ -56,7 +56,6 @@ export default function MasterPage() {
     try {
       setIsDataLoading(true);
       const categoriesData = await fetchCategories();
-      console.log(categoriesData, "<<<<<");
       const category = categoriesData.map((category) => ({
         id: category.id,
         name: category.category,
@@ -109,7 +108,6 @@ export default function MasterPage() {
     try {
       setIsDataLoading(true);
       const descriptionDetailData = await fetchDescriptionDetail(id);
-      console.log(descriptionDetailData, "<<<<<description detail data");
 
       const category = categories.find(
         (cat) => cat.id === descriptionDetailData.id_category

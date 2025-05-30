@@ -57,3 +57,21 @@ export const fetchIssues = async () => {
         throw err;
     }
 };
+
+export const fetchIssueDetail = async (id: number) => {
+    try {
+        const response = await fetch(`/api/issue/get-byid/${id.toString()}`);
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        const data: IssueDetailResponse = await response.json();
+
+        return data;
+
+    } catch (err) {
+        console.error('Error fetching descriptions: ', err);
+        throw err;
+    }
+};

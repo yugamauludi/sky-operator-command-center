@@ -564,31 +564,31 @@ export default function Dashboard() {
               </div>
 
               {/* Kolom Kanan: Pie Chart dan Customer Service */}
-              <div className="space-y-6">
-                {/* Pie Chart */}
-                <div className="bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 p-4 rounded-lg">
-                  <ReactApexChart
-                    options={{
-                      ...categoryComplaintOptions,
-                      chart: {
-                        ...categoryComplaintOptions.chart,
-                        background: "transparent",
-                      },
-                      theme: {
-                        mode: "dark",
-                        palette: "palette1",
-                      },
-                    }}
-                    series={categoryComplaintSeries}
-                    type="pie"
-                    height={200}
-                  />
-                </div>
+              {/* <div className="space-y-6"> */}
+              {/* Pie Chart */}
+              <div className="bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 p-4 rounded-lg">
+                <ReactApexChart
+                  options={{
+                    ...categoryComplaintOptions,
+                    chart: {
+                      ...categoryComplaintOptions.chart,
+                      background: "transparent",
+                    },
+                    theme: {
+                      mode: "dark",
+                      palette: "palette1",
+                    },
+                  }}
+                  series={categoryComplaintSeries}
+                  type="pie"
+                  // height={200}
+                />
+              </div>
 
-                {/* Customer Service Section */}
-                <div className="bg-white dark:bg-[#222B36] rounded-lg p-4">
+              {/* Customer Service Section */}
+              {/* <div className="bg-white dark:bg-[#222B36] rounded-lg p-4">
                   <h3 className="text-lg font-semibold mb-4">Customer Service Aktif</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4 max-h-48 overflow-y-auto">
                     {activeCS.map((cs) => (
                       <div
                         key={cs.id}
@@ -618,12 +618,12 @@ export default function Dashboard() {
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
+                </div> */}
+              {/* </div> */}
             </div>
 
             {/* Active Customer Service Section */}
-            {/* <div className="bg-white dark:bg-[#222B36] p-6 rounded-lg">
+            <div className="bg-white dark:bg-[#222B36] p-6 rounded-lg">
               <h2 className="text-xl font-semibold mb-6">
                 Customer Service Aktif
               </h2>
@@ -657,7 +657,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>

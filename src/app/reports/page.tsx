@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
-import { fetchIssues } from "@/hooks/useIssues";
+import { 
+  // fetchIssueDetail, 
+  fetchIssues 
+} from "@/hooks/useIssues";
 
 interface Report {
   no?: number;
@@ -65,6 +68,21 @@ export default function ReportsPage() {
   useEffect(() => {
     fetchIssuesData();
   }, []);
+
+  // const fetchIssueDetailData = async (issueId: number) => {
+  //   try {
+  //     setIsDataLoading(true);
+  //     const response = await fetchIssueDetail(issueId);
+  //     if (response && response.data) {
+  //       const issueDetail = response.data;
+  //       console.log("Issue Detail:", issueDetail);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching issue detail:", error);
+  //   } finally {
+  //     setIsDataLoading(false);
+  //   }
+  // }
 
   const [searchDate, setSearchDate] = useState<Date | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
