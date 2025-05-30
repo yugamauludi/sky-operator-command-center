@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import 'react-datepicker/dist/react-datepicker.css';
-import CommonTable, { Column } from '@/components/tables/CommonTable';
+import { useState } from "react";
+import "react-datepicker/dist/react-datepicker.css";
+import CommonTable, { Column } from "@/components/tables/CommonTable";
 
 interface Ticket {
   no: number;
@@ -15,7 +15,8 @@ interface Ticket {
 }
 
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>([
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  setTickets([
     {
       no: 1,
       noTicket: "TCK-001",
@@ -23,7 +24,7 @@ export default function TicketsPage() {
       category: "Technical",
       description: "Network issue",
       vehicleNo: "B 1234 XYZ",
-      inputBy: "Admin"
+      inputBy: "Admin",
     },
     {
       no: 2,
@@ -32,36 +33,37 @@ export default function TicketsPage() {
       category: "Technical",
       description: "Network issue",
       vehicleNo: "B 5678 XYZ",
-      inputBy: "Admin"
+      inputBy: "Admin",
     },
   ]);
 
-  const [searchLocation, setSearchLocation] = useState('');
-  const [searchCategory, setSearchCategory] = useState('');
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchCategory, setSearchCategory] = useState("");
 
-  const filteredTickets = tickets.filter(ticket => 
-    (searchLocation === '' || ticket.location.includes(searchLocation)) &&
-    (searchCategory === '' || ticket.category.includes(searchCategory))
+  const filteredTickets = tickets.filter(
+    (ticket) =>
+      (searchLocation === "" || ticket.location.includes(searchLocation)) &&
+      (searchCategory === "" || ticket.category.includes(searchCategory))
   );
 
   const columns: Column<Ticket>[] = [
-    { header: 'No', accessor: 'no' },
-    { header: 'No Ticket', accessor: 'noTicket' },
-    { header: 'Lokasi', accessor: 'location' },
-    { header: 'Kategori', accessor: 'category' },
-    { header: 'Deskripsi', accessor: 'description' },
-    { header: 'No Kendaraan', accessor: 'vehicleNo' },
-    { header: 'Di Input oleh', accessor: 'inputBy' },
+    { header: "No", accessor: "no" },
+    { header: "No Ticket", accessor: "noTicket" },
+    { header: "Lokasi", accessor: "location" },
+    { header: "Kategori", accessor: "category" },
+    { header: "Deskripsi", accessor: "description" },
+    { header: "No Kendaraan", accessor: "vehicleNo" },
+    { header: "Di Input oleh", accessor: "inputBy" },
   ];
 
   const handleExport = () => {
     // Implementasi logika ekspor data
-    console.log('Exporting data...');
+    console.log("Exporting data...");
   };
 
   const handleAddTicket = () => {
     // Implementasi logika penambahan tiket
-    console.log('Adding new ticket...');
+    console.log("Adding new ticket...");
   };
 
   return (
@@ -70,7 +72,7 @@ export default function TicketsPage() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="container mx-auto px-6 py-8">
             <h1 className="text-2xl font-bold mb-6">Daftar Tiket</h1>
-            
+
             {/* Filter Section */}
             <div className="flex items-center mb-4 space-x-2">
               <div className="relative">
@@ -103,8 +105,17 @@ export default function TicketsPage() {
                 onClick={handleExport}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full ml-auto flex items-center space-x-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Export Data</span>
               </button>
@@ -114,18 +125,24 @@ export default function TicketsPage() {
                 onClick={handleAddTicket}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center space-x-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Tambah Tiket</span>
               </button>
             </div>
 
             <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
-              <CommonTable 
-                data={filteredTickets} 
-                columns={columns}
-              />
+              <CommonTable data={filteredTickets} columns={columns} />
             </div>
           </div>
         </main>
