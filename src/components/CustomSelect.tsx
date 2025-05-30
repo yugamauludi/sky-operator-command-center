@@ -18,7 +18,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   const [open, setOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

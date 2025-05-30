@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-// import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CommonTable, { Column } from '@/components/tables/CommonTable';
 
@@ -35,7 +34,6 @@ export default function TicketsPage() {
       vehicleNo: "B 5678 XYZ",
       inputBy: "Admin"
     },
-    // Tambahkan data tiket lainnya di sini
   ]);
 
   const [searchLocation, setSearchLocation] = useState('');

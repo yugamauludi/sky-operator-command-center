@@ -27,10 +27,9 @@ interface DescriptionDetailResponse {
     data: Description;
 }
 
-export const fetchDescriptions = async () => {
+export const fetchDescriptions = async (page = 1, limit = 5) => {
     try {
-        // Menggunakan API route lokal untuk menyembunyikan URL asli
-        const response = await fetch('/api/description');
+        const response = await fetch(`/api/description/get-all?page=${page}&limit=${limit}`);
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
@@ -38,9 +37,8 @@ export const fetchDescriptions = async () => {
 
         const data: DescriptionResponse = await response.json();
 
-        // Periksa apakah data.data ada dan merupakan array
         if (data.data && Array.isArray(data.data)) {
-            return data.data;
+            return data;
         } else {
             throw new Error('Format data tidak valid');
         }
@@ -48,7 +46,6 @@ export const fetchDescriptions = async () => {
     } catch (err) {
         console.error('Error fetching descriptions: ', err);
         throw err;
-
     }
 };
 

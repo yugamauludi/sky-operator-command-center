@@ -35,9 +35,9 @@ interface IssueDetailResponse {
     data: Issue;
 }
 
-export const fetchIssues = async () => {
+export const fetchIssues = async (page = 1, limit = 5) => {
     try {
-        const response = await fetch('/api/issue/get-all');
+        const response = await fetch(`/api/issue/get-all?page=${page}&limit=${limit}`);
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
@@ -45,7 +45,6 @@ export const fetchIssues = async () => {
 
         const data: IssueResponse = await response.json();
 
-        // Periksa apakah data.data ada dan merupakan array
         if (data.data && Array.isArray(data.data)) {
             return data;
         } else {

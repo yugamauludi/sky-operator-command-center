@@ -26,10 +26,9 @@ interface CategoryResponse {
   message: string;
   data: Category;
 }
-export const fetchCategories = async () => {
+export const fetchCategories = async (page = 1, limit = 5) => {
   try {
-    // Menggunakan API route lokal untuk menyembunyikan URL asli
-    const response = await fetch('/api/category');
+    const response = await fetch(`/api/category/get-all?page=${page}&limit=${limit}`);
 
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
@@ -37,9 +36,8 @@ export const fetchCategories = async () => {
 
     const data: CategoriesResponse = await response.json();
 
-    // Periksa apakah data.data ada dan merupakan array
     if (data.data && Array.isArray(data.data)) {
-      return data.data;
+      return data;
     } else {
       throw new Error('Format data tidak valid');
     }

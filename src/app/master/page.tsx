@@ -28,6 +28,13 @@ interface CategoryData {
   categoryName: string;
 }
 
+interface PaginationInfo {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  itemsPerPage: number;
+}
+
 export default function MasterPage() {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("category");
@@ -51,18 +58,59 @@ export default function MasterPage() {
   });
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [categoryPagination, setCategoryPagination] = useState<PaginationInfo>({
+    totalItems: 0,
+    totalPages: 0,
+    currentPage: 1,
+    itemsPerPage: 5,
+  });
+  const [descriptionPagination, setDescriptionPagination] =
+    useState<PaginationInfo>({
+      totalItems: 0,
+      totalPages: 0,
+      currentPage: 1,
+      itemsPerPage: 5,
+    });
 
-  const fetchCategoriesData = async () => {
+  const fetchCategoriesData = async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
-      const categoriesData = await fetchCategories();
-      const category = categoriesData.map((category) => ({
-        id: category.id,
-        name: category.category,
-      }));
-      setCategoryName(category);
+      const categoriesData = await fetchCategories(page, limit);
+      if (categoriesData.data && categoriesData.meta) {
+        setCategories(categoriesData.data);
+        setCategoryPagination({
+          totalItems: categoriesData.meta.totalItems,
+          totalPages: categoriesData.meta.totalPages,
+          currentPage: categoriesData.meta.page,
+          itemsPerPage: categoriesData.meta.limit,
+        });
 
-      setCategories(categoriesData);
+        const category = categoriesData.data.map((category: Category) => ({
+          id: category.id,
+          name: category.category,
+        }));
+        setCategoryName(category);
+      } else {
+        const categoriesDataArr = Array.isArray(categoriesData)
+          ? categoriesData
+          : categoriesData.data || [];
+        setCategories(categoriesDataArr);
+
+        const totalItems = categoriesDataArr.length;
+        const totalPages = Math.ceil(totalItems / limit);
+        setCategoryPagination({
+          totalItems,
+          totalPages,
+          currentPage: page,
+          itemsPerPage: limit,
+        });
+
+        const category = categoriesDataArr.map((category: Category) => ({
+          id: category.id,
+          name: category.category,
+        }));
+        setCategoryName(category);
+      }
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -70,11 +118,33 @@ export default function MasterPage() {
     }
   };
 
-  const fetchDescriptionData = async () => {
+  const fetchDescriptionData = async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
-      const descriptionsData = await fetchDescriptions();
-      setDescriptions(descriptionsData);
+      const descriptionsData = await fetchDescriptions(page, limit);
+      if (descriptionsData.data && descriptionsData.meta) {
+        setDescriptions(descriptionsData.data);
+        setDescriptionPagination({
+          totalItems: descriptionsData.meta.totalItems,
+          totalPages: descriptionsData.meta.totalPages,
+          currentPage: descriptionsData.meta.page,
+          itemsPerPage: descriptionsData.meta.limit,
+        });
+      } else {
+        const descriptionsDataArr = Array.isArray(descriptionsData)
+          ? descriptionsData
+          : descriptionsData.data || [];
+        setDescriptions(descriptionsDataArr);
+
+        const totalItems = descriptionsDataArr.length;
+        const totalPages = Math.ceil(totalItems / limit);
+        setDescriptionPagination({
+          totalItems,
+          totalPages,
+          currentPage: page,
+          itemsPerPage: limit,
+        })
+      }
     } catch (error) {
       console.error("Error fetching descriptions:", error);
     } finally {
@@ -147,7 +217,6 @@ export default function MasterPage() {
     setIsConfirmationOpen(true);
   };
 
-  // Define columns for Category table
   const categoryColumns: Column<Category>[] = [
     {
       header: "No",
@@ -203,17 +272,14 @@ export default function MasterPage() {
     {
       header: "Name",
       accessor: "object",
-      // render: (value) => value
     },
     {
       header: "Category",
       accessor: "id_category",
-      // render: (value) => value
     },
     {
       header: "Created Date",
       accessor: "createdAt",
-      // render: (value) => value
     },
     {
       header: "Action",
@@ -320,6 +386,17 @@ export default function MasterPage() {
     }
   };
 
+  const handleCategoryPageChange = (page: number) => {
+    setCategoryPagination(prev => ({ ...prev, currentPage: page }));
+    fetchCategoriesData(page, categoryPagination.itemsPerPage);
+  };
+
+  const handleDescriptionPageChange = (page: number) => {
+    setDescriptionPagination(prev => ({ ...prev, currentPage: page }));
+    fetchDescriptionData(page, descriptionPagination.itemsPerPage);
+  };
+
+
   const resetFormState = () => {
     setNewCategoryName({
       id: null,
@@ -395,6 +472,12 @@ export default function MasterPage() {
                   columns={categoryColumns}
                   data={categories}
                   className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                  showPagination={true}
+                  currentPage={categoryPagination.currentPage}
+                  totalPages={categoryPagination.totalPages}
+                  onPageChange={handleCategoryPageChange}
+                  itemsPerPage={categoryPagination.itemsPerPage}
+                  totalItems={categoryPagination.totalItems}
                 />
               )}
             </>
@@ -403,6 +486,12 @@ export default function MasterPage() {
               columns={descriptionColumns}
               data={descriptions}
               className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+              showPagination={true}
+              currentPage={descriptionPagination.currentPage}
+              totalPages={descriptionPagination.totalPages}
+              onPageChange={handleDescriptionPageChange}
+              itemsPerPage={descriptionPagination.itemsPerPage}
+              totalItems={descriptionPagination.totalItems}
             />
           )}
         </div>

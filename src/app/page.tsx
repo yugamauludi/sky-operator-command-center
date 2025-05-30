@@ -5,7 +5,6 @@ import { useSocket } from "@/hooks/useSocket";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 
-// Import ApexCharts secara dynamic karena ini adalah component client-side
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
@@ -27,7 +26,7 @@ interface CustomerService {
 
 interface MonthlyComplaintData {
   month: string;
-  date: string; // ISO date string
+  date: string;
   complaints: number;
 }
 
@@ -40,7 +39,6 @@ export default function Dashboard() {
   const [totalResolved, setTotalResolved] = useState(0);
   const [isPanduanVisible, setIsPanduanVisible] = useState(true);
 
-  // Inisialisasi audio setelah komponen dimount
   useEffect(() => {
     if (typeof window !== "undefined") {
       setAudio(new Audio("/sound/sound-effect-old-phone-191761.mp3"));
@@ -48,7 +46,6 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    // Calculate totals
     const open = helpRequests.filter((req) => req.status === "open").length;
     const inProgress = helpRequests.filter(
       (req) => req.status === "in_progress"
@@ -65,8 +62,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (!socket) return;
 
-    // Handle help request events
-    // Handle help request events
     const handleHelpRequest = (data: HelpRequest) => {
       audio?.play();
 
@@ -77,10 +72,8 @@ export default function Dashboard() {
       setHelpRequests((prev) => [data, ...prev]);
     };
 
-    // Set up event listeners
     socket.on("help_request", handleHelpRequest);
 
-    // Cleanup event listeners
     return () => {
       socket.off("help_request", handleHelpRequest);
     };
@@ -102,7 +95,6 @@ export default function Dashboard() {
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fungsi untuk memfilter permintaan bantuan
   const filteredRequests = helpRequests.filter((request) => {
     const matchesStatus =
       filterStatus === "all" || request.status === filterStatus;
@@ -119,7 +111,6 @@ export default function Dashboard() {
     }
   };
 
-  // Data dummy untuk customer service
   const [activeCS] = useState<CustomerService[]>([
     { id: "1", name: "John Doe", status: "active", handledRequests: 15 },
     { id: "2", name: "Jane Smith", status: "busy", handledRequests: 12 },
@@ -127,7 +118,6 @@ export default function Dashboard() {
     { id: "4", name: "Sarah Wilson", status: "offline", handledRequests: 5 },
   ]);
 
-  // Data dummy untuk chart komplain per kategori
   const categoryComplaintOptions: ApexOptions = {
     chart: {
       type: "pie" as ApexChart["type"],
@@ -235,13 +225,11 @@ export default function Dashboard() {
   const fetchMonthlyComplaintData = async () => {
     setIsLoadingMonthlyData(true);
     try {
-      // Replace with your actual API endpoint
       const response = await fetch("/api/complaints/monthly");
       const data: MonthlyComplaintData[] = await response.json();
       setMonthlyComplaintData(data);
     } catch (error) {
       console.error("Error fetching monthly complaint data:", error);
-      // Fallback to dummy data if API fails
       setMonthlyComplaintData([
         { month: "Jan 2024", date: "2024-01-01", complaints: 125 },
         { month: "Feb 2024", date: "2024-02-01", complaints: 140 },
@@ -255,12 +243,10 @@ export default function Dashboard() {
     }
   };
 
-  // Add useEffect to fetch data on component mount
   useEffect(() => {
     fetchMonthlyComplaintData();
   }, []);
 
-  // Transform data for ApexCharts
   const chartSeries = [
     {
       name: "Komplain",
@@ -581,7 +567,6 @@ export default function Dashboard() {
                   }}
                   series={categoryComplaintSeries}
                   type="pie"
-                  // height={200}
                 />
               </div>
 
