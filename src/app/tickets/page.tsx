@@ -15,8 +15,7 @@ interface Ticket {
 }
 
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  setTickets([
+  const [tickets,] = useState<Ticket[]>([
     {
       no: 1,
       noTicket: "TCK-001",
