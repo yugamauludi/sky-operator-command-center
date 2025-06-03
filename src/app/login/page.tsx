@@ -1,35 +1,53 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState } from "react";
+import Image from "next/image";
+import { LoginAuth } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 import { useRouter } from 'next/navigation';
-import { AuthService } from '@/services/auth.service';
+// import { AuthService } from '@/services/auth.service';
 
 export default function Login() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+
+  //   try {
+  //     const response = await AuthService.login({
+  //       identifier: formData.username,
+  //       password: formData.password
+  //     });
+
+  //     if (response.data.token) {
+  //       localStorage.setItem('token', response.data.token);
+  //       router.push('/dashboard');
+  //     }
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   } catch (error: any) {
+  //     console.error('Login error:', error.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handleSubmit = async () => {
     try {
-      const response = await AuthService.login({
+      await LoginAuth({
         identifier: formData.username,
-        password: formData.password
+        password: formData.password,
+        remember: true,
       });
-      
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        router.push('/dashboard');
-      }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error('Login error:', error.message);
+      router.push('/');
+      toast.success("Berhasil Login!");
+    } catch (error) {
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +55,10 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-      <div id='card-login' className="max-w-md w-full space-y-8 p-8 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
+      <div
+        id="card-login"
+        className="max-w-md w-full space-y-8 p-8 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg"
+      >
         <div className="text-center">
           <Image
             src="/images/logo.png"
@@ -53,8 +74,8 @@ export default function Login() {
             Masuk ke Dashboard OCC
           </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+        <div className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="sr-only">
@@ -68,7 +89,9 @@ export default function Login() {
                 className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Username"
                 value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
               />
             </div>
             <div>
@@ -83,7 +106,9 @@ export default function Login() {
                 className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
               />
             </div>
           </div>
@@ -92,12 +117,13 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
+              onClick={handleSubmit}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
             >
-              {isLoading ? 'Memproses...' : 'Masuk'}
+              {isLoading ? "Memproses..." : "Masuk"}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

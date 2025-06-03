@@ -23,6 +23,7 @@ interface TableProps<T> {
   itemsPerPage?: number;
   totalItems?: number;
   showPagination?: boolean;
+  onItemsPerPageChange?: (itemsPerPage: number) => void;
 }
 
 export default function CommonTable<T>({
@@ -35,6 +36,7 @@ export default function CommonTable<T>({
   itemsPerPage,
   totalItems,
   showPagination = false,
+  onItemsPerPageChange,
 }: TableProps<T>) {
   const renderPagination = () => {
     if (!showPagination || !currentPage || !totalPages || !onPageChange) {
@@ -89,15 +91,33 @@ export default function CommonTable<T>({
 
         {/* Desktop Layout */}
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-          <div>
+          <div className="flex items-center gap-4">
             <p className="text-sm text-gray-700 dark:text-gray-300">
               Showing <span className="font-medium">{startItem}</span> to{" "}
               <span className="font-medium">{endItem}</span> of{" "}
               <span className="font-medium">{totalItems || data.length}</span>{" "}
               results
             </p>
+            {onItemsPerPageChange && (
+              <div className="flex items-center gap-2">
+                <label htmlFor="itemsPerPage" className="text-sm text-gray-700 dark:text-gray-300">
+                  Items per page:
+                </label>
+                <select
+                  id="itemsPerPage"
+                  value={itemsPerPage}
+                  onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                  className="block w-20 rounded-md border-0 py-1.5 pl-3 pr-2 text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800"
+                >
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            )}
           </div>
-
           <div>
             <nav
               className="isolate inline-flex -space-x-px rounded-md shadow-sm"

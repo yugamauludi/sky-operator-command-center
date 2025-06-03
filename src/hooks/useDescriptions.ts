@@ -30,10 +30,10 @@ interface DescriptionDetailResponse {
 export const fetchDescriptions = async (page = 1, limit = 5) => {
     try {
         const response = await fetch(`/api/description/get-all?page=${page}&limit=${limit}`);
-
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-        }
+        
+        // if (!response.ok) {
+        //     throw new Error(`Error: ${response.status}`);
+        // }
 
         const data: DescriptionResponse = await response.json();
 

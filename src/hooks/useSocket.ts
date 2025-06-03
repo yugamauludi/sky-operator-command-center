@@ -1,18 +1,12 @@
 import { useEffect, useRef } from 'react';
 import io, { Socket } from 'socket.io-client';
 
-export const useSocket = () => {
+export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    // Inisialisasi socket connection
-    socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
-      auth: {
-        token: localStorage.getItem('token')
-      }
-    });
+    socketRef.current = io(process.env.NEXT_PUBLIC_API_BASE_URL);
 
-    // Cleanup pada unmount
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -21,4 +15,4 @@ export const useSocket = () => {
   }, []);
 
   return socketRef.current;
-};
+}

@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
+import { endCall } from "@/hooks/useIOT";
+import { GateStatusUpdate } from "@/types/gate";
+import DynamicInputModal from "@/components/DynamicInputModal";
+import { toast } from "react-toastify";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -17,12 +21,12 @@ interface HelpRequest {
   createdAt: string;
 }
 
-interface CustomerService {
-  id: string;
-  name: string;
-  status: "active" | "busy" | "offline";
-  handledRequests: number;
-}
+// interface CustomerService {
+//   id: string;
+//   name: string;
+//   status: "active" | "busy" | "offline";
+//   handledRequests: number;
+// }
 
 interface MonthlyComplaintData {
   month: string;
@@ -30,14 +34,109 @@ interface MonthlyComplaintData {
   complaints: number;
 }
 
+// interface AdminData {
+//   id: string;
+//   name: string;
+//   agentNumber: string;
+//   status: "active" | "busy" | "offline";
+// }
+
 export default function Dashboard() {
   const socket = useSocket();
-  const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [socketId, setSocketId] = useState<undefined | null | string | number>(
+    "-"
+  );
+  const [connectionStatus, setConnectionStatus] = useState("Connecting...");
+  const [activeCall, setActiveCall] = useState<GateStatusUpdate | null>(null);
+  const [userNumber, setUserNumber] = useState<number | null>(null);
+  const [showSetupModal, setShowSetupModal] = useState(true);
+  const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
   const [totalOpen, setTotalOpen] = useState(0);
   const [totalInProgress, setTotalInProgress] = useState(0);
   const [totalResolved, setTotalResolved] = useState(0);
-  const [isPanduanVisible, setIsPanduanVisible] = useState(true);
+
+  // const [showSetupModal, setShowSetupModal] = useState(true);
+
+  // const [adminData, setAdminData] = useState<AdminData>({
+  //   id: "1",
+  //   name: "John Doe", // Akan diambil dari data login
+  //   agentNumber: "",
+  //   status: "active",
+  // });
+
+  const handleUserNumberSubmit = (values: Record<string, string>) => {
+    const userNum = parseInt(values.userNumber);
+    if (![1, 2, 3].includes(userNum)) {
+      alert("User number harus 1, 2, atau 3");
+      return;
+    }
+    setUserNumber(userNum);
+    setShowSetupModal(false);
+
+    // Register user number ke socket
+    if (socket) {
+      socket.emit("register", userNum);
+    }
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("connect", () => {
+      setConnectionStatus("Connected");
+      setSocketId(socket.id);
+
+      // Re-register jika sudah ada user number
+      if (userNumber) {
+        socket.emit("register", userNumber);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      setConnectionStatus("Disconnected");
+      setActiveCall(null);
+    });
+
+    socket.on("gate-status-update", (data: GateStatusUpdate) => {
+      console.log("📡 Gate Update:", data);
+      setActiveCall(data);
+
+      // Play notification
+      audio?.play();
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("gate-status-update");
+    };
+  }, [socket, userNumber, audio]);
+
+  const handleEndCall = async () => {
+    if (!socket || !activeCall) return;
+
+    try {
+      console.log(socket, "<<<<socket");
+      
+      const response = await endCall(socket.id)
+      console.log("✅ Call ended response:", response);
+      toast.success(response.message);
+      setActiveCall(null);
+    } catch (err) {
+      console.error("❌ Error ending call:", err);
+    }
+  };
+
+  // Setup audio pada mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAudio(new Audio("/sound/sound-effect-old-phone-191761.mp3"));
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -104,19 +203,19 @@ export default function Dashboard() {
     return matchesStatus && matchesSearch;
   });
 
-  const testNotificationSound = () => {
-    audio?.play();
-    if (navigator.vibrate) {
-      navigator.vibrate([200, 100, 200]);
-    }
-  };
+  // const testNotificationSound = () => {
+  //   audio?.play();
+  //   if (navigator.vibrate) {
+  //     navigator.vibrate([200, 100, 200]);
+  //   }
+  // };
 
-  const [activeCS] = useState<CustomerService[]>([
-    { id: "1", name: "John Doe", status: "active", handledRequests: 15 },
-    { id: "2", name: "Jane Smith", status: "busy", handledRequests: 12 },
-    { id: "3", name: "Mike Johnson", status: "active", handledRequests: 8 },
-    { id: "4", name: "Sarah Wilson", status: "offline", handledRequests: 5 },
-  ]);
+  // const [activeCS] = useState<CustomerService[]>([
+  //   { id: "1", name: "John Doe", status: "active", handledRequests: 15 },
+  //   { id: "2", name: "Jane Smith", status: "busy", handledRequests: 12 },
+  //   { id: "3", name: "Mike Johnson", status: "active", handledRequests: 8 },
+  //   { id: "4", name: "Sarah Wilson", status: "offline", handledRequests: 5 },
+  // ]);
 
   const categoryComplaintOptions: ApexOptions = {
     chart: {
@@ -257,6 +356,14 @@ export default function Dashboard() {
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [activeAdmins] = useState<any>({
+    id: "1",
+    name: "John Doe",
+    agentNumber: "AGT001",
+    status: "active",
+  });
+
   const categoryComplaintSeries = [30, 25, 20, 15];
 
   return (
@@ -265,7 +372,7 @@ export default function Dashboard() {
         <div className="">
           <div className="container mx-auto px-6 py-8">
             {/* Panduan Cepat */}
-            <div className="bg-white dark:bg-[#222B36] p-4 rounded-lg mb-8">
+            {/* <div className="bg-white dark:bg-[#222B36] p-4 rounded-lg mb-8">
               <div
                 className="flex justify-between items-center cursor-pointer"
                 onClick={() => setIsPanduanVisible(!isPanduanVisible)}
@@ -296,7 +403,7 @@ export default function Dashboard() {
                   </li>
                 </ul>
               )}
-            </div>
+            </div> */}
 
             {/* Filter dan Pencarian */}
             <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 mb-6">
@@ -523,7 +630,7 @@ export default function Dashboard() {
                 </div>
 
                 {isLoadingMonthlyData ? (
-                  <div className="flex items-center justify-center h-[350px]">
+                  <div className="flex items-center justify-center h-[250px]">
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
                       <p className="text-sm text-gray-500">Memuat data...</p>
@@ -544,71 +651,70 @@ export default function Dashboard() {
                     }}
                     series={chartSeries}
                     type="line"
-                    height={350}
+                    height={250} // Kurangi tinggi chart
                   />
                 )}
               </div>
 
-              {/* Kolom Kanan: Pie Chart dan Customer Service */}
-              {/* <div className="space-y-6"> */}
-              {/* Pie Chart */}
-              <div className="bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 p-4 rounded-lg">
-                <ReactApexChart
-                  options={{
-                    ...categoryComplaintOptions,
-                    chart: {
-                      ...categoryComplaintOptions.chart,
-                      background: "transparent",
-                    },
-                    theme: {
-                      mode: "dark",
-                      palette: "palette1",
-                    },
-                  }}
-                  series={categoryComplaintSeries}
-                  type="pie"
-                />
-              </div>
+              {/* Kolom Kanan: Pie Chart dan Admin Section */}
+              <div className="space-y-6">
+                {/* Pie Chart */}
+                <div className="bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 p-4 rounded-lg">
+                  <ReactApexChart
+                    options={{
+                      ...categoryComplaintOptions,
+                      chart: {
+                        ...categoryComplaintOptions.chart,
+                        background: "transparent",
+                      },
+                      theme: {
+                        mode: "dark",
+                        palette: "palette1",
+                      },
+                    }}
+                    series={categoryComplaintSeries}
+                    type="pie"
+                    height={200} // Sesuaikan tinggi pie chart
+                  />
+                </div>
 
-              {/* Customer Service Section */}
-              {/* <div className="bg-white dark:bg-[#222B36] rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-4">Customer Service Aktif</h3>
-                  <div className="grid grid-cols-2 gap-4 max-h-48 overflow-y-auto">
-                    {activeCS.map((cs) => (
-                      <div
-                        key={cs.id}
-                        className="bg-gray-50 dark:bg-[#2A3441] p-3 rounded-lg"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium">{cs.name}</span>
-                          <span
-                            className={`px-2 py-1 text-xs rounded ${
-                              cs.status === "active"
-                                ? "bg-green-500/20 text-green-400"
-                                : cs.status === "busy"
-                                ? "bg-yellow-500/20 text-yellow-400"
-                                : "bg-gray-500/20 text-gray-400"
-                            }`}
-                          >
-                            {cs.status === "active"
-                              ? "Aktif"
-                              : cs.status === "busy"
-                              ? "Sibuk"
-                              : "Offline"}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Total Ditangani: {cs.handledRequests}
-                        </div>
-                      </div>
-                    ))}
+                {/* Admin Section */}
+                <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
+                  <h3 className="text-xl font-semibold mb-6">
+                    Informasi Admin
+                  </h3>
+                  {/* <div className="bg-gray-50 dark:bg-[#2A3441] p-6 rounded-lg"> */}
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-lg font-medium">{activeAdmins.name}</h4>
+                    <span
+                      className={`px-3 py-1.5 text-sm font-medium rounded-full ${
+                        activeAdmins.status === "active"
+                          ? "bg-green-500/20 text-green-400"
+                          : activeAdmins.status === "busy"
+                          ? "bg-yellow-500/20 text-yellow-400"
+                          : "bg-gray-500/20 text-gray-400"
+                      }`}
+                    >
+                      {activeAdmins.status === "active"
+                        ? "Aktif"
+                        : activeAdmins.status === "busy"
+                        ? "Sibuk"
+                        : "Offline"}
+                    </span>
                   </div>
-                </div> */}
-              {/* </div> */}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 mt-2">
+                    Nomor Agent
+                  </p>
+                  <p className="text-lg font-medium">
+                    {activeAdmins.agentNumber}
+                  </p>
+                  {/* </div> */}
+                </div>
+              </div>
             </div>
 
             {/* Active Customer Service Section */}
-            <div className="bg-white dark:bg-[#222B36] p-6 rounded-lg">
+            {/* <div className="bg-white dark:bg-[#222B36] p-6 rounded-lg">
               <h2 className="text-xl font-semibold mb-6">
                 Customer Service Aktif
               </h2>
@@ -642,10 +748,116 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
+        {activeCall && (
+          <div className="fixed bottom-4 right-4 bg-white dark:bg-[#222B36] p-4 rounded-lg shadow-lg w-80">
+            <p className="text-lg font-semibold mb-2">📞 Incoming Call!</p>
+            <p className="text-sm mb-2">Gate ID: {activeCall.gateId}</p>
+            <p className="text-sm mb-2">Status: {activeCall.gateStatus}</p>
+            {activeCall.location && (
+              <p className="text-sm mb-4">
+                Location: {activeCall.location.Name}
+              </p>
+            )}
+            <button
+              onClick={handleEndCall}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md transition-colors"
+            >
+              End Call
+            </button>
+          </div>
+        )}
       </div>
+      {showSetupModal && (
+        <DynamicInputModal
+          isOpen={showSetupModal}
+          onClose={() => {
+            setShowSetupModal(false);
+          }}
+          onSubmit={handleUserNumberSubmit}
+          title="Setup Agent Number"
+          fields={[
+            {
+              id: "userNumber",
+              label: "User Number (1-3)",
+              type: "number",
+              value: "",
+
+              placeholder: "Enter number between 1-3",
+            },
+          ]}
+          confirmText="Simpan"
+          cancelText="Batal"
+        />
+      )}
+      {!showSetupModal && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 bg-gray-800 rounded-lg">
+              <p className="text-gray-400">Status</p>
+              <p
+                className={`font-bold ${
+                  connectionStatus === "Connected"
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {connectionStatus}
+              </p>
+            </div>
+            <div className="p-4 bg-gray-800 rounded-lg">
+              <p className="text-gray-400">Socket ID</p>
+              <p className="font-mono">{socketId}</p>
+            </div>
+            <div className="p-4 bg-gray-800 rounded-lg">
+              <p className="text-gray-400">User Number</p>
+              <p className="font-bold">{userNumber}</p>
+            </div>
+          </div>
+
+          {activeCall && (
+            <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-xl font-bold mb-2">📞 Incoming Call!</p>
+                  <p className="text-gray-300">Gate ID: {activeCall.gateId}</p>
+                  <p className="text-gray-300">
+                    Status: {activeCall.gateStatus}
+                  </p>
+                  <p className="text-gray-300">
+                    Location: {activeCall.location?.Name}
+                  </p>
+                </div>
+                <button
+                  onClick={handleEndCall}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  End Call
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {/* <DynamicInputModal
+        isOpen={showAgentNumberModal}
+        onClose={() => setShowAgentNumberModal(false)}
+        onSubmit={handleAgentNumberSubmit}
+        title="Masukkan Nomor Agent"
+        fields={[
+          {
+            id: "agentNumber",
+            label: "Nomor Agent",
+            type: "text",
+            value: "",
+            placeholder: "Contoh: AGT001",
+          },
+        ]}
+        confirmText="Simpan"
+        cancelText="Batal"
+      /> */}
     </>
   );
 }

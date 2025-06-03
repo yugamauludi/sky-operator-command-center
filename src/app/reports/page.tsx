@@ -39,7 +39,7 @@ export default function ReportsPage() {
     itemsPerPage: 5,
   });
 
-  const fetchIssuesData = async (page = 1, limit = 100) => {
+  const fetchIssuesData = async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
       const issuesData = await fetchIssues(page, limit);

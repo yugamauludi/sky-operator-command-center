@@ -143,7 +143,7 @@ export default function MasterPage() {
           totalPages,
           currentPage: page,
           itemsPerPage: limit,
-        })
+        });
       }
     } catch (error) {
       console.error("Error fetching descriptions:", error);
@@ -387,15 +387,14 @@ export default function MasterPage() {
   };
 
   const handleCategoryPageChange = (page: number) => {
-    setCategoryPagination(prev => ({ ...prev, currentPage: page }));
+    setCategoryPagination((prev) => ({ ...prev, currentPage: page }));
     fetchCategoriesData(page, categoryPagination.itemsPerPage);
   };
 
   const handleDescriptionPageChange = (page: number) => {
-    setDescriptionPagination(prev => ({ ...prev, currentPage: page }));
+    setDescriptionPagination((prev) => ({ ...prev, currentPage: page }));
     fetchDescriptionData(page, descriptionPagination.itemsPerPage);
   };
-
 
   const resetFormState = () => {
     setNewCategoryName({
@@ -408,6 +407,24 @@ export default function MasterPage() {
     });
     setDeleteId(null);
     setIsEditing(false);
+  };
+
+  const handleItemsCategoryPerPageChange = (newItemsPerPage: number) => {
+    setCategoryPagination((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
+    }));
+    fetchCategoriesData(1, newItemsPerPage);
+  };
+
+  const handleItemsDescriptionPerPageChange = (newItemsPerPage: number) => {
+    setDescriptionPagination((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
+    }));
+    fetchDescriptionData(1, newItemsPerPage);
   };
 
   return (
@@ -463,36 +480,58 @@ export default function MasterPage() {
             <>
               {isDataLoading ? (
                 <div className="text-center py-4">
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <div className="three-body">
+                    <div className="three-body__dot"></div>
+                    <div className="three-body__dot"></div>
+                    <div className="three-body__dot"></div>
+                  </div>{" "}
+                  <p className="text-gray-600 dark:text-gray-300 blink-smooth">
                     Memuat data kategori...
                   </p>
                 </div>
               ) : (
                 <CommonTable
-                  columns={categoryColumns}
                   data={categories}
-                  className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                  columns={categoryColumns}
                   showPagination={true}
                   currentPage={categoryPagination.currentPage}
                   totalPages={categoryPagination.totalPages}
                   onPageChange={handleCategoryPageChange}
                   itemsPerPage={categoryPagination.itemsPerPage}
                   totalItems={categoryPagination.totalItems}
+                  onItemsPerPageChange={handleItemsCategoryPerPageChange}
+                  className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
                 />
               )}
             </>
           ) : (
-            <CommonTable
-              columns={descriptionColumns}
-              data={descriptions}
-              className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
-              showPagination={true}
-              currentPage={descriptionPagination.currentPage}
-              totalPages={descriptionPagination.totalPages}
-              onPageChange={handleDescriptionPageChange}
-              itemsPerPage={descriptionPagination.itemsPerPage}
-              totalItems={descriptionPagination.totalItems}
-            />
+            <>
+              {isDataLoading ? (
+                <div className="text-center py-4">
+                  <div className="three-body">
+                    <div className="three-body__dot"></div>
+                    <div className="three-body__dot"></div>
+                    <div className="three-body__dot"></div>
+                  </div>{" "}
+                  <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                    Memuat data location...
+                  </p>
+                </div>
+              ) : (
+                <CommonTable
+                  columns={descriptionColumns}
+                  data={descriptions}
+                  showPagination={true}
+                  currentPage={descriptionPagination.currentPage}
+                  totalPages={descriptionPagination.totalPages}
+                  onPageChange={handleDescriptionPageChange}
+                  itemsPerPage={descriptionPagination.itemsPerPage}
+                  totalItems={descriptionPagination.totalItems}
+                  onItemsPerPageChange={handleItemsDescriptionPerPageChange}
+                  className="text-gray-700 dark:text-grasy-300 border-b border-gray-200 dark:border-gray-700"
+                />
+              )}
+            </>
           )}
         </div>
       </div>
