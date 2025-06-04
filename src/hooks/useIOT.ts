@@ -24,16 +24,16 @@ export const closeGate = async (gateId: string | number) => {
     }
 };
 
-export const pingArduino = async (data: any) => {
+export const pingArduino = async (dataId: number) => {
     try {
-        const response = await fetch(`/api/location/close-gate/${data.id.toString()}`, {
+        const response = await fetch(`/api/iot/ping-status/${dataId.toString()}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                arduino: data?.dataArduino
+                arduino: 1
             })
         });
 

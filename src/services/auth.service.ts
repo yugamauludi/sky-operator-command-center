@@ -53,7 +53,8 @@ export const AuthService = {
   logout: async (): Promise<ApiResponse<void>> => {
     try {
       const response = await apiClient.post('/logout');
-      localStorage.removeItem('token');
+      localStorage.removeItem('id');
+      localStorage.removeItem('admin_user_number');
       return response.data;
     } catch (error: any) {
       throw error.response?.data || error;

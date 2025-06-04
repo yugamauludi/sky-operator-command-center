@@ -88,6 +88,15 @@ export default function ReportsPage() {
     fetchIssuesData(page, issuesPagination.itemsPerPage);
   };
 
+  const handleItemsReportPerPageChange = (newItemsPerPage: number) => {
+    setIssuesPagination((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
+    }));
+    fetchIssuesData(1, newItemsPerPage);
+  };
+
   useEffect(() => {
     fetchIssuesData();
   }, []);
@@ -202,6 +211,7 @@ export default function ReportsPage() {
             onPageChange={handleIssuesPageChange}
             itemsPerPage={issuesPagination.itemsPerPage}
             totalItems={issuesPagination.totalItems}
+            onItemsPerPageChange={handleItemsReportPerPageChange}
           />
         )}
       </div>

@@ -8,8 +8,9 @@ import {
   GateByLocation,
   openGate,
 } from "@/hooks/useLocation";
-import { toast } from "react-toastify";
-import { closeGate } from "@/hooks/useIOT";
+import { toast, ToastContainer } from "react-toastify";
+import { closeGate, pingArduino } from "@/hooks/useIOT";
+import { ConfirmationModal } from "@/components/ConfirmationModalV2";
 
 interface PaginationInfo {
   totalItems: number;
@@ -36,6 +37,11 @@ function LocationDetailContent() {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actioningGateId, setActioningGateId] = useState<number | null>(null);
 
+  // Modal state
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedGate, setSelectedGate] = useState<GateByLocation | null>(null);
+  const [actionType, setActionType] = useState<"open" | "close">("open");
+
   const fetchGatesData = async () => {
     if (!locationId) return;
 
@@ -60,33 +66,50 @@ function LocationDetailContent() {
     }
   };
 
-  const handleGateAction = async (gate: GateByLocation) => {
+  const handleGateActionClick = (gate: GateByLocation) => {
+    setSelectedGate(gate);
+    setActionType(gate.statusGate === 0 ? "close" : "open");
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!selectedGate) return;
+
     try {
       setIsActionLoading(true);
-      setActioningGateId(gate.id);
+      setActioningGateId(selectedGate.id);
 
-      if (gate.statusGate === 0) {
-        console.log(gate, "<<<gate");
-        
+      if (selectedGate.statusGate === 0) {
         // Gate is open, so close it
-        await closeGate(gate.id);
-        toast.success(`Gate ${gate.gate} berhasil ditutup`);
+        await closeGate(selectedGate.id);
+        toast.success(`Gate ${selectedGate.gate} berhasil ditutup`);
       } else {
         // Gate is closed, so open it
-        console.log(gate, "<<<gate");
-
-        await openGate(gate.id);
-        toast.success(`Gate ${gate.gate} berhasil dibuka`);
+        console.log(selectedGate, "<<<gate");
+        await pingArduino(selectedGate.id);
+        await openGate(selectedGate.id);
+        toast.success(`Gate ${selectedGate.gate} berhasil dibuka`);
       }
 
       // Refresh data after action
       await fetchGatesData();
+
+      // Close modal
+      setShowConfirmModal(false);
+      setSelectedGate(null);
     } catch (error) {
       console.error("Error performing gate action:", error);
       toast.error("Gagal melakukan aksi pada gate");
     } finally {
       setIsActionLoading(false);
       setActioningGateId(null);
+    }
+  };
+
+  const handleCancelAction = () => {
+    if (!isActionLoading) {
+      setShowConfirmModal(false);
+      setSelectedGate(null);
     }
   };
 
@@ -132,8 +155,8 @@ function LocationDetailContent() {
 
     return (
       <button
-        onClick={() => handleGateAction(gate)}
-        disabled={isLoading}
+        onClick={() => handleGateActionClick(gate)}
+        disabled={isLoading || showConfirmModal}
         className={`${
           isOpen
             ? "bg-red-500 hover:bg-red-600"
@@ -211,18 +234,18 @@ function LocationDetailContent() {
       accessor: "statusGate",
       render: (value) => getStatusBadge(value as number),
     },
-    {
-      header: "Created At",
-      accessor: "createdAt",
-      render: (value) =>
-        new Date(value as string).toLocaleDateString("id-ID", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-    },
+    // {
+    //   header: "Created At",
+    //   accessor: "createdAt",
+    //   render: (value) =>
+    //     new Date(value as string).toLocaleDateString("id-ID", {
+    //       year: "numeric",
+    //       month: "short",
+    //       day: "numeric",
+    //       hour: "2-digit",
+    //       minute: "2-digit",
+    //     }),
+    // },
     {
       header: "Updated At",
       accessor: "updatedAt",
@@ -242,56 +265,38 @@ function LocationDetailContent() {
     },
   ];
 
-  return (
-    <div className="flex h-screen">
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 overflow-x-hidden overflow-y-auto">
-          <div className="container mx-auto px-6 py-8">
-            <div className="flex items-center mb-6">
-              <button
-                onClick={handleBack}
-                className="mr-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold">
-                  Detail Lokasi: {decodeURIComponent(locationName || "")}
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Daftar Gate untuk lokasi ini
-                </p>
-              </div>
-            </div>
+  const getModalContent = () => {
+    if (!selectedGate)
+      return { title: "", message: "", confirmText: "", cancelText: "" };
 
-            <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
-              {isDataLoading ? (
-                <div className="text-center py-8">
-                  <div className="three-body">
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
-                    Memuat data gate...
-                  </p>
-                </div>
-              ) : gates.length === 0 ? (
-                <div className="text-center py-8">
+    const isOpen = selectedGate.statusGate === 0;
+
+    return {
+      title: isOpen ? "Tutup Gate" : "Buka Gate",
+      message: `Apakah Anda yakin ingin ${
+        isOpen ? "menutup" : "membuka"
+      } gate "${selectedGate.gate}"?`,
+      confirmText: isOpen ? "Ya, Tutup Gate" : "Ya, Buka Gate",
+      cancelText: "Batal",
+    };
+  };
+
+  const modalContent = getModalContent();
+
+  return (
+    <>
+      <div className="flex h-screen">
+        <ToastContainer />
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto">
+            <div className="container mx-auto px-6 py-8">
+              <div className="flex items-center mb-6">
+                <button
+                  onClick={handleBack}
+                  className="mr-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                >
                   <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
+                    className="w-6 h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -300,31 +305,83 @@ function LocationDetailContent() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                      d="M15 19l-7-7 7-7"
                     />
                   </svg>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Tidak ada gate ditemukan untuk lokasi ini
+                </button>
+                <div>
+                  <h1 className="text-2xl font-bold">
+                    Detail Lokasi: {decodeURIComponent(locationName || "")}
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    Daftar Gate untuk lokasi ini
                   </p>
                 </div>
-              ) : (
-                <CommonTable
-                  data={gates}
-                  columns={columns}
-                  showPagination={true}
-                  currentPage={gatePagination.currentPage}
-                  totalPages={gatePagination.totalPages}
-                  onPageChange={handlePageChange}
-                  itemsPerPage={gatePagination.itemsPerPage}
-                  totalItems={gatePagination.totalItems}
-                  onItemsPerPageChange={handleItemsPerPageChange}
-                />
-              )}
+              </div>
+
+              <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
+                {isDataLoading ? (
+                  <div className="text-center py-8">
+                    <div className="three-body">
+                      <div className="three-body__dot"></div>
+                      <div className="three-body__dot"></div>
+                      <div className="three-body__dot"></div>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 blink-smooth mt-4">
+                      Memuat data gate...
+                    </p>
+                  </div>
+                ) : gates.length === 0 ? (
+                  <div className="text-center py-8">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                      />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Tidak ada gate ditemukan untuk lokasi ini
+                    </p>
+                  </div>
+                ) : (
+                  <CommonTable
+                    data={gates}
+                    columns={columns}
+                    showPagination={true}
+                    currentPage={gatePagination.currentPage}
+                    totalPages={gatePagination.totalPages}
+                    onPageChange={handlePageChange}
+                    itemsPerPage={gatePagination.itemsPerPage}
+                    totalItems={gatePagination.totalItems}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={handleCancelAction}
+        onConfirm={handleConfirmAction}
+        title={modalContent.title}
+        message={modalContent.message}
+        confirmText={modalContent.confirmText}
+        cancelText={modalContent.cancelText}
+        isLoading={isActionLoading}
+        type={actionType}
+      />
+    </>
   );
 }
 
