@@ -1,21 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
+// import { useState } from 'react';
 import Image from 'next/image';
 
 interface HeaderProps {
   notifications: any[];
 }
 
-export default function Header({ notifications }: HeaderProps) {
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+export default function Header({
+  //  notifications
+   }: HeaderProps) {
+  // const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  // const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+  // const toggleDarkMode = () => {
+  //   setIsDarkMode(!isDarkMode);
+  //   document.documentElement.classList.toggle('dark');
+  // };
 
   return (
     <header className="h-16 shadow-sm">
@@ -29,7 +31,7 @@ export default function Header({ notifications }: HeaderProps) {
         <div className="flex items-center align-end space-x-4">
           {/* Notifikasi */}
           <div className="relative">
-            <button
+            {/* <button
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
               className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative"
             >
@@ -39,9 +41,9 @@ export default function Header({ notifications }: HeaderProps) {
                   {notifications.length}
                 </span>
               )}
-            </button>
+            </button> */}
 
-            {isNotificationOpen && (
+            {/* {isNotificationOpen && (
               <div className="absolute right-0 mt-2 w-80 bg-[#222B36] dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-50">
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
@@ -65,18 +67,18 @@ export default function Header({ notifications }: HeaderProps) {
                   )}
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Toggle Dark Mode */}
-          <button
+          {/* <button
             onClick={toggleDarkMode}
             className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
           >
             <span className="text-xl">
               {isDarkMode ? '🌞' : '🌙'}
             </span>
-          </button>
+          </button> */}
 
           {/* Profil */}
           <div className="flex items-center space-x-2">
