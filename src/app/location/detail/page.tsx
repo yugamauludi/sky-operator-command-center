@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
 import {
@@ -18,7 +18,8 @@ interface PaginationInfo {
   itemsPerPage: number;
 }
 
-export default function LocationDetailPage() {
+// Komponen terpisah yang menggunakan useSearchParams
+function LocationDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locationId = searchParams.get("id");
@@ -324,5 +325,32 @@ export default function LocationDetailPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="flex h-screen">
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="container mx-auto px-6 py-8">
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="text-gray-600 mt-4">Memuat halaman...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+// Main component dengan Suspense wrapper
+export default function LocationDetailPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <LocationDetailContent />
+    </Suspense>
   );
 }
