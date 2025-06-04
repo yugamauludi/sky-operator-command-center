@@ -10,10 +10,11 @@ import {
 import { useSocket } from "@/hooks/useSocket";
 import { GateStatusUpdate } from "@/types/gate";
 import { toast } from "react-toastify";
-import { endCall } from "@/hooks/useIOT";
+import { endCall, pingArduino } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
+import { openGate } from "@/hooks/useLocation";
 
 interface SocketContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -137,7 +138,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 // Global Call Popup Component
 export function GlobalCallPopup() {
   const { activeCall, endCallFunction } = useGlobalSocket();
-  const [selectedLocation, ] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDescription, setSelectedDescription] = useState("");
   const [description, setDescription] = useState<Description[]>([]);
@@ -174,20 +174,12 @@ export function GlobalCallPopup() {
   }, [activeCall]);
 
   const handleOpenGate = async () => {
-    if (!activeCall || !selectedLocation || !selectedCategory) return;
+    if (!activeCall || !selectedCategory) return;
 
     setIsOpeningGate(true);
     try {
-      const response = await fetch("/api/open-gate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gateId: activeCall.gateId,
-          location: selectedLocation,
-          category: selectedCategory,
-          description: description,
-        }),
-      });
+      await pingArduino(parseInt(activeCall.gateId))
+      const response = await openGate(activeCall.gateId,);
 
       if (response.ok) {
         toast.success("Gate berhasil dibuka");
@@ -354,7 +346,7 @@ export function GlobalCallPopup() {
         <div className="flex space-x-3">
           <button
             onClick={handleOpenGate}
-            disabled={!selectedLocation || !selectedCategory || isOpeningGate}
+            disabled={!selectedCategory || isOpeningGate}
             className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-md transition-colors"
           >
             {isOpeningGate ? "Opening..." : "Open Gate"}

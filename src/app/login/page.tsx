@@ -44,6 +44,9 @@ export default function Login() {
         password: formData.password,
         remember: true,
       });      
+      // Simpan di cookies
+      // document.cookie = `id=${response.user.id}; path=/;`
+      // Simpan juga di localStorage jika diperlukan
       localStorage.setItem("id", response.user.id);
       router.push("/");
       window.dispatchEvent(new Event('loginSuccess'));

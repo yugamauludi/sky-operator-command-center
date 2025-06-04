@@ -14,7 +14,7 @@ export default function Sidebar() {
     { href: "/location", label: "Lokasi", icon: "📌" },
     { href: "/master", label: "Master", icon: "📁" },
     { href: "/reports", label: "Laporan", icon: "📝" },
-    { href: "/tickets", label: "Tiket", icon: "🎫" },
+    // { href: "/tickets", label: "Tiket", icon: "🎫" },
   ];
 
   const toggleSidebar = () => {

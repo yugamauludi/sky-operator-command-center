@@ -74,3 +74,36 @@ export const fetchIssueDetail = async (id: number) => {
         throw err;
     }
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const addIssue = async (issue: any) => {
+    try {
+        // Dapatkan signature terlebih dahulu
+        // const { timestamp, signature } = await getSignature();
+
+        // const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || '';
+
+        const response = await fetch('/api/issue/create', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                // 'x-timestamp': timestamp,
+                // 'x-signature': signature,
+                // 'Authorization': `Bearer ${token}`
+            },
+            // credentials: "include",
+            body: JSON.stringify(issue)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Gagal menambahkan issue / report');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error adding issue / report:', error);
+        throw error;
+    }
+};

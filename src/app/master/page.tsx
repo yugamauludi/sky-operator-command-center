@@ -538,7 +538,7 @@ export default function MasterPage() {
 
       {/* Modal Add Category/Description */}
       {showAddModal && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center">
+        <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-1050">
           <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">

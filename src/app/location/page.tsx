@@ -34,20 +34,20 @@ export default function LocationPage() {
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+  const [selectedLocation, ] = useState<Location | null>(
     null
   );
   const [isDataLoading, setIsDataLoading] = useState(false);
 
-  const handleDelete = (location: Location) => {
-    setSelectedLocation(location);
-    setIsDeleteModalOpen(true);
-  };
+  // const handleDelete = (location: Location) => {
+  //   setSelectedLocation(location);
+  //   setIsDeleteModalOpen(true);
+  // };
 
-  const handleEdit = (location: Location) => {
-    setSelectedLocation(location);
-    setIsEditModalOpen(true);
-  };
+  // const handleEdit = (location: Location) => {
+  //   setSelectedLocation(location);
+  //   setIsEditModalOpen(true);
+  // };
 
   const handleViewDetail = async (location: Location) => {
     try {
@@ -217,7 +217,7 @@ export default function LocationPage() {
               />
             </svg>
           </button>
-          <button
+          {/* <button
             onClick={() => handleEdit(location)}
             className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
             title="Edit"
@@ -248,7 +248,7 @@ export default function LocationPage() {
                 clipRule="evenodd"
               />
             </svg>
-          </button>
+          </button> */}
         </div>
       ),
     },
