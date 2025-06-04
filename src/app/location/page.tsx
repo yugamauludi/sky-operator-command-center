@@ -372,7 +372,7 @@ export default function LocationPage() {
                     />
                   </svg>
                   <p className="mt-2 text-sm text-gray-500">
-                    Tidak ada gate ditemukan untuk lokasi ini
+                    Tidak ada lokasi ditemukan
                   </p>
                 </div>
               ) : (
