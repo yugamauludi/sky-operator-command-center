@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
 import {
@@ -21,6 +22,7 @@ interface Location {
   region?: string;
   vendor?: string;
 }
+
 interface PaginationInfo {
   totalItems: number;
   totalPages: number;
@@ -29,6 +31,7 @@ interface PaginationInfo {
 }
 
 export default function LocationPage() {
+  const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
@@ -44,6 +47,16 @@ export default function LocationPage() {
   const handleEdit = (location: Location) => {
     setSelectedLocation(location);
     setIsEditModalOpen(true);
+  };
+
+  const handleViewDetail = async (location: Location) => {
+    try {
+      // Navigate to detail page with location id
+      router.push(`/location/detail?id=${location.id}&name=${encodeURIComponent(location.name)}`);
+    } catch (error) {
+      console.error("Error navigating to detail:", error);
+      toast.error("Gagal membuka detail lokasi");
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -88,7 +101,7 @@ export default function LocationPage() {
         const mappedLocation: Location[] = locationsData.data.map(
           (loc, index) => {
             return {
-              id: index + 1,
+              id: loc.id || index + 1, // Use actual ID from API
               name: loc.Name,
               address: loc.Code,
             };
@@ -152,34 +165,10 @@ export default function LocationPage() {
     }
   };
 
-  // const [locationActiveData, setLocationActiveData] = useState<LocationDetail[]>([
-  //   {
-
-  //   },
-  // ]);
-
   const fetchLocationActiveData = async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
       const locationsActiveData = await fetchLocationActive(page, limit);
-      // if (locationsActiveData && locationsActiveData.data && locationsActiveData.meta) {
-      //   const mappedLocationActive: LocationDetail[] = locationsActiveData.data.map(
-      //     (loc, index) => {
-      //       return {
-      //         id: index + 1,
-      //         name: loc.Name,
-      //         address: loc.Code,
-      //       };
-      //     }
-      //   );
-      //   setLocationPagination({
-      //     totalItems: locationsActiveData.meta.totalItems,
-      //     totalPages: locationsActiveData.meta.totalPages,
-      //     currentPage: locationsActiveData.meta.page,
-      //     itemsPerPage: locationsActiveData.meta.limit,
-      //   });
-      //   setLocations(mappedLocationActive);
-      // }
       console.log(locationsActiveData, "<<<<locationsActiveData");
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -208,16 +197,34 @@ export default function LocationPage() {
     },
     { header: "Name", accessor: "name" },
     { header: "Address", accessor: "address" },
-    // { header: "Region", accessor: "region" },
-    // { header: "Vendor", accessor: "vendor" },
     {
       header: "Aksi",
       accessor: "id",
       render: (_: Location[keyof Location], location: Location) => (
         <div className="flex space-x-2">
           <button
+            onClick={() => handleViewDetail(location)}
+            className="text-green-500 hover:text-green-600 transition-colors duration-200"
+            title="Lihat Detail"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path
+                fillRule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          <button
             onClick={() => handleEdit(location)}
             className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
+            title="Edit"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -231,6 +238,7 @@ export default function LocationPage() {
           <button
             onClick={() => handleDelete(location)}
             className="text-red-500 hover:text-red-600 transition-colors duration-200"
+            title="Hapus"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -251,7 +259,6 @@ export default function LocationPage() {
   ];
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  // const [newLocation] = useState<Partial<Location>>({});
 
   const handleAdd = () => {
     setIsAddModalOpen(true);

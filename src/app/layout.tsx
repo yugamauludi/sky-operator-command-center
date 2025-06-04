@@ -14,7 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import { SocketProvider } from '@/contexts/SocketContext';
+import {
+  GlobalCallPopup,
+  SocketProvider,
+  UserNumberSetup,
+} from "@/contexts/SocketContext";
 
 export const metadata: Metadata = {
   title: "Sky Command Center",
@@ -39,7 +43,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SocketProvider>
-          <LayoutWrapper>{children}</LayoutWrapper>
+          <LayoutWrapper>
+            <GlobalCallPopup />
+            <UserNumberSetup />
+            {children}
+          </LayoutWrapper>
         </SocketProvider>
       </body>
     </html>

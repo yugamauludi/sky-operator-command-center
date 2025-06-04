@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { LoginAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 // import { AuthService } from '@/services/auth.service';
 
 export default function Login() {
@@ -39,12 +39,14 @@ export default function Login() {
 
   const handleSubmit = async () => {
     try {
-      await LoginAuth({
+      const response = await LoginAuth({
         identifier: formData.username,
         password: formData.password,
         remember: true,
-      });
-      router.push('/');
+      });      
+      localStorage.setItem("id", response.user.id);
+      router.push("/");
+      window.dispatchEvent(new Event('loginSuccess'));
       toast.success("Berhasil Login!");
     } catch (error) {
       console.error("Login error:", error);

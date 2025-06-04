@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const closeGate = async (gate: any) => {
+export const closeGate = async (gateId: string | number) => {
     try {
-        const response = await fetch(`/api/location/close-gate/${gate.id.toString()}`, {
+        const response = await fetch(`/api/iot/close-gate/${gateId.toString()}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                status: gate?.status
+                status: "CLOSE"
             })
         });
 

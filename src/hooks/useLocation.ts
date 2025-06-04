@@ -172,16 +172,16 @@ export const updateLocation = async (location: any) => {
     }
 };
 
-export const openGate = async (gate: any) => {
+export const openGate = async (gateId: number | string) => {
     try {
-        const response = await fetch(`/api/location/open-gate/${gate.id.toString()}`, {
+        const response = await fetch(`/api/location/open-gate/${gateId.toString()}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                status: gate?.status
+                status: "OPEN"
             })
         });
 

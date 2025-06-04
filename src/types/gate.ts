@@ -7,6 +7,8 @@ export interface GateStatusUpdate {
   gateId: string;
   gateStatus: string;
   location?: Location;
+  photoIn?: string;
+  photoOut?: string;
 }
 
 export interface CallEndResponse {
