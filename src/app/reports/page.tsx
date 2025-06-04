@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
@@ -17,7 +17,8 @@ interface Report {
   category: string;
   description: string;
   solution: string;
-  formatDate: string;  // Keep only the combined format
+  formatDate: string; // Keep only the combined format
+  rawDate: Date; // Add raw date for filtering
 }
 
 interface PaginationInfo {
@@ -50,10 +51,17 @@ export default function ReportsPage() {
     itemsPerPage: 5,
   });
 
-  const fetchIssuesData = async (page = 1, limit = 5) => {
+  // Filter states
+  const [searchDate, setSearchDate] = useState<Date | null>(null);
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchCategory, setSearchCategory] = useState("");
+
+  // Load ALL data for frontend filtering
+  const fetchAllIssuesData = async () => {
     try {
       setIsDataLoading(true);
-      const issuesData = await fetchIssues(page, limit);
+      // Fetch a large number to get all data (adjust based on your needs)
+      const issuesData = await fetchIssues(1, 10000); // or use a separate API endpoint that returns all data
       if (issuesData && issuesData.data && issuesData.meta) {
         const mappedReports: Report[] = issuesData.data.map((issue, index) => {
           const createdDate = new Date(issue.createdAt);
@@ -66,7 +74,7 @@ export default function ReportsPage() {
             minute: "2-digit",
           });
 
-          const formatDate = day + ", " + date + ", " + time + " WIB"
+          const formatDate = day + ", " + date + ", " + time + " WIB";
 
           return {
             no: index + 1,
@@ -77,22 +85,85 @@ export default function ReportsPage() {
             category: issue.category,
             description: issue.description,
             solution: issue.action || "No solution provided",
+            rawDate: createdDate, // Store raw date for filtering
           };
         });
-        setIssuesPagination({
-          totalItems: issuesData.meta.totalItems,
-          totalPages: issuesData.meta.totalPages,
-          currentPage: issuesData.meta.page,
-          itemsPerPage: issuesData.meta.limit,
-        });
         setReports(mappedReports);
+        // Set initial pagination for frontend filtering
+        setIssuesPagination({
+          totalItems: mappedReports.length,
+          totalPages: Math.ceil(mappedReports.length / 5),
+          currentPage: 1,
+          itemsPerPage: 5,
+        });
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching issues:", error);
     } finally {
       setIsDataLoading(false);
     }
   };
+
+  // Filter logic using useMemo for performance
+  const filteredReports = useMemo(() => {
+    return reports.filter((report) => {
+      // Date filter
+      const dateMatch =
+        !searchDate ||
+        report?.rawDate?.toDateString() === searchDate?.toDateString();
+
+      // Location filter (case insensitive)
+      const locationMatch =
+        !searchLocation ||
+        report?.location?.toLowerCase()?.includes(searchLocation?.toLowerCase());
+
+      // Category filter (case insensitive)
+      const categoryMatch =
+        !searchCategory ||
+        report?.category?.toLowerCase()?.includes(searchCategory?.toLowerCase());
+
+      return dateMatch && locationMatch && categoryMatch;
+    });
+  }, [reports, searchDate, searchLocation, searchCategory]);
+
+  // Update pagination info based on filtered data
+  const filteredPagination = useMemo(() => {
+    const totalFilteredItems = filteredReports.length;
+    const totalFilteredPages = Math.ceil(
+      totalFilteredItems / issuesPagination.itemsPerPage
+    );
+    const currentPage = Math.min(
+      issuesPagination.currentPage,
+      totalFilteredPages || 1
+    );
+
+    return {
+      ...issuesPagination,
+      totalItems: totalFilteredItems,
+      totalPages: totalFilteredPages,
+      currentPage: currentPage,
+    };
+  }, [
+    filteredReports,
+    issuesPagination.itemsPerPage,
+    issuesPagination.currentPage,
+  ]);
+
+  // Get paginated filtered data
+  const paginatedFilteredReports = useMemo(() => {
+    const startIndex =
+      (filteredPagination.currentPage - 1) * filteredPagination.itemsPerPage;
+    const endIndex = startIndex + filteredPagination.itemsPerPage;
+
+    return filteredReports.slice(startIndex, endIndex).map((report, index) => ({
+      ...report,
+      no: startIndex + index + 1, // Renumber based on current page
+    }));
+  }, [
+    filteredReports,
+    filteredPagination.currentPage,
+    filteredPagination.itemsPerPage,
+  ]);
 
   const fetchCategoriesData = async () => {
     try {
@@ -114,7 +185,6 @@ export default function ReportsPage() {
 
   const handleIssuesPageChange = (page: number) => {
     setIssuesPagination((prev) => ({ ...prev, currentPage: page }));
-    fetchIssuesData(page, issuesPagination.itemsPerPage);
   };
 
   const handleItemsReportPerPageChange = (newItemsPerPage: number) => {
@@ -123,7 +193,6 @@ export default function ReportsPage() {
       itemsPerPage: newItemsPerPage,
       currentPage: 1,
     }));
-    fetchIssuesData(1, newItemsPerPage);
   };
 
   const handleNewReportSubmit = async (values: Record<string, string>) => {
@@ -142,42 +211,39 @@ export default function ReportsPage() {
 
       console.log("Submitting new report:", newReportData);
 
-      // TODO: Replace with actual API call to create new issue
       await addIssue(newReportData);
 
-      // Refresh data after successful creation
-      await fetchIssuesData(
-        issuesPagination.currentPage,
-        issuesPagination.itemsPerPage
-      );
+      // Refresh all data after successful creation
+      await fetchAllIssuesData();
 
-      // Show success message (you can add a toast notification here)
       console.log("Report created successfully!");
     } catch (error) {
       console.error("Error creating new report:", error);
-      // Handle error (show error message to user)
     } finally {
       setIsDataLoading(false);
     }
   };
 
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchDate(null);
+    setSearchLocation("");
+    setSearchCategory("");
+    setIssuesPagination((prev) => ({ ...prev, currentPage: 1 }));
+  };
+
+  // Check if any filter is active
+  const hasActiveFilters = searchDate || searchLocation || searchCategory;
+
   useEffect(() => {
-    fetchIssuesData();
+    fetchAllIssuesData(); // Load all data once
     fetchCategoriesData();
     fetchDescriptionsData();
   }, []);
 
-  const [searchDate, setSearchDate] = useState<Date | null>(null);
-  const [searchLocation, setSearchLocation] = useState("");
-  const [searchCategory, setSearchCategory] = useState("");
-
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
-    // { header: "Day", accessor: "day" },
     { header: "Date", accessor: "formatDate" },
-    // { header: "Time", accessor: "time" },
-    // { header: "Duration", accessor: "duration" },
-    // { header: "Call", accessor: "call" },
     { header: "Lokasi", accessor: "location" },
     { header: "Kategori", accessor: "category" },
     { header: "Deskripsi", accessor: "description" },
@@ -287,7 +353,8 @@ export default function ReportsPage() {
   ];
 
   const handleExport = () => {
-    console.log("Exporting data...");
+    console.log("Exporting filtered data:", filteredReports);
+    // You can implement CSV export or other export functionality here
   };
 
   return (
@@ -299,7 +366,7 @@ export default function ReportsPage() {
       {/* Filter Section */}
       <div className="flex items-center mb-4 justify-between">
         {/* Bagian kiri: Filter */}
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 items-center">
           <div className="relative z-50">
             <DatePicker
               selected={searchDate}
@@ -307,6 +374,7 @@ export default function ReportsPage() {
               className="px-4 py-2 border rounded-lg pl-10"
               placeholderText="Cari Tanggal"
               dateFormat="yyyy-MM-dd"
+              isClearable
             />
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               📅
@@ -336,6 +404,17 @@ export default function ReportsPage() {
               🔍
             </span>
           </div>
+
+          {/* Clear Filters Button */}
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm"
+              title="Clear all filters"
+            >
+              ✕ Clear
+            </button>
+          )}
         </div>
 
         {/* Bagian kanan: Action Buttons */}
@@ -357,6 +436,35 @@ export default function ReportsPage() {
         </div>
       </div>
 
+      {/* Filter Results Info */}
+      {hasActiveFilters && (
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-blue-800 dark:text-blue-200">
+              <span className="font-medium">Filter aktif:</span>
+              {searchDate && (
+                <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                  Tanggal: {searchDate.toLocaleDateString("id-ID")}
+                </span>
+              )}
+              {searchLocation && (
+                <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                  Lokasi: {searchLocation}
+                </span>
+              )}
+              {searchCategory && (
+                <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                  Kategori: {searchCategory}
+                </span>
+              )}
+            </div>
+            <div className="text-sm text-blue-600 dark:text-blue-300">
+              Menampilkan {filteredReports.length} dari {reports.length} data
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
         {isDataLoading ? (
           <div className="text-center py-4">
@@ -369,16 +477,26 @@ export default function ReportsPage() {
               Memuat data kategori...
             </p>
           </div>
+        ) : filteredReports.length === 0 && hasActiveFilters ? (
+          <div className="text-center py-8">
+            <div className="text-gray-500 dark:text-gray-400">
+              <div className="text-4xl mb-4">🔍</div>
+              <h3 className="text-lg font-medium mb-2">
+                Tidak ada data ditemukan
+              </h3>
+              <p className="text-sm">Coba ubah filter pencarian Anda</p>
+            </div>
+          </div>
         ) : (
           <CommonTable
-            data={reports}
+            data={paginatedFilteredReports}
             columns={columns}
             showPagination={true}
-            currentPage={issuesPagination.currentPage}
-            totalPages={issuesPagination.totalPages}
+            currentPage={filteredPagination.currentPage}
+            totalPages={filteredPagination.totalPages}
             onPageChange={handleIssuesPageChange}
-            itemsPerPage={issuesPagination.itemsPerPage}
-            totalItems={issuesPagination.totalItems}
+            itemsPerPage={filteredPagination.itemsPerPage}
+            totalItems={filteredPagination.totalItems}
             onItemsPerPageChange={handleItemsReportPerPageChange}
           />
         )}

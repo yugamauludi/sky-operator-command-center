@@ -257,9 +257,9 @@ export default function LocationPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
-  const handleAdd = () => {
-    setIsConfirmationModalOpen(true);
-  };
+  // const handleAdd = () => {
+  //   setIsConfirmationModalOpen(true);
+  // };
 
   const fields = [
     {
@@ -326,7 +326,7 @@ export default function LocationPage() {
                   </svg>
                   <span>Export Data</span>
                 </button>
-                <button
+                {/* <button
                   onClick={handleAdd}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
                 >
@@ -343,7 +343,7 @@ export default function LocationPage() {
                     />
                   </svg>
                   <span>Tambah Lokasi</span>
-                </button>
+                </button> */}
               </div>
             </div>
             <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">

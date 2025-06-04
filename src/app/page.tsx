@@ -51,10 +51,16 @@ export default function Dashboard() {
   const [totalOpen, ] = useState(0);
   const [totalInProgress, ] = useState(0);
   const [totalResolved, ] = useState(0);
-  const [filterStatus, setFilterStatus] = useState<
+  const [
+    filterStatus,
+    //  setFilterStatus
+    ] = useState<
     "all" | "open" | "in_progress" | "resolved"
   >("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [
+    searchQuery, 
+    // setSearchQuery
+  ] = useState("");
 
   // const [showSetupModal, setShowSetupModal] = useState(true);
 
@@ -335,7 +341,7 @@ export default function Dashboard() {
           </div>
 
           {/* Filter dan Pencarian */}
-          <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 mb-6">
+          {/* <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 mb-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <h3 className="text-lg font-semibold">Filter Status:</h3>
@@ -401,7 +407,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Status Summary dan Daftar */}
           <div className="grid grid-cols-4 gap-6 mb-6">

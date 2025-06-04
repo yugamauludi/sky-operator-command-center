@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { GateStatusUpdate } from "@/types/gate";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { endCall, pingArduino } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
@@ -204,8 +204,8 @@ export function GlobalCallPopup() {
         description: selectedDescription,
         action: "CREATE_ISSUE",
         foto: activeCall.photoIn || "-",
-        number_plate: dataIssue.number_plate || "",
-        TrxNo: dataIssue.TrxNo || "",
+        number_plate: dataIssue.number_plate || "DUM 111 YYY",
+        TrxNo: dataIssue.TrxNo || "123DUMYYY345",
       };
       const response = await addIssue(issueData);
       console.log(response, "response");
@@ -276,250 +276,269 @@ export function GlobalCallPopup() {
   const locationName = activeCall?.location?.Name || "Unknown Location";
 
   return (
-    <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">
-            📞 Incoming Call!
-          </h2>
-        </div>
-
-        {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-2 gap-8 mb-6">
-          {/* Left Column - Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold border-b pb-2">Information</h3>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Location Name</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {locationName || "-"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Gate ID</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {activeCall.gateId || "-"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">No Transaction</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {dataIssue.TrxNo || "-"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">No Plat Number</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {dataIssue.number_plate || "-"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Date</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {formatDateTime(callInTime).split(" ")[0]}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">In Time</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {formatDateTime(callInTime).split(" ")[1]}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Out Time</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  -
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Payment Time</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  -
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Tariff</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  -
-                </span>
-              </div>
-            </div>
+    <>
+      <ToastContainer />
+      <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">
+              📞 Incoming Call!
+            </h2>
           </div>
 
-          {/* Right Column - Input Issue */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold border-b pb-2">Input Issue</h3>
-
+          {/* Main Content - Two Column Layout */}
+          <div className="grid grid-cols-2 gap-8 mb-6">
+            {/* Left Column - Information */}
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Object</label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                >
-                  <option value="">-- Pilih Kategori --</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.category}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <h3 className="text-lg font-semibold border-b pb-2">
+                Information
+              </h3>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Description
-                </label>
-                <select
-                  value={selectedDescription}
-                  onChange={(e) => setSelectedDescription(e.target.value)}
-                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                >
-                  <option value="">-- Pilih Deskripsi --</option>
-                  {description?.map((desc) => (
-                    <option key={desc.id} value={desc.id}>
-                      {desc.object}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Location Name</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {locationName || "-"}
+                  </span>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Action</label>
-                <input
-                  type="text"
-                  value={dataIssue.action || ""}
-                  onChange={(e) =>
-                    setDataIssue((prev) => ({
-                      ...prev,
-                      action: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter action"
-                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                />
-              </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Gate</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {activeCall.gate || "-"}
+                  </span>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-end space-x-2 pt-4">
-                <button
-                  onClick={endCallFunction}
-                  className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
-                >
-                  End Call
-                </button>
-                <button
-                  onClick={handleCreateIssue}
-                  disabled={
-                    !selectedCategory || !selectedDescription || isCreateIssue
-                  }
-                  className="px-6 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
-                >
-                  {isCreateIssue ? "Creating..." : "Submit"}
-                </button>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Gate ID</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {activeCall.gateId || "-"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">No Transaction</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {dataIssue.TrxNo || "-"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">No Plat Number</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {dataIssue.number_plate || "-"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Date</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {formatDateTime(callInTime).split(" ")[0]}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">In Time</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {formatDateTime(callInTime).split(" ")[1]}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Out Time</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    -
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Payment Time</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    -
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Tariff</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    -
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Input Issue */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">
+                Input Issue
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Object
+                  </label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                  >
+                    <option value="">-- Pilih Kategori --</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Description
+                  </label>
+                  <select
+                    value={selectedDescription}
+                    onChange={(e) => setSelectedDescription(e.target.value)}
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                  >
+                    <option value="">-- Pilih Deskripsi --</option>
+                    {description?.map((desc) => (
+                      <option key={desc.id} value={desc.id}>
+                        {desc.object}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Action
+                  </label>
+                  <input
+                    type="text"
+                    value={dataIssue.action || ""}
+                    onChange={(e) =>
+                      setDataIssue((prev) => ({
+                        ...prev,
+                        action: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter action"
+                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-2 pt-4">
+                  <button
+                    onClick={endCallFunction}
+                    className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                  >
+                    End Call
+                  </button>
+                  <button
+                    onClick={handleCreateIssue}
+                    disabled={
+                      !selectedCategory || !selectedDescription || isCreateIssue
+                    }
+                    className="px-6 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
+                  >
+                    {isCreateIssue ? "Creating..." : "Submit"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom Section - Photos */}
-        <div className="border-t pt-6">
-          <div className="grid grid-cols-3 gap-6">
-            <div className="text-center">
-              <p className="text-sm font-medium mb-2">Foto In</p>
-              <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                {!imageErrors.photoIn ? (
-                  <Image
-                    src={photoInUrl}
-                    alt="Foto In"
-                    width={200}
-                    height={188}
-                    className="w-full h-full object-cover rounded-md"
-                    onError={() => {
-                      setImageErrors((prev) => ({ ...prev, photoIn: true }));
-                    }}
-                  />
-                ) : (
-                  <span className="text-sm">Foto In</span>
-                )}
+          {/* Bottom Section - Photos */}
+          <div className="border-t pt-6">
+            <div className="grid grid-cols-3 gap-6">
+              <div className="text-center">
+                <p className="text-sm font-medium mb-2">Foto In</p>
+                <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                  {!imageErrors.photoIn ? (
+                    <Image
+                      src={photoInUrl}
+                      alt="Foto In"
+                      width={200}
+                      height={188}
+                      className="w-full h-full object-cover rounded-md"
+                      onError={() => {
+                        setImageErrors((prev) => ({ ...prev, photoIn: true }));
+                      }}
+                    />
+                  ) : (
+                    <span className="text-sm">Foto In</span>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="text-center">
-              <p className="text-sm font-medium mb-2">Foto Out</p>
-              <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                {!imageErrors.photoOut ? (
-                  <Image
-                    src={photoOutUrl}
-                    alt="Foto Out"
-                    width={200}
-                    height={188}
-                    className="w-full h-full object-cover rounded-md"
-                    onError={() => {
-                      setImageErrors((prev) => ({ ...prev, photoOut: true }));
-                    }}
-                  />
-                ) : (
-                  <span className="text-sm">Foto Out</span>
-                )}
+              <div className="text-center">
+                <p className="text-sm font-medium mb-2">Foto Out</p>
+                <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                  {!imageErrors.photoOut ? (
+                    <Image
+                      src={photoOutUrl}
+                      alt="Foto Out"
+                      width={200}
+                      height={188}
+                      className="w-full h-full object-cover rounded-md"
+                      onError={() => {
+                        setImageErrors((prev) => ({ ...prev, photoOut: true }));
+                      }}
+                    />
+                  ) : (
+                    <span className="text-sm">Foto Out</span>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="text-center">
-              <p className="text-sm font-medium mb-2">Foto Capture</p>
-              <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                {!imageErrors.photoIn ? (
-                  <Image
-                    src={photoCaptureurl}
-                    alt="Foto Capture"
-                    width={200}
-                    height={188}
-                    className="w-full h-full object-cover rounded-md"
-                    onError={() => {
-                      setImageErrors((prev) => ({ ...prev, photoIn: true }));
-                    }}
-                  />
-                ) : (
-                  <span className="text-sm">Foto Capture</span>
-                )}
+              <div className="text-center">
+                <p className="text-sm font-medium mb-2">Foto Capture</p>
+                <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                  {!imageErrors.photoIn ? (
+                    <Image
+                      src={photoCaptureurl}
+                      alt="Foto Capture"
+                      width={200}
+                      height={188}
+                      className="w-full h-full object-cover rounded-md"
+                      onError={() => {
+                        setImageErrors((prev) => ({ ...prev, photoIn: true }));
+                      }}
+                    />
+                  ) : (
+                    <span className="text-sm">Foto Capture</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Additional Action Buttons */}
-        <div className="flex justify-center space-x-4 mt-6">
-          <button
-            onClick={handleOpenGate}
-            disabled={!selectedCategory || isOpeningGate}
-            className="px-8 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
-          >
-            {isOpeningGate ? "Opening..." : "Open Gate"}
-          </button>
+          {/* Additional Action Buttons */}
+          <div className="flex justify-center space-x-4 mt-6">
+            <button
+              onClick={handleOpenGate}
+              disabled={!selectedCategory || isOpeningGate}
+              className="px-8 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
+            >
+              {isOpeningGate ? "Opening..." : "Open Gate"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

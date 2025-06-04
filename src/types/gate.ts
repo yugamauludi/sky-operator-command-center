@@ -4,6 +4,7 @@ export interface Location {
 }
 
 export interface GateStatusUpdate {
+  gate: string
   gateId: string;
   gateStatus: string;
   location?: Location;
