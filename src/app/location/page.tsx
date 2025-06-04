@@ -52,7 +52,11 @@ export default function LocationPage() {
   const handleViewDetail = async (location: Location) => {
     try {
       // Navigate to detail page with location id
-      router.push(`/location/detail?id=${location.id}&name=${encodeURIComponent(location.name)}`);
+      router.push(
+        `/location/detail?id=${location.id}&name=${encodeURIComponent(
+          location.name
+        )}`
+      );
     } catch (error) {
       console.error("Error navigating to detail:", error);
       toast.error("Gagal membuka detail lokasi");
@@ -77,15 +81,7 @@ export default function LocationPage() {
   };
 
   // Tambahkan state untuk data lokasi
-  const [locations, setLocations] = useState<Location[]>([
-    {
-      id: 1,
-      name: "Terminal 1A",
-      address: "Jl. Terminal 1A No. 1",
-      region: "Jakarta Barat",
-      vendor: "PT ABC",
-    },
-  ]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [locationPagination, setLocationPagination] = useState<PaginationInfo>({
     totalItems: 0,
     totalPages: 0,
@@ -358,6 +354,25 @@ export default function LocationPage() {
                   </div>{" "}
                   <p className="text-gray-600 dark:text-gray-300 blink-smooth">
                     Memuat data location...
+                  </p>
+                </div>
+              ) : locations.length === 0 ? (
+                <div className="text-center py-8">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                    />
+                  </svg>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Tidak ada gate ditemukan untuk lokasi ini
                   </p>
                 </div>
               ) : (
