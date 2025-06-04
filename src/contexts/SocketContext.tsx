@@ -543,10 +543,10 @@ export function UserNumberSetup() {
     setShowModal(false);
   };
 
-  const handleChangeUserNumber = () => {
-    setShowModal(true);
-    setInputValue("");
-  };
+  // const handleChangeUserNumber = () => {
+  //   setShowModal(true);
+  //   setInputValue("");
+  // };
 
   const checkLoginStatus = () => {
     const token = localStorage.getItem("id");
@@ -611,13 +611,13 @@ export function UserNumberSetup() {
     );
   }
 
-  return (
-    <button
-      onClick={handleChangeUserNumber}
-      className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg z-40"
-      title="Change User Number"
-    >
-      👤
-    </button>
-  );
+  // return (
+  //   <button
+  //     onClick={handleChangeUserNumber}
+  //     className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg z-40"
+  //     title="Change User Number"
+  //   >
+  //     👤
+  //   </button>
+  // );
 }

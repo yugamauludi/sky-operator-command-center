@@ -633,84 +633,8 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-
-          {/* Active Customer Service Section */}
-          {/* <div className="bg-white dark:bg-[#222B36] p-6 rounded-lg">
-              <h2 className="text-xl font-semibold mb-6">
-                Customer Service Aktif
-              </h2>
-              <div className="grid grid-cols-4 gap-4">
-                {activeCS.map((cs) => (
-                  <div
-                    key={cs.id}
-                    className="bg-gray-50 dark:bg-[#2A3441] p-4 rounded-lg"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium">{cs.name}</span>
-                      <span
-                        className={`px-2 py-1 text-xs rounded ${
-                          cs.status === "active"
-                            ? "bg-green-500/20 text-green-400"
-                            : cs.status === "busy"
-                            ? "bg-yellow-500/20 text-yellow-400"
-                            : "bg-gray-500/20 text-gray-400"
-                        }`}
-                      >
-                        {cs.status === "active"
-                          ? "Aktif"
-                          : cs.status === "busy"
-                          ? "Sibuk"
-                          : "Offline"}
-                      </span>
-                    </div>
-                    <div className="text-sm">
-                      Total Ditangani: {cs.handledRequests}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div> */}
         </div>
       </div>
-      {/* {showSetupModal && (
-        <DynamicInputModal
-          isOpen={showSetupModal}
-          onClose={() => {
-            setShowSetupModal(false);
-          }}
-          onSubmit={handleUserNumberSubmit}
-          title="Setup Agent Number"
-          fields={[
-            {
-              id: "userNumber",
-              label: "User Number (1-3)",
-              type: "number",
-              value: "",
-
-              placeholder: "Enter number between 1-3",
-            },
-          ]}
-          confirmText="Simpan"
-          cancelText="Batal"
-        />
-      )} */}
-      {/* <DynamicInputModal
-        isOpen={showAgentNumberModal}
-        onClose={() => setShowAgentNumberModal(false)}
-        onSubmit={handleAgentNumberSubmit}
-        title="Masukkan Nomor Agent"
-        fields={[
-          {
-            id: "agentNumber",
-            label: "Nomor Agent",
-            type: "text",
-            value: "",
-            placeholder: "Contoh: AGT001",
-          },
-        ]}
-        confirmText="Simpan"
-        cancelText="Batal"
-      /> */}
     </>
   );
 }

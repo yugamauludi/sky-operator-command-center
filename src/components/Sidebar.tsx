@@ -25,13 +25,13 @@ export default function Sidebar() {
     <div
       className={`${
         isOpen ? "w-64" : "w-16"
-      } h-full shadow-lg transition-all duration-300 ease-in-out`}
+      } h-full transition-all duration-300 ease-in-out`}
     >
       {/* Header */}
       <div
         className={`${
           isOpen ? "w-64" : "w-16"
-        } h-full shadow-lg transition-all duration-300 ease-in-out`}
+        } h-full transition-all duration-300 ease-in-out`}
       >
         {/* Logo Section */}
         <div className="flex justify-center items-center py-4">
