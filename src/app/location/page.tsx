@@ -255,9 +255,10 @@ export default function LocationPage() {
   ];
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   const handleAdd = () => {
-    setIsAddModalOpen(true);
+    setIsConfirmationModalOpen(true);
   };
 
   const fields = [
@@ -285,8 +286,9 @@ export default function LocationPage() {
 
   const handleConfirmAdd = () => {
     // Implementasi add disini
-    setIsAddModalOpen(false);
-    setIsAddModalOpen(false);
+    setIsConfirmationModalOpen(false)
+    setIsAddModalOpen(true);
+    // setIsAddModalOpen(false);
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
@@ -419,8 +421,8 @@ export default function LocationPage() {
 
       {/* Modal Tambah Lokasi */}
       <ConfirmationModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        isOpen={isConfirmationModalOpen}
+        onClose={() => setIsConfirmationModalOpen(false)}
         onConfirm={handleConfirmAdd}
         title="Tambah Lokasi"
         message="Apakah Anda yakin ingin menambah lokasi baru?"

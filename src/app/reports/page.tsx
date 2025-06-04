@@ -4,23 +4,20 @@ import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
-import DynamicInputModal from "@/components/DynamicInputModal"; // Adjust path as needed
-import {
-  // fetchIssueDetail,
-  fetchIssues,
-} from "@/hooks/useIssues";
+import IsseFormInputModal, { Field } from "@/components/IssueFormInputModal";
+import { addIssue, fetchIssues } from "@/hooks/useIssues";
+import { Category, fetchCategories } from "@/hooks/useCategories";
+import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
 
 interface Report {
   no?: number;
-  day: string;
-  date: string;
-  time: string;
-  duration: string;
+  duration?: string;
   call: string;
   location: string;
   category: string;
   description: string;
   solution: string;
+  formatDate: string;  // Keep only the combined format
 }
 
 interface PaginationInfo {
@@ -44,6 +41,8 @@ export default function ReportsPage() {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [descriptions, setDescriptions] = useState<Description[]>([]);
   const [issuesPagination, setIssuesPagination] = useState<PaginationInfo>({
     totalItems: 0,
     totalPages: 0,
@@ -67,11 +66,11 @@ export default function ReportsPage() {
             minute: "2-digit",
           });
 
+          const formatDate = day + ", " + date + ", " + time + " WIB"
+
           return {
             no: index + 1,
-            day,
-            date,
-            time,
+            formatDate,
             duration: "30 mins",
             call: issue.ticket,
             location: issue.lokasi,
@@ -95,6 +94,24 @@ export default function ReportsPage() {
     }
   };
 
+  const fetchCategoriesData = async () => {
+    try {
+      const response = await fetchCategories(1, 1000);
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchDescriptionsData = async () => {
+    try {
+      const response = await fetchDescriptions(1, 1000);
+      setDescriptions(response.data);
+    } catch (error) {
+      console.error("Error fetching descriptions:", error);
+    }
+  };
+
   const handleIssuesPageChange = (page: number) => {
     setIssuesPagination((prev) => ({ ...prev, currentPage: page }));
     fetchIssuesData(page, issuesPagination.itemsPerPage);
@@ -115,18 +132,18 @@ export default function ReportsPage() {
 
       const newReportData: NewReportData = {
         idCategory: parseInt(values.idCategory),
-        idGate: parseInt(values.idGate),
+        idGate: parseInt(values.idGate) || 0,
         description: values.description,
         action: values.action,
         foto: values.foto || "-",
-        number_plate: values.number_plate,
-        TrxNo: values.TrxNo,
+        number_plate: values.number_plate || "-",
+        TrxNo: values.TrxNo || "-",
       };
 
       console.log("Submitting new report:", newReportData);
 
       // TODO: Replace with actual API call to create new issue
-      // const response = await createIssue(newReportData);
+      await addIssue(newReportData);
 
       // Refresh data after successful creation
       await fetchIssuesData(
@@ -146,22 +163,9 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchIssuesData();
+    fetchCategoriesData();
+    fetchDescriptionsData();
   }, []);
-
-  // const fetchIssueDetailData = async (issueId: number) => {
-  //   try {
-  //     setIsDataLoading(true);
-  //     const response = await fetchIssueDetail(issueId);
-  //     if (response && response.data) {
-  //       const issueDetail = response.data;
-  //       console.log("Issue Detail:", issueDetail);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching issue detail:", error);
-  //   } finally {
-  //     setIsDataLoading(false);
-  //   }
-  // }
 
   const [searchDate, setSearchDate] = useState<Date | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
@@ -169,66 +173,116 @@ export default function ReportsPage() {
 
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
-    { header: "Day", accessor: "day" },
-    { header: "Date", accessor: "date" },
-    { header: "Time", accessor: "time" },
-    { header: "Duration", accessor: "duration" },
-    { header: "Call", accessor: "call" },
+    // { header: "Day", accessor: "day" },
+    { header: "Date", accessor: "formatDate" },
+    // { header: "Time", accessor: "time" },
+    // { header: "Duration", accessor: "duration" },
+    // { header: "Call", accessor: "call" },
     { header: "Lokasi", accessor: "location" },
     { header: "Kategori", accessor: "category" },
     { header: "Deskripsi", accessor: "description" },
     { header: "Solusi", accessor: "solution" },
   ];
 
-  const newReportFields = [
+  // Format current date and time for default values
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().split("T")[0];
+  const formattedInTime = currentDate.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const newReportFields: Field[] = [
+    // Information Section
     {
-      id: "idCategory",
-      label: "ID Category",
-      type: "number",
-      value: "",
-      placeholder: "Enter category ID",
+      id: "no_transaction",
+      label: "No Transaction",
+      type: "text" as const,
+      value: "-",
+      placeholder: "No Transaction",
+      readonly: true,
     },
     {
-      id: "idGate",
-      label: "ID Gate",
-      type: "number",
+      id: "number_plate",
+      label: "No Plat Number",
+      type: "text" as const,
+      value: "-",
+      placeholder: "No Plat Number",
+      readonly: true,
+    },
+    {
+      id: "date",
+      label: "Date",
+      type: "text" as const,
+      value: formattedDate,
+      placeholder: "Date",
+      readonly: true,
+    },
+    {
+      id: "in_time",
+      label: "In Time",
+      type: "text" as const,
+      value: formattedInTime,
+      placeholder: "In Time",
+      readonly: true,
+    },
+    {
+      id: "out_time",
+      label: "Out Time",
+      type: "text" as const,
+      value: "-",
+      placeholder: "Out Time",
+      readonly: true,
+    },
+    {
+      id: "payment_time",
+      label: "Payment Time",
+      type: "text" as const,
+      value: "-",
+      placeholder: "Payment Time",
+      readonly: true,
+    },
+    {
+      id: "tariff",
+      label: "Tariff",
+      type: "text" as const,
+      value: "-",
+      placeholder: "Tariff",
+      readonly: true,
+    },
+    // Input Issue Section
+    {
+      id: "idCategory",
+      label: "Kategori",
+      type: "select" as const,
       value: "",
-      placeholder: "Enter gate ID",
+      placeholder: "-- Pilih Kategori --",
+      options: categories.map((cat) => ({
+        value: cat.id.toString(),
+        label: cat.category,
+      })),
+      required: true,
     },
     {
       id: "description",
-      label: "Description",
-      type: "text",
+      label: "Object/Description",
+      type: "select" as const,
       value: "",
-      placeholder: "Enter issue description",
+      placeholder: "-- Pilih Deskripsi --",
+      options: descriptions.map((desc) => ({
+        value: desc.id.toString(),
+        label: desc.object,
+      })),
+      required: true,
     },
     {
       id: "action",
       label: "Action",
-      type: "text",
+      type: "text" as const,
       value: "",
-      placeholder: "Enter action (e.g., OPEN_GATE)",
-    },
-    {
-      id: "foto",
-      label: "Photo",
-      type: "text",
-      value: "-",
-      placeholder: "Enter photo URL or '-'",
-    },
-    {
-      id: "number_plate",
-      label: "Number Plate",
-      type: "text",
-      value: "",
-      placeholder: "Enter vehicle number plate",
-    },
-    {
-      id: "TrxNo",
-      label: "Transaction Number",
-      type: "text",
-      value: "",
-      placeholder: "Enter transaction number",
+      placeholder: "Enter action (e.g., OPEN_GATE, CREATE_ISSUE)",
+      required: true,
     },
   ];
 
@@ -331,14 +385,14 @@ export default function ReportsPage() {
       </div>
 
       {/* New Report Modal */}
-      <DynamicInputModal
+      <IsseFormInputModal
         isOpen={isNewReportModalOpen}
         onClose={() => setIsNewReportModalOpen(false)}
         onSubmit={handleNewReportSubmit}
         title="Tambah Laporan Baru"
         fields={newReportFields}
-        confirmText="Simpan"
-        cancelText="Batal"
+        confirmText="Submit"
+        cancelText="Cancel"
       />
     </div>
   );
