@@ -116,12 +116,16 @@ export default function ReportsPage() {
       // Location filter (case insensitive)
       const locationMatch =
         !searchLocation ||
-        report?.location?.toLowerCase()?.includes(searchLocation?.toLowerCase());
+        report?.location
+          ?.toLowerCase()
+          ?.includes(searchLocation?.toLowerCase());
 
       // Category filter (case insensitive)
       const categoryMatch =
         !searchCategory ||
-        report?.category?.toLowerCase()?.includes(searchCategory?.toLowerCase());
+        report?.category
+          ?.toLowerCase()
+          ?.includes(searchCategory?.toLowerCase());
 
       return dateMatch && locationMatch && categoryMatch;
     });
@@ -393,15 +397,14 @@ export default function ReportsPage() {
         <h1 className="text-2xl font-bold">Laporan</h1>
       </div>
 
-      {/* Filter Section */}
-      <div className="flex items-center mb-4 justify-between">
-        {/* Bagian kiri: Filter */}
-        <div className="flex space-x-2 items-center">
-          <div className="relative z-50">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
+        {/* Filter Section */}
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center w-full sm:w-auto">
+          <div className="relative z-50 w-full sm:w-auto">
             <DatePicker
               selected={searchDate}
               onChange={(date) => setSearchDate(date)}
-              className="px-4 py-2 border rounded-lg pl-10"
+              className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
               placeholderText="Cari Tanggal"
               dateFormat="yyyy-MM-dd"
               isClearable
@@ -410,25 +413,25 @@ export default function ReportsPage() {
               📅
             </span>
           </div>
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <input
               type="text"
               placeholder="Cari Lokasi"
               value={searchLocation}
               onChange={(e) => setSearchLocation(e.target.value)}
-              className="px-4 py-2 border rounded-lg pl-10"
+              className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
             />
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               📍
             </span>
           </div>
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <input
               type="text"
               placeholder="Cari Kategori"
               value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value)}
-              className="px-4 py-2 border rounded-lg pl-10"
+              className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
             />
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               🔍
@@ -439,7 +442,7 @@ export default function ReportsPage() {
           {hasActiveFilters && (
             <button
               onClick={handleClearFilters}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm w-full sm:w-auto whitespace-nowrap"
               title="Clear all filters"
             >
               ✕ Clear
@@ -447,11 +450,11 @@ export default function ReportsPage() {
           )}
         </div>
 
-        {/* Bagian kanan: Action Buttons */}
-        <div className="flex space-x-2">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <button
             onClick={() => setIsNewReportModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2"
           >
             <span>➕</span>
             <span>Tambah Laporan</span>
