@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body {
+  min-width: 1024px; /* meniru desktop layout */
+}
+
 :root {
   /* Light theme colors */
   --background: #ffffff;
