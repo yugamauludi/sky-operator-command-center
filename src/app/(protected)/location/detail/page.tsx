@@ -84,7 +84,6 @@ function LocationDetailContent() {
         toast.success(`Gate ${selectedGate.gate} berhasil ditutup`);
       } else {
         // Gate is closed, so open it
-        console.log(selectedGate, "<<<gate");
         await pingArduino(selectedGate.id);
         await openGate(selectedGate.id);
         toast.success(`Gate ${selectedGate.gate} berhasil dibuka`);

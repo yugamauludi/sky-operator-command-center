@@ -220,7 +220,6 @@ export function GlobalCallPopup() {
         TrxNo: dataIssue.TrxNo || "123DUMYYY345",
       };
       const response = await addIssue(issueData);
-      console.log(response, "response");
 
       if (response && response.message.includes("created")) {
         toast.success("Issue berhasil dibuat");

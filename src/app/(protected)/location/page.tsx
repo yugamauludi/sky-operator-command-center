@@ -199,7 +199,7 @@ export default function LocationPage() {
     }
   };
 
-  const [locationDetailData, setLocationDetailData] = useState<LocationDetail>({
+  const [, setLocationDetailData] = useState<LocationDetail>({
     id: 0,
     Code: "",
     Name: "",
@@ -234,7 +234,7 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const gateByLocationRes = await fetchGateByLocation(id);
-      console.log(gateByLocationRes, "<<<<gateByLocation");
+      console.log("Data gateByLocation :", gateByLocationRes);
     } catch (error) {
       console.error("Error fetching gate by location:", error);
     } finally {
@@ -280,7 +280,6 @@ export default function LocationPage() {
     fetchLocationDetailData(1);
     fetchGateByLocationData(1);
     fetchLocationActiveData();
-    console.log(locationDetailData, "<<<<locationDetailData");
   }, []);
 
   const handleLocationPageChange = (page: number) => {
