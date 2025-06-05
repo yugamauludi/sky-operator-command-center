@@ -9,6 +9,7 @@ import { addIssue, fetchIssues } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
 import { toast, ToastContainer } from "react-toastify";
+import { formatDateOnly } from "@/utils/formatDate";
 
 interface Report {
   no?: number;
@@ -66,16 +67,16 @@ export default function ReportsPage() {
       if (issuesData && issuesData.data && issuesData.meta) {
         const mappedReports: Report[] = issuesData.data.map((issue, index) => {
           const createdDate = new Date(issue.createdAt);
-          const day = createdDate.toLocaleDateString("en-US", {
-            weekday: "long",
-          });
-          const date = createdDate.toISOString().split("T")[0]; // YYYY-MM-DD
-          const time = createdDate.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+          // const day = createdDate.toLocaleDateString("en-US", {
+          //   weekday: "long",
+          // });
+          // const date = createdDate.toISOString().split("T")[0]; // YYYY-MM-DD
+          // const time = createdDate.toLocaleTimeString("en-US", {
+          //   hour: "2-digit",
+          //   minute: "2-digit",
+          // });
 
-          const formatDate = day + ", " + date + ", " + time + " WIB";
+          const formatDate = formatDateOnly(issue.createdAt);
 
           return {
             no: index + 1,
@@ -249,7 +250,7 @@ export default function ReportsPage() {
 
   const columns: Column<Report>[] = [
     { header: "No.", accessor: "no" },
-    { header: "Date", accessor: "formatDate" },
+    { header: "Date", accessor: "formatDate", width: 100 },
     { header: "Lokasi", accessor: "location" },
     { header: "Kategori", accessor: "category" },
     { header: "Deskripsi", accessor: "description" },

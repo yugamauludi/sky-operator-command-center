@@ -11,6 +11,7 @@ export interface Column<T> {
   header: string;
   accessor: keyof T;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
+  width?: string | number;
 }
 
 interface TableProps<T> {
@@ -61,14 +62,12 @@ export default function CommonTable<T>({
         if (totalPages > 5) {
           pages.push("...", totalPages);
         }
-      }
-      else if (currentPage >= totalPages - 2) {
+      } else if (currentPage >= totalPages - 2) {
         pages.push(1, "...");
         for (let i = totalPages - 4; i <= totalPages; i++) {
           pages.push(i);
         }
-      }
-      else {
+      } else {
         pages.push(1, "...");
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
           pages.push(i);
@@ -100,7 +99,10 @@ export default function CommonTable<T>({
             </p>
             {onItemsPerPageChange && (
               <div className="flex items-center gap-2">
-                <label htmlFor="itemsPerPage" className="text-sm text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="itemsPerPage"
+                  className="text-sm text-gray-700 dark:text-gray-300"
+                >
                   Items per page:
                 </label>
                 <select
@@ -207,6 +209,7 @@ export default function CommonTable<T>({
                   <th
                     key={index}
                     className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
+                    style={{ width: column.width }}
                   >
                     {column.header}
                   </th>
@@ -227,6 +230,7 @@ export default function CommonTable<T>({
                     <td
                       key={colIndex}
                       className="p-4 text-sm text-gray-900 dark:text-gray-100"
+                      style={{ width: column.width }} // ✅ Tambahkan ini
                     >
                       {column.render
                         ? column.render(item[column.accessor], item)

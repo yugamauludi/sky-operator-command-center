@@ -22,6 +22,7 @@ import {
   deleteDescription,
 } from "@/hooks/useDescriptions";
 import { CustomSelect } from "@/components/CustomSelect";
+import formatTanggalUTC from "@/utils/formatDate";
 
 interface CategoryData {
   id: number | null;
@@ -237,6 +238,7 @@ export default function MasterPage() {
     {
       header: "Tanggal Dibuat",
       accessor: "createdAt",
+      render: (value) => (value ? formatTanggalUTC(value.toString()) : ""),
     },
     {
       header: "Aksi",
@@ -274,12 +276,13 @@ export default function MasterPage() {
       accessor: "object",
     },
     {
-      header: "Category",
+      header: "Kategori",
       accessor: "id_category",
     },
     {
-      header: "Created Date",
+      header: "Tanggal Dibuat",
       accessor: "createdAt",
+      render: (value) => (value ? formatTanggalUTC(value.toString()) : ""),
     },
     {
       header: "Action",
