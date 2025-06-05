@@ -385,10 +385,10 @@ export default function ReportsPage() {
     */
   ];
 
-  const handleExport = () => {
-    console.log("Exporting filtered data:", filteredReports);
-    // You can implement CSV export or other export functionality here
-  };
+  // const handleExport = () => {
+  //   console.log("Exporting filtered data:", filteredReports);
+  //   // You can implement CSV export or other export functionality here
+  // };
 
   return (
     <div className="container mx-auto px-6 py-8">
@@ -460,12 +460,12 @@ export default function ReportsPage() {
             <span>Tambah Laporan</span>
           </button>
 
-          <button
+          {/* <button
             onClick={handleExport}
             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
           >
             Export Data
-          </button>
+          </button> */}
         </div>
       </div>
 
