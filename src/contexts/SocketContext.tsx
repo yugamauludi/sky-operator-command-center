@@ -67,6 +67,13 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
   const endCallFunction = async () => {
     if (!socket || !activeCall) return;
+    
+    // Stop the ringtone immediately when ending call
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0; // Reset audio to beginning
+    }
+    
     try {
       const response = await endCall(socket.id);
       toast.success(response.message);
@@ -93,6 +100,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnectionStatus("Disconnected");
       setActiveCall(null);
       setCallInTime(null);
+      // Stop audio when disconnected
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     });
 
     socket.on("gate-status-update", (data: GateStatusUpdate) => {
@@ -101,7 +113,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setCallInTime(new Date()); // Set call in time when call comes in
 
       // Play notification
-      audio?.play();
+      if (audio) {
+        audio.currentTime = 0; // Reset to beginning
+        audio.play().catch(console.error);
+      }
       if (navigator.vibrate) {
         navigator.vibrate([200, 100, 200]);
       }
@@ -239,7 +254,7 @@ export function GlobalCallPopup() {
 
       if (response.ok) {
         toast.success("Gate berhasil dibuka");
-        endCallFunction();
+        endCallFunction(); // This will now stop the ringtone
       } else {
         toast.error("Gagal membuka gate");
       }
@@ -454,7 +469,10 @@ export function GlobalCallPopup() {
                       End Call
                     </button>
                     <button
-                      onClick={handleCreateIssue}
+                      onClick={() => {
+                        handleCreateIssue();
+                        endCallFunction();
+                      }}
                       disabled={
                         !selectedCategory ||
                         !selectedDescription ||
