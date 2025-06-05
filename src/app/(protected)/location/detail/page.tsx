@@ -133,7 +133,7 @@ function LocationDetailContent() {
     if (locationId) {
       fetchGatesData();
     }
-  }, [locationId]);
+  });
 
   const getStatusBadge = (status: number) => {
     return status === 0 ? (

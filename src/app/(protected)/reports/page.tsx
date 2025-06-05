@@ -10,7 +10,12 @@ import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
 import { toast, ToastContainer } from "react-toastify";
 import { formatDateOnly } from "@/utils/formatDate";
-import { fetchGateByLocation, fetchLocationActive, GateByLocation, Location } from "@/hooks/useLocation";
+import {
+  fetchGateByLocation,
+  fetchLocationActive,
+  GateByLocation,
+  Location,
+} from "@/hooks/useLocation";
 
 interface Report {
   no?: number;
@@ -63,7 +68,9 @@ export default function ReportsPage() {
   const [searchCategory, setSearchCategory] = useState("");
 
   // Form field values state to track location changes
-  const [formFieldValues, setFormFieldValues] = useState<Record<string, string>>({});
+  const [formFieldValues, setFormFieldValues] = useState<
+    Record<string, string>
+  >({});
 
   // Load ALL data for frontend filtering
   const fetchAllIssuesData = async () => {
@@ -158,8 +165,7 @@ export default function ReportsPage() {
     };
   }, [
     filteredReports,
-    issuesPagination.itemsPerPage,
-    issuesPagination.currentPage,
+    issuesPagination,
   ]);
 
   // Get paginated filtered data
@@ -191,10 +197,10 @@ export default function ReportsPage() {
   const fetchGateData = async (data: any) => {
     try {
       const response = await fetchGateByLocation(data);
-      setGateIdData(response.data); 
+      setGateIdData(response.data);
     } catch (error) {
       console.error("Error fetching gates:", error);
-      setGateIdData([]); 
+      setGateIdData([]);
     }
   };
 
@@ -230,14 +236,14 @@ export default function ReportsPage() {
 
   // Handle field value changes in modal
   const handleFieldValueChange = (fieldId: string, value: string) => {
-    setFormFieldValues(prev => {
+    setFormFieldValues((prev) => {
       const newValues = { ...prev, [fieldId]: value };
-      
+
       // If location changed, clear gate selection and fetch new gates
-      if (fieldId === 'idLocation') {
+      if (fieldId === "idLocation") {
         // Clear gate selection
-        newValues.idGate = '';
-        
+        newValues.idGate = "";
+
         // Fetch gates for new location
         if (value) {
           fetchGateData({
@@ -249,7 +255,7 @@ export default function ReportsPage() {
           setGateIdData([]); // Clear gates if no location selected
         }
       }
-      
+
       return newValues;
     });
   };
@@ -278,7 +284,7 @@ export default function ReportsPage() {
       toast.success("Report Created successfully!");
 
       console.log("Report created successfully!");
-      
+
       // Clear form values and gate data
       setFormFieldValues({});
       setGateIdData([]);
@@ -345,7 +351,7 @@ export default function ReportsPage() {
         label: loc.Name,
       })),
       required: true,
-      onChange: (value) => handleFieldValueChange('idLocation', value),
+      onChange: (value) => handleFieldValueChange("idLocation", value),
     },
     {
       id: "idCategory",
@@ -358,21 +364,24 @@ export default function ReportsPage() {
         label: cat.category,
       })),
       required: true,
-      onChange: (value) => handleFieldValueChange('idCategory', value),
+      onChange: (value) => handleFieldValueChange("idCategory", value),
     },
     {
       id: "idGate",
       label: "ID Gate",
       type: "select" as const,
       value: formFieldValues.idGate || "",
-      placeholder: formFieldValues.idLocation ? "-- Pilih Gate --" : "-- Pilih Location dulu --",
-      options: gateIdData?.map((gate) => ({
-        value: gate.id.toString(),
-        label: `Gate ${gate.id}`,
-      })) || [],
+      placeholder: formFieldValues.idLocation
+        ? "-- Pilih Gate --"
+        : "-- Pilih Location dulu --",
+      options:
+        gateIdData?.map((gate) => ({
+          value: gate.id.toString(),
+          label: `Gate ${gate.id}`,
+        })) || [],
       required: true,
       disabled: !formFieldValues.idLocation,
-      onChange: (value) => handleFieldValueChange('idGate', value),
+      onChange: (value) => handleFieldValueChange("idGate", value),
     },
     {
       id: "description",
@@ -386,7 +395,7 @@ export default function ReportsPage() {
         label: desc.object,
       })),
       required: true,
-      onChange: (value) => handleFieldValueChange('description', value),
+      onChange: (value) => handleFieldValueChange("description", value),
     },
     {
       id: "TrxNo",
@@ -395,7 +404,7 @@ export default function ReportsPage() {
       value: formFieldValues.TrxNo || "",
       placeholder: "Enter transaction number",
       required: true,
-      onChange: (value) => handleFieldValueChange('TrxNo', value),
+      onChange: (value) => handleFieldValueChange("TrxNo", value),
     },
     {
       id: "action",
@@ -404,7 +413,7 @@ export default function ReportsPage() {
       value: formFieldValues.action || "",
       placeholder: "Enter action (e.g., OPEN_GATE, CREATE_ISSUE)",
       required: true,
-      onChange: (value) => handleFieldValueChange('action', value),
+      onChange: (value) => handleFieldValueChange("action", value),
     },
     {
       id: "number_plate",
@@ -413,7 +422,7 @@ export default function ReportsPage() {
       value: formFieldValues.number_plate || "",
       placeholder: "Enter number plate",
       required: true,
-      onChange: (value) => handleFieldValueChange('number_plate', value),
+      onChange: (value) => handleFieldValueChange("number_plate", value),
     },
     {
       id: "foto",
@@ -422,7 +431,7 @@ export default function ReportsPage() {
       value: formFieldValues.foto || "-",
       placeholder: "Photo URL or path",
       required: false,
-      onChange: (value) => handleFieldValueChange('foto', value),
+      onChange: (value) => handleFieldValueChange("foto", value),
     },
 
     // COMMENTED OUT - Information Section (not required for input)
