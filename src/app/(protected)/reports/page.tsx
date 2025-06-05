@@ -8,6 +8,7 @@ import IsseFormInputModal, { Field } from "@/components/IssueFormInputModal";
 import { addIssue, fetchIssues } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
+import { toast, ToastContainer } from "react-toastify";
 
 interface Report {
   no?: number;
@@ -215,6 +216,7 @@ export default function ReportsPage() {
 
       // Refresh all data after successful creation
       await fetchAllIssuesData();
+      toast.success("Report Created successfully!");
 
       console.log("Report created successfully!");
     } catch (error) {
@@ -251,30 +253,89 @@ export default function ReportsPage() {
   ];
 
   // Format current date and time for default values
-  const currentDate = new Date();
-  const formattedDate = currentDate.toISOString().split("T")[0];
-  const formattedInTime = currentDate.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  // const currentDate = new Date();
+  // const formattedDate = currentDate.toISOString().split("T")[0];
+  // const formattedInTime = currentDate.toLocaleTimeString("en-GB", {
+  //   hour: "2-digit",
+  //   minute: "2-digit",
+  //   hour12: false,
+  // });
 
   const newReportFields: Field[] = [
-    // Information Section
+    // Required input fields based on your specification - arranged for left-right layout
+    {
+      id: "idCategory",
+      label: "Kategori",
+      type: "select" as const,
+      value: "",
+      placeholder: "-- Pilih Kategori --",
+      options: categories.map((cat) => ({
+        value: cat.id.toString(),
+        label: cat.category,
+      })),
+      required: true,
+    },
+    {
+      id: "idGate",
+      label: "ID Gate",
+      type: "number" as const,
+      value: "",
+      placeholder: "Enter Gate ID",
+      required: true,
+    },
+    {
+      id: "description",
+      label: "Object/Description",
+      type: "select" as const,
+      value: "",
+      placeholder: "-- Pilih Deskripsi --",
+      options: descriptions.map((desc) => ({
+        value: desc.id.toString(),
+        label: desc.object,
+      })),
+      required: true,
+    },
+    {
+      id: "TrxNo",
+      label: "Transaction Number",
+      type: "text" as const,
+      value: "",
+      placeholder: "Enter transaction number",
+      required: true,
+    },
+    {
+      id: "action",
+      label: "Action",
+      type: "text" as const,
+      value: "",
+      placeholder: "Enter action (e.g., OPEN_GATE, CREATE_ISSUE)",
+      required: true,
+    },
+    {
+      id: "number_plate",
+      label: "Number Plate",
+      type: "text" as const,
+      value: "",
+      placeholder: "Enter number plate",
+      required: true,
+    },
+    {
+      id: "foto",
+      label: "Foto",
+      type: "text" as const,
+      value: "-",
+      placeholder: "Photo URL or path",
+      required: false,
+    },
+
+    // COMMENTED OUT - Information Section (not required for input)
+    /*
     {
       id: "no_transaction",
       label: "No Transaction",
       type: "text" as const,
       value: "-",
       placeholder: "No Transaction",
-      readonly: true,
-    },
-    {
-      id: "number_plate",
-      label: "No Plat Number",
-      type: "text" as const,
-      value: "-",
-      placeholder: "No Plat Number",
       readonly: true,
     },
     {
@@ -317,39 +378,7 @@ export default function ReportsPage() {
       placeholder: "Tariff",
       readonly: true,
     },
-    // Input Issue Section
-    {
-      id: "idCategory",
-      label: "Kategori",
-      type: "select" as const,
-      value: "",
-      placeholder: "-- Pilih Kategori --",
-      options: categories.map((cat) => ({
-        value: cat.id.toString(),
-        label: cat.category,
-      })),
-      required: true,
-    },
-    {
-      id: "description",
-      label: "Object/Description",
-      type: "select" as const,
-      value: "",
-      placeholder: "-- Pilih Deskripsi --",
-      options: descriptions.map((desc) => ({
-        value: desc.id.toString(),
-        label: desc.object,
-      })),
-      required: true,
-    },
-    {
-      id: "action",
-      label: "Action",
-      type: "text" as const,
-      value: "",
-      placeholder: "Enter action (e.g., OPEN_GATE, CREATE_ISSUE)",
-      required: true,
-    },
+    */
   ];
 
   const handleExport = () => {
@@ -359,6 +388,7 @@ export default function ReportsPage() {
 
   return (
     <div className="container mx-auto px-6 py-8">
+      <ToastContainer />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Laporan</h1>
       </div>

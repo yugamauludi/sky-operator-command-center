@@ -34,9 +34,7 @@ export default function LocationPage() {
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLocation, ] = useState<Location | null>(
-    null
-  );
+  const [selectedLocation] = useState<Location | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
 
   // const handleDelete = (location: Location) => {
@@ -75,10 +73,10 @@ export default function LocationPage() {
     setIsEditModalOpen(false);
   };
 
-  const handleExport = () => {
-    // Implementasi export data ke CSV/Excel
-    console.log("Exporting data...");
-  };
+  // const handleExport = () => {
+  //   // Implementasi export data ke CSV/Excel
+  //   console.log("Exporting data...");
+  // };
 
   // Tambahkan state untuk data lokasi
   const [locations, setLocations] = useState<Location[]>([]);
@@ -93,24 +91,26 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const locationsData = await fetchLocation(page, limit);
-      if (locationsData && locationsData.data && locationsData.meta) {
-        const mappedLocation: Location[] = locationsData.data.map(
-          (loc, index) => {
-            return {
-              id: loc.id || index + 1, // Use actual ID from API
-              name: loc.Name,
-              address: loc.Code,
-            };
-          }
-        );
-        setLocationPagination({
-          totalItems: locationsData.meta.totalItems,
-          totalPages: locationsData.meta.totalPages,
-          currentPage: locationsData.meta.page,
-          itemsPerPage: locationsData.meta.limit,
-        });
-        setLocations(mappedLocation);
-      }
+      console.log("DATA LOCATION : ", locationsData);
+      
+      // if (locationsData && locationsData.data && locationsData.meta) {
+      //   const mappedLocation: Location[] = locationsData.data.map(
+      //     (loc, index) => {
+      //       return {
+      //         id: loc.id || index + 1, // Use actual ID from API
+      //         name: loc.Name,
+      //         address: loc.Code,
+      //       };
+      //     }
+      //   );
+      //   setLocationPagination({
+      //     totalItems: locationsData.meta.totalItems,
+      //     totalPages: locationsData.meta.totalPages,
+      //     currentPage: locationsData.meta.page,
+      //     itemsPerPage: locationsData.meta.limit,
+      //   });
+      //   setLocations(mappedLocation);
+      // }
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -165,7 +165,24 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const locationsActiveData = await fetchLocationActive(page, limit);
-      console.log(locationsActiveData, "<<<<locationsActiveData");
+      if (locationsActiveData && locationsActiveData.data && locationsActiveData.meta) {
+        const mappedLocation: Location[] = locationsActiveData.data.map(
+          (loc, index) => {
+            return {
+              id: loc.id || index + 1, // Use actual ID from API
+              name: loc.Name,
+              address: loc.Code,
+            };
+          }
+        );
+        setLocationPagination({
+          totalItems: locationsActiveData.meta.totalItems,
+          totalPages: locationsActiveData.meta.totalPages,
+          currentPage: locationsActiveData.meta.page,
+          itemsPerPage: locationsActiveData.meta.limit,
+        });
+        setLocations(mappedLocation);
+      }
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -286,7 +303,7 @@ export default function LocationPage() {
 
   const handleConfirmAdd = () => {
     // Implementasi add disini
-    setIsConfirmationModalOpen(false)
+    setIsConfirmationModalOpen(false);
     setIsAddModalOpen(true);
     // setIsAddModalOpen(false);
   };
@@ -308,7 +325,7 @@ export default function LocationPage() {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Daftar Lokasi</h1>
               <div className="flex space-x-3">
-                <button
+                {/* <button
                   onClick={handleExport}
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
                 >
@@ -325,7 +342,7 @@ export default function LocationPage() {
                     />
                   </svg>
                   <span>Export Data</span>
-                </button>
+                </button> */}
                 {/* <button
                   onClick={handleAdd}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"

@@ -27,11 +27,6 @@ interface SocketContextType {
   endCallFunction: () => void;
 }
 
-// interface Category {
-//   id: string;
-//   category: string;
-// }
-
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   connectionStatus: "Disconnected",
@@ -145,7 +140,6 @@ interface DataIssue {
   TrxNo?: string;
 }
 
-// Global Call Popup Component
 // Updated GlobalCallPopup Component with new layout
 export function GlobalCallPopup() {
   const { activeCall, endCallFunction } = useGlobalSocket();
@@ -162,6 +156,9 @@ export function GlobalCallPopup() {
     photoOut: false,
     photoCapture: false,
   });
+
+  // Check if gate is PM type
+  const isPMGate = activeCall?.gate?.toUpperCase().includes("PM") || false;
 
   // Fetch categories when component mounts
   useEffect(() => {
@@ -279,24 +276,24 @@ export function GlobalCallPopup() {
     <>
       <ToastContainer />
       <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-5xl max-h-[85vh] overflow-hidden">
           {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">
+          <div className="text-center mb-4">
+            <h2 className="text-lg font-semibold text-red-600 mb-1">
               📞 Incoming Call!
             </h2>
           </div>
 
           {/* Main Content - Two Column Layout */}
-          <div className="grid grid-cols-2 gap-8 mb-6">
+          <div className="grid grid-cols-2 gap-6 mb-4">
             {/* Left Column - Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold border-b pb-1">
                 Information
               </h3>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-sm">
                   <span className="font-medium">Location Name</span>
                   <span>:</span>
                   <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
@@ -379,20 +376,20 @@ export function GlobalCallPopup() {
             </div>
 
             {/* Right Column - Input Issue */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold border-b pb-1">
                 Input Issue
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1">
                     Object
                   </label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                    className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
                   >
                     <option value="">-- Pilih Kategori --</option>
                     {categories.map((category) => (
@@ -404,13 +401,13 @@ export function GlobalCallPopup() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1">
                     Description
                   </label>
                   <select
                     value={selectedDescription}
                     onChange={(e) => setSelectedDescription(e.target.value)}
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                    className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
                   >
                     <option value="">-- Pilih Deskripsi --</option>
                     {description?.map((desc) => (
@@ -422,7 +419,7 @@ export function GlobalCallPopup() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1">
                     Action
                   </label>
                   <input
@@ -435,106 +432,145 @@ export function GlobalCallPopup() {
                       }))
                     }
                     placeholder="Enter action"
-                    className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                    className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
                   />
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-2 pt-4">
+                {/* Action Buttons - Moved up and added Open Gate button */}
+                <div className="flex flex-col space-y-2 pt-2">
                   <button
-                    onClick={endCallFunction}
-                    className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                    onClick={handleOpenGate}
+                    disabled={!selectedCategory || isOpeningGate}
+                    className="w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
                   >
-                    End Call
+                    {isOpeningGate ? "Opening..." : "Open Gate"}
                   </button>
-                  <button
-                    onClick={handleCreateIssue}
-                    disabled={
-                      !selectedCategory || !selectedDescription || isCreateIssue
-                    }
-                    className="px-6 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
-                  >
-                    {isCreateIssue ? "Creating..." : "Submit"}
-                  </button>
+
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={endCallFunction}
+                      className="flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                    >
+                      End Call
+                    </button>
+                    <button
+                      onClick={handleCreateIssue}
+                      disabled={
+                        !selectedCategory ||
+                        !selectedDescription ||
+                        isCreateIssue
+                      }
+                      className="flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
+                    >
+                      {isCreateIssue ? "Creating..." : "Submit"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Section - Photos */}
-          <div className="border-t pt-6">
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center">
-                <p className="text-sm font-medium mb-2">Foto In</p>
-                <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                  {!imageErrors.photoIn ? (
-                    <Image
-                      src={photoInUrl}
-                      alt="Foto In"
-                      width={200}
-                      height={188}
-                      className="w-full h-full object-cover rounded-md"
-                      onError={() => {
-                        setImageErrors((prev) => ({ ...prev, photoIn: true }));
-                      }}
-                    />
-                  ) : (
-                    <span className="text-sm">Foto In</span>
-                  )}
+          {/* Bottom Section - Photos - Conditional display based on gate type */}
+          <div className="border-t pt-3">
+            {isPMGate ? (
+              // For PM gates - only show capture photo
+              <div className="flex justify-center">
+                <div className="text-center w-64">
+                  <p className="text-xs font-medium mb-1">Foto Capture</p>
+                  <div className="w-full h-32 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                    {!imageErrors.photoCapture ? (
+                      <Image
+                        src={photoCaptureurl}
+                        alt="Foto Capture"
+                        width={250}
+                        height={128}
+                        className="w-full h-full object-cover rounded-md"
+                        onError={() => {
+                          setImageErrors((prev) => ({
+                            ...prev,
+                            photoCapture: true,
+                          }));
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs">Foto Capture</span>
+                    )}
+                  </div>
                 </div>
               </div>
+            ) : (
+              // For non-PM gates - show all three photos
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <p className="text-xs font-medium mb-1">Foto In</p>
+                  <div className="w-full h-28 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                    {!imageErrors.photoIn ? (
+                      <Image
+                        src={photoInUrl}
+                        alt="Foto In"
+                        width={150}
+                        height={112}
+                        className="w-full h-full object-cover rounded-md"
+                        onError={() => {
+                          setImageErrors((prev) => ({
+                            ...prev,
+                            photoIn: true,
+                          }));
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs">Foto In</span>
+                    )}
+                  </div>
+                </div>
 
-              <div className="text-center">
-                <p className="text-sm font-medium mb-2">Foto Out</p>
-                <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                  {!imageErrors.photoOut ? (
-                    <Image
-                      src={photoOutUrl}
-                      alt="Foto Out"
-                      width={200}
-                      height={188}
-                      className="w-full h-full object-cover rounded-md"
-                      onError={() => {
-                        setImageErrors((prev) => ({ ...prev, photoOut: true }));
-                      }}
-                    />
-                  ) : (
-                    <span className="text-sm">Foto Out</span>
-                  )}
+                <div className="text-center">
+                  <p className="text-xs font-medium mb-1">Foto Out</p>
+                  <div className="w-full h-28 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                    {!imageErrors.photoOut ? (
+                      <Image
+                        src={photoOutUrl}
+                        alt="Foto Out"
+                        width={150}
+                        height={112}
+                        className="w-full h-full object-cover rounded-md"
+                        onError={() => {
+                          setImageErrors((prev) => ({
+                            ...prev,
+                            photoOut: true,
+                          }));
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs">Foto Out</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-xs font-medium mb-1">Foto Capture</p>
+                  <div className="w-full h-28 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                    {!imageErrors.photoCapture ? (
+                      <Image
+                        src={photoCaptureurl}
+                        alt="Foto Capture"
+                        width={150}
+                        height={112}
+                        className="w-full h-full object-cover rounded-md"
+                        onError={() => {
+                          setImageErrors((prev) => ({
+                            ...prev,
+                            photoCapture: true,
+                          }));
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs">Foto Capture</span>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div className="text-center">
-                <p className="text-sm font-medium mb-2">Foto Capture</p>
-                <div className="w-full h-40 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                  {!imageErrors.photoIn ? (
-                    <Image
-                      src={photoCaptureurl}
-                      alt="Foto Capture"
-                      width={200}
-                      height={188}
-                      className="w-full h-full object-cover rounded-md"
-                      onError={() => {
-                        setImageErrors((prev) => ({ ...prev, photoIn: true }));
-                      }}
-                    />
-                  ) : (
-                    <span className="text-sm">Foto Capture</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Action Buttons */}
-          <div className="flex justify-center space-x-4 mt-6">
-            <button
-              onClick={handleOpenGate}
-              disabled={!selectedCategory || isOpeningGate}
-              className="px-8 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
-            >
-              {isOpeningGate ? "Opening..." : "Open Gate"}
-            </button>
+            )}
           </div>
         </div>
       </div>
@@ -561,11 +597,6 @@ export function UserNumberSetup() {
     setUserNumber(num);
     setShowModal(false);
   };
-
-  // const handleChangeUserNumber = () => {
-  //   setShowModal(true);
-  //   setInputValue("");
-  // };
 
   const checkLoginStatus = () => {
     const token = localStorage.getItem("id");
@@ -629,14 +660,4 @@ export function UserNumberSetup() {
       </div>
     );
   }
-
-  // return (
-  //   <button
-  //     onClick={handleChangeUserNumber}
-  //     className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg z-40"
-  //     title="Change User Number"
-  //   >
-  //     👤
-  //   </button>
-  // );
 }

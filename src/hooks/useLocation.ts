@@ -3,6 +3,7 @@ export interface Location {
     id: number;
     Code: string;
     Name: string;
+    Address?: string;
 }
 
 interface LocationResponse {

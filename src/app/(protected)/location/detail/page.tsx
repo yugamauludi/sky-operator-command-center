@@ -220,10 +220,10 @@ function LocationDetailContent() {
       header: "Gate",
       accessor: "gate",
     },
-    {
-      header: "Channel CCTV",
-      accessor: "channel_cctv",
-    },
+    // {
+    //   header: "Channel CCTV",
+    //   accessor: "channel_cctv",
+    // },
     // {
     //   header: "Arduino",
     //   accessor: "arduino",
