@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -21,7 +20,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Root layout - TIDAK ada auth check di sini
 export default function RootLayout({
   children,
 }: Readonly<{

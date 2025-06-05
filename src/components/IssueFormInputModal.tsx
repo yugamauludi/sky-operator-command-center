@@ -16,6 +16,8 @@ export interface Field {
   options?: FieldOption[];
   required?: boolean;
   readonly?: boolean;
+  disabled?: boolean; // Add disabled property
+  onChange?: (value: string) => void; // Add onChange callback
 }
 
 interface IssueInputFormModalProps {
@@ -39,7 +41,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 }) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
-  // Initialize form values when modal opens
+  // Initialize form values when modal opens or fields change
   useEffect(() => {
     if (isOpen) {
       const initialValues: Record<string, string> = {};
@@ -50,11 +52,36 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     }
   }, [isOpen, fields]);
 
+  // Update form values when field values change externally
+  useEffect(() => {
+    if (isOpen) {
+      const updatedValues: Record<string, string> = { ...formValues };
+      let hasChanges = false;
+      
+      fields.forEach((field) => {
+        if (updatedValues[field.id] !== field.value) {
+          updatedValues[field.id] = field.value;
+          hasChanges = true;
+        }
+      });
+      
+      if (hasChanges) {
+        setFormValues(updatedValues);
+      }
+    }
+  }, [fields, isOpen]);
+
   const handleInputChange = (fieldId: string, value: string) => {
     setFormValues((prev) => ({
       ...prev,
       [fieldId]: value,
     }));
+
+    // Call the field's onChange callback if provided
+    const field = fields.find(f => f.id === fieldId);
+    if (field?.onChange) {
+      field.onChange(value);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +103,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
   const renderField = (field: Field) => {
     const value = formValues[field.id] || "";
     const isReadonly = field.readonly || false;
+    const isDisabled = field.disabled || false;
 
     switch (field.type) {
       case "select":
@@ -83,8 +111,12 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
           <select
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
-            className="w-full p-3 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 text-sm"
-            disabled={isReadonly}
+            className={`w-full p-3 border rounded-md text-sm ${
+              isDisabled || isReadonly
+                ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+                : "bg-white dark:bg-gray-700"
+            } dark:border-gray-600`}
+            disabled={isReadonly || isDisabled}
             required={field.required}
           >
             <option value="">{field.placeholder}</option>
@@ -102,9 +134,14 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             placeholder={field.placeholder}
-            className="w-full p-3 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 text-sm resize-none"
+            className={`w-full p-3 border rounded-md text-sm resize-none ${
+              isDisabled || isReadonly
+                ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+                : "bg-white dark:bg-gray-700"
+            } dark:border-gray-600`}
             rows={3}
             readOnly={isReadonly}
+            disabled={isDisabled}
             required={field.required}
           />
         );
@@ -117,11 +154,12 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             placeholder={field.placeholder}
             className={`w-full p-3 border rounded-md text-sm ${
-              isReadonly 
+              isReadonly || isDisabled
                 ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed" 
                 : "bg-white dark:bg-gray-700"
             } dark:border-gray-600`}
             readOnly={isReadonly}
+            disabled={isDisabled}
             required={field.required}
           />
         );

@@ -230,7 +230,7 @@ export default function CommonTable<T>({
                     <td
                       key={colIndex}
                       className="p-4 text-sm text-gray-900 dark:text-gray-100"
-                      style={{ width: column.width }} // ✅ Tambahkan ini
+                      style={{ width: column.width }}
                     >
                       {column.render
                         ? column.render(item[column.accessor], item)

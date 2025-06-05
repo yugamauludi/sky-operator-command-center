@@ -19,7 +19,6 @@ interface PaginationInfo {
   itemsPerPage: number;
 }
 
-// Komponen terpisah yang menggunakan useSearchParams
 function LocationDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

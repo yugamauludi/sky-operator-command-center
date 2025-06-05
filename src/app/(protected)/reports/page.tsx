@@ -10,6 +10,7 @@ import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
 import { toast, ToastContainer } from "react-toastify";
 import { formatDateOnly } from "@/utils/formatDate";
+import { fetchGateByLocation, fetchLocationActive, GateByLocation, Location } from "@/hooks/useLocation";
 
 interface Report {
   no?: number;
@@ -31,6 +32,7 @@ interface PaginationInfo {
 }
 
 interface NewReportData {
+  idLocation: number;
   idCategory: number;
   idGate: number;
   description: string;
@@ -44,6 +46,8 @@ export default function ReportsPage() {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
+  const [locationData, setLocationData] = useState<Location[]>([]);
+  const [gateIdData, setGateIdData] = useState<GateByLocation[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [descriptions, setDescriptions] = useState<Description[]>([]);
   const [issuesPagination, setIssuesPagination] = useState<PaginationInfo>({
@@ -57,6 +61,9 @@ export default function ReportsPage() {
   const [searchDate, setSearchDate] = useState<Date | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
+
+  // Form field values state to track location changes
+  const [formFieldValues, setFormFieldValues] = useState<Record<string, string>>({});
 
   // Load ALL data for frontend filtering
   const fetchAllIssuesData = async () => {
@@ -171,6 +178,26 @@ export default function ReportsPage() {
     filteredPagination.itemsPerPage,
   ]);
 
+  const fetchLocationData = async () => {
+    try {
+      const response = await fetchLocationActive(1, 1000);
+      setLocationData(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fetchGateData = async (data: any) => {
+    try {
+      const response = await fetchGateByLocation(data);
+      setGateIdData(response.data); 
+    } catch (error) {
+      console.error("Error fetching gates:", error);
+      setGateIdData([]); 
+    }
+  };
+
   const fetchCategoriesData = async () => {
     try {
       const response = await fetchCategories(1, 1000);
@@ -201,11 +228,38 @@ export default function ReportsPage() {
     }));
   };
 
+  // Handle field value changes in modal
+  const handleFieldValueChange = (fieldId: string, value: string) => {
+    setFormFieldValues(prev => {
+      const newValues = { ...prev, [fieldId]: value };
+      
+      // If location changed, clear gate selection and fetch new gates
+      if (fieldId === 'idLocation') {
+        // Clear gate selection
+        newValues.idGate = '';
+        
+        // Fetch gates for new location
+        if (value) {
+          fetchGateData({
+            id: parseInt(value),
+            page: 1,
+            limit: 1000,
+          });
+        } else {
+          setGateIdData([]); // Clear gates if no location selected
+        }
+      }
+      
+      return newValues;
+    });
+  };
+
   const handleNewReportSubmit = async (values: Record<string, string>) => {
     try {
       setIsDataLoading(true);
 
       const newReportData: NewReportData = {
+        idLocation: parseInt(values.idLocation),
         idCategory: parseInt(values.idCategory),
         idGate: parseInt(values.idGate) || 0,
         description: values.description,
@@ -224,6 +278,10 @@ export default function ReportsPage() {
       toast.success("Report Created successfully!");
 
       console.log("Report created successfully!");
+      
+      // Clear form values and gate data
+      setFormFieldValues({});
+      setGateIdData([]);
     } catch (error) {
       console.error("Error creating new report:", error);
     } finally {
@@ -242,10 +300,18 @@ export default function ReportsPage() {
   // Check if any filter is active
   const hasActiveFilters = searchDate || searchLocation || searchCategory;
 
+  // Handle modal close
+  const handleModalClose = () => {
+    setIsNewReportModalOpen(false);
+    setFormFieldValues({});
+    setGateIdData([]);
+  };
+
   useEffect(() => {
     fetchAllIssuesData(); // Load all data once
     fetchCategoriesData();
     fetchDescriptionsData();
+    fetchLocationData();
   }, []);
 
   const columns: Column<Report>[] = [
@@ -269,68 +335,94 @@ export default function ReportsPage() {
   const newReportFields: Field[] = [
     // Required input fields based on your specification - arranged for left-right layout
     {
+      id: "idLocation",
+      label: "Location",
+      type: "select" as const,
+      value: formFieldValues.idLocation || "",
+      placeholder: "-- Pilih Location --",
+      options: locationData?.map((loc) => ({
+        value: loc.id.toString(),
+        label: loc.Name,
+      })),
+      required: true,
+      onChange: (value) => handleFieldValueChange('idLocation', value),
+    },
+    {
       id: "idCategory",
       label: "Kategori",
       type: "select" as const,
-      value: "",
+      value: formFieldValues.idCategory || "",
       placeholder: "-- Pilih Kategori --",
       options: categories.map((cat) => ({
         value: cat.id.toString(),
         label: cat.category,
       })),
       required: true,
+      onChange: (value) => handleFieldValueChange('idCategory', value),
     },
     {
       id: "idGate",
       label: "ID Gate",
-      type: "number" as const,
-      value: "",
-      placeholder: "Enter Gate ID",
+      type: "select" as const,
+      value: formFieldValues.idGate || "",
+      placeholder: formFieldValues.idLocation ? "-- Pilih Gate --" : "-- Pilih Location dulu --",
+      options: gateIdData?.map((gate) => ({
+        value: gate.id.toString(),
+        label: `Gate ${gate.id}`,
+      })) || [],
       required: true,
+      disabled: !formFieldValues.idLocation,
+      onChange: (value) => handleFieldValueChange('idGate', value),
     },
     {
       id: "description",
       label: "Object/Description",
       type: "select" as const,
-      value: "",
+      value: formFieldValues.description || "",
       placeholder: "-- Pilih Deskripsi --",
       options: descriptions.map((desc) => ({
-        value: desc.id.toString(),
+        // value: desc.id.toString(),
+        value: desc.object,
         label: desc.object,
       })),
       required: true,
+      onChange: (value) => handleFieldValueChange('description', value),
     },
     {
       id: "TrxNo",
       label: "Transaction Number",
       type: "text" as const,
-      value: "",
+      value: formFieldValues.TrxNo || "",
       placeholder: "Enter transaction number",
       required: true,
+      onChange: (value) => handleFieldValueChange('TrxNo', value),
     },
     {
       id: "action",
       label: "Action",
       type: "text" as const,
-      value: "",
+      value: formFieldValues.action || "",
       placeholder: "Enter action (e.g., OPEN_GATE, CREATE_ISSUE)",
       required: true,
+      onChange: (value) => handleFieldValueChange('action', value),
     },
     {
       id: "number_plate",
       label: "Number Plate",
       type: "text" as const,
-      value: "",
+      value: formFieldValues.number_plate || "",
       placeholder: "Enter number plate",
       required: true,
+      onChange: (value) => handleFieldValueChange('number_plate', value),
     },
     {
       id: "foto",
       label: "Foto",
       type: "text" as const,
-      value: "-",
+      value: formFieldValues.foto || "-",
       placeholder: "Photo URL or path",
       required: false,
+      onChange: (value) => handleFieldValueChange('foto', value),
     },
 
     // COMMENTED OUT - Information Section (not required for input)
@@ -539,7 +631,7 @@ export default function ReportsPage() {
       {/* New Report Modal */}
       <IsseFormInputModal
         isOpen={isNewReportModalOpen}
-        onClose={() => setIsNewReportModalOpen(false)}
+        onClose={handleModalClose}
         onSubmit={handleNewReportSubmit}
         title="Tambah Laporan Baru"
         fields={newReportFields}
