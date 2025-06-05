@@ -20,8 +20,8 @@ interface Report {
   category: string;
   description: string;
   solution: string;
-  formatDate: string; // Keep only the combined format
-  rawDate: Date; // Add raw date for filtering
+  formatDate: string;
+  rawDate: Date;
 }
 
 interface PaginationInfo {
