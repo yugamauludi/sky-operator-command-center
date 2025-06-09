@@ -56,18 +56,7 @@ export default function Sidebar() {
           {/* Toggle Button - dengan posisi yang lebih baik dan tampilan yang lebih proporsional */}
           <button
             onClick={toggleSidebar}
-            className={`
-              absolute -right-4 top-12
-              w-8 h-8
-              flex items-center justify-center
-              bg-white dark:bg-gray-800
-              border border-gray-200 dark:border-gray-700
-              rounded-full
-              hover:bg-red-50 dark:hover:bg-red-900/20
-              text-red-500 dark:text-red-400
-              transition-all duration-200
-              hover:scale-105
-              shadow-md
+            className={`absolute -right-4 top-12 w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 dark:text-red-400 transition-all duration-200 hover:scale-105 shadow-md
               ${isOpen ? "transform rotate-0" : "transform rotate-180"}
             `}
             aria-label={isOpen ? "Tutup sidebar" : "Buka sidebar"}
