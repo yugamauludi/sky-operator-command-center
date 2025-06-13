@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useGlobalSocket } from "@/contexts/SocketContext";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
+import { useSearchParams } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
 // import { endCall } from "@/hooks/useIOT";
 // import { GateStatusUpdate } from "@/types/gate";
 // import DynamicInputModal from "@/components/DynamicInputModal";
@@ -61,6 +63,19 @@ export default function Dashboard() {
     searchQuery, 
     // setSearchQuery
   ] = useState("");
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("loginSuccess") === "1") {
+      toast.success("Berhasil login!");
+      // Optional: kamu bisa hapus query param dari URL (bersih)
+      const url = new URL(window.location.href);
+      url.searchParams.delete("loginSuccess");
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [searchParams]);
+
 
   // const [showSetupModal, setShowSetupModal] = useState(true);
 
@@ -282,6 +297,7 @@ export default function Dashboard() {
 
   return (
     <>
+    <ToastContainer/>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <div className="container mx-auto px-6 py-8">
           {/* Panduan Cepat */}

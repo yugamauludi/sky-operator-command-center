@@ -92,6 +92,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnectionStatus("Connected");
       // Auto-register if user number exists
       if (userNumber) {
+        console.log(userNumber, "<<< ini harusnya nanti di dapat dari id user ketika login");
+        
         socket.emit("register", userNumber);
       }
     });

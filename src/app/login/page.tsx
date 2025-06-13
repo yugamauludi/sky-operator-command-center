@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { LoginAuth } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 // import { AuthService } from '@/services/auth.service';
 
@@ -15,42 +14,42 @@ export default function Login() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-
-  //   try {
-  //     const response = await AuthService.login({
-  //       identifier: formData.username,
-  //       password: formData.password
-  //     });
-
-  //     if (response.data.token) {
-  //       localStorage.setItem('token', response.data.token);
-  //       router.push('/dashboard');
-  //     }
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   } catch (error: any) {
-  //     console.error('Login error:', error.message);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleSubmit = async () => {
     try {
       const response = await LoginAuth({
         identifier: formData.username,
         password: formData.password,
         remember: true,
-      });      
+      });
       // Simpan di cookies
       // document.cookie = `id=${response.user.id}; path=/;`
       // Simpan juga di localStorage jika diperlukan
       localStorage.setItem("id", response.user.id);
-      router.push("/");
-      window.dispatchEvent(new Event('loginSuccess'));
-      toast.success("Berhasil Login!");
+      if (response.user.agent_number) {
+        localStorage.setItem(
+          "admin_user_number",
+          response.user.agent_number.toString()
+        );
+      } else if (response.user.user_number) {
+        localStorage.setItem(
+          "admin_user_number",
+          response.user.user_number.toString()
+        );
+      } else if (response.user.role_id) {
+        // If you use role_id to determine agent number
+        // Example mapping: role_id 1 = agent 1, role_id 2 = agent 2, etc.
+        const agentNumber = response.user.role_id;
+        if ([1, 2, 3].includes(agentNumber)) {
+          localStorage.setItem("admin_user_number", agentNumber.toString());
+        }
+      }
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+      }
+
+      router.push("/?loginSuccess=1");
+      window.dispatchEvent(new Event("loginSuccess"));
     } catch (error) {
       console.error("Login error:", error);
     } finally {
