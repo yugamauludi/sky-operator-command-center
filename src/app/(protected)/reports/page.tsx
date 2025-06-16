@@ -275,16 +275,11 @@ export default function ReportsPage() {
         TrxNo: values.TrxNo || "-",
       };
 
-      console.log("Submitting new report:", newReportData);
-
       await addIssue(newReportData);
 
       // Refresh all data after successful creation
       await fetchAllIssuesData();
       toast.success("Report Created successfully!");
-
-      console.log("Report created successfully!");
-
       // Clear form values and gate data
       setFormFieldValues({});
       setGateIdData([]);

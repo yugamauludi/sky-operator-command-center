@@ -191,7 +191,6 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const locationsData = await fetchLocation(page, limit);
-      console.log("DATA LOCATION : ", locationsData);
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -234,7 +233,6 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const gateByLocationRes = await fetchGateByLocation(id);
-      console.log("Data gateByLocation :", gateByLocationRes);
     } catch (error) {
       console.error("Error fetching gate by location:", error);
     } finally {
@@ -338,7 +336,6 @@ export default function LocationPage() {
   ];
 
   const handleSubmit = async (values: Record<string, string>) => {
-    console.log("Form values:", values);
     try {
       await createGate(values);
       setIsAddModalOpen(false);
