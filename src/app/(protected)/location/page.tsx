@@ -11,7 +11,7 @@ import {
   fetchLocation,
   fetchLocationActive,
   // fetchLocationById,
-  LocationDetail,
+  // LocationDetail,
 } from "@/hooks/useLocation";
 import DynamicInputModal from "@/components/DynamicInputModal";
 import { toast } from "react-toastify";
