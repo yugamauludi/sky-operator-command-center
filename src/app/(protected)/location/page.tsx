@@ -255,7 +255,8 @@ export default function LocationPage() {
         />
       </Head>
 
-      {/* Responsive container - hapus minWidth dan overflowX */}
+      {/* Responsive container - hapus minWidth dan 
+      X */}
       <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 flex flex-col">
           <main className="flex-1 overflow-hidden">
