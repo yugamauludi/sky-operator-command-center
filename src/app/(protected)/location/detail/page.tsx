@@ -11,6 +11,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import { closeGate, pingArduino } from "@/hooks/useIOT";
 import { ConfirmationModal } from "@/components/ConfirmationModalV2";
+import formatTanggalUTC from "@/utils/formatDate";
 
 interface PaginationInfo {
   totalItems: number;
@@ -253,13 +254,7 @@ function LocationDetailContent() {
       header: "Updated At",
       accessor: "updatedAt",
       render: (value) =>
-        new Date(value as string).toLocaleDateString("id-ID", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        formatTanggalUTC(value as string) || "Tidak ada data",
     },
     {
       header: "Aksi",

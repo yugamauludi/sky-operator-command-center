@@ -203,7 +203,7 @@ export default function CommonTable<T>({
     <div className={`w-full ${className}`}>
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         {/* Horizontal scroll container */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto thin-scrollbar">
           {/* Vertical scroll container */}
           <div className="max-h-120 overflow-y-auto">
             <table className="w-full min-w-full">

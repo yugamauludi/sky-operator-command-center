@@ -268,7 +268,7 @@ export default function LocationPage() {
                   {/* Button actions if needed */}
                 </div>
               </div>
-              
+
               {/* Table wrapper dengan proper horizontal scroll */}
               <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
                 {isDataLoading ? (
@@ -303,21 +303,17 @@ export default function LocationPage() {
                   </div>
                 ) : (
                   /* Container untuk horizontal scroll - key fix di sini */
-                  <div className="w-full overflow-x-auto">
-                    <div className="p-3 sm:p-6 min-w-max">
-                      <CommonTable
-                        data={locations}
-                        columns={columns}
-                        showPagination={true}
-                        currentPage={locationPagination.currentPage}
-                        totalPages={locationPagination.totalPages}
-                        onPageChange={handleLocationPageChange}
-                        itemsPerPage={locationPagination.itemsPerPage}
-                        totalItems={locationPagination.totalItems}
-                        onItemsPerPageChange={handleItemsPerPageChange}
-                      />
-                    </div>
-                  </div>
+                  <CommonTable
+                    data={locations}
+                    columns={columns}
+                    showPagination={true}
+                    currentPage={locationPagination.currentPage}
+                    totalPages={locationPagination.totalPages}
+                    onPageChange={handleLocationPageChange}
+                    itemsPerPage={locationPagination.itemsPerPage}
+                    totalItems={locationPagination.totalItems}
+                    onItemsPerPageChange={handleItemsPerPageChange}
+                  />
                 )}
               </div>
             </div>
