@@ -24,14 +24,16 @@ function LocationDetailContent() {
   const searchParams = useSearchParams();
   const locationId = searchParams.get("id");
   const locationName = searchParams.get("name");
-
+  
+  
   const [gates, setGates] = useState<GateByLocation[]>([]);
   const [gatePagination, setGatePagination] = useState<PaginationInfo>({
     totalItems: 0,
     totalPages: 0,
     currentPage: 1,
-    itemsPerPage: 10,
+    itemsPerPage: 5,
   });
+  const reqParams = {id: locationId, page: gatePagination.currentPage, limit: gatePagination.itemsPerPage};
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actioningGateId, setActioningGateId] = useState<number | null>(null);
@@ -46,8 +48,11 @@ function LocationDetailContent() {
 
     try {
       setIsDataLoading(true);
-      const gatesData = await fetchGateByLocation(parseInt(locationId));
+      const gatesData = await fetchGateByLocation(reqParams);
+      // const gatesData = {data: [], meta: {page: 1, limit: 5, totalPages: 1, totalItems: 0}};
 
+      console.log(gatesData, "<<< gatesData");
+      
       if (gatesData && gatesData.data && gatesData.meta) {
         setGates(gatesData.data);
         setGatePagination({
@@ -130,10 +135,10 @@ function LocationDetailContent() {
   };
 
   useEffect(() => {
-    if (locationId) {
-      fetchGatesData();
-    }
-  });
+  if (locationId) {
+    fetchGatesData();
+  }
+}, [locationId]);
 
   const getStatusBadge = (status: number) => {
     return status === 0 ? (

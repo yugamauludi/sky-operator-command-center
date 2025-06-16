@@ -12,6 +12,7 @@ export interface Column<T> {
   accessor: keyof T;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
   width?: string | number;
+  minWidth?: string | number;
 }
 
 interface TableProps<T> {
@@ -199,48 +200,58 @@ export default function CommonTable<T>({
   };
 
   return (
-    <div className={`overflow-x-auto ${className}`}>
+    <div className={`w-full ${className}`}>
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto max-h-120 overflow-y-auto">
-          <table className={`w-full ${className}`}>
-            <thead className="sticky top-0 z-10">
-              <tr className="text-left border-b border-gray-200 dark:border-gray-700">
-                {columns.map((column, index) => (
-                  <th
-                    key={index}
-                    className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800"
-                    style={{ width: column.width }}
-                  >
-                    {column.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {data.map((item, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                    rowIndex % 2 === 0
-                      ? "bg-white dark:bg-gray-900"
-                      : "bg-gray-200 dark:bg-gray-800"
-                  }`}
-                >
-                  {columns.map((column, colIndex) => (
-                    <td
-                      key={colIndex}
-                      className="p-4 text-sm text-gray-900 dark:text-gray-100"
-                      style={{ width: column.width }}
+        {/* Horizontal scroll container */}
+        <div className="overflow-x-auto">
+          {/* Vertical scroll container */}
+          <div className="max-h-120 overflow-y-auto">
+            <table className="w-full min-w-full">
+              <thead className="sticky top-0 z-10">
+                <tr className="text-left border-b border-gray-200 dark:border-gray-700">
+                  {columns.map((column, index) => (
+                    <th
+                      key={index}
+                      className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 whitespace-nowrap"
+                      style={{ 
+                        width: column.width,
+                        minWidth: column.minWidth || '120px'
+                      }}
                     >
-                      {column.render
-                        ? column.render(item[column.accessor], item)
-                        : item[column.accessor]?.toString()}
-                    </td>
+                      {column.header}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {data.map((item, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      rowIndex % 2 === 0
+                        ? "bg-white dark:bg-gray-900"
+                        : "bg-gray-200 dark:bg-gray-800"
+                    }`}
+                  >
+                    {columns.map((column, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className="p-4 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap"
+                        style={{ 
+                          width: column.width,
+                          minWidth: column.minWidth || '120px'
+                        }}
+                      >
+                        {column.render
+                          ? column.render(item[column.accessor], item)
+                          : item[column.accessor]?.toString()}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       {renderPagination()}

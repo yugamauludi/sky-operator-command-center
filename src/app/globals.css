@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-body {
-  min-width: 1024px; /* meniru desktop layout */
-}
+/* body {
+  min-width: 1024px; 
+} */
 
 :root {
   /* Light theme colors */
@@ -188,4 +188,11 @@ body {
     opacity: 0.3;
     /* jangan 0 agar tidak terlalu menghilang */
   }
+}
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container
+{
+  box-sizing: border-box;
+  width: 100%;
 }

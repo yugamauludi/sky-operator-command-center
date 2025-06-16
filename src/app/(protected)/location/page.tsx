@@ -7,10 +7,10 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
 import {
   createGate,
-  fetchGateByLocation,
+  // fetchGateByLocation,
   fetchLocation,
   fetchLocationActive,
-  fetchLocationById,
+  // fetchLocationById,
   LocationDetail,
 } from "@/hooks/useLocation";
 import DynamicInputModal from "@/components/DynamicInputModal";
@@ -37,124 +37,6 @@ export default function LocationPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedLocation] = useState<Location | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
-
-  // Force desktop view dengan CSS dan viewport
-  useEffect(() => {
-    // Set viewport untuk desktop width
-    const setDesktopViewport = () => {
-      let viewport = document.querySelector('meta[name="viewport"]');
-      if (viewport) {
-        viewport.setAttribute(
-          "content",
-          "width=1024, initial-scale=0.5, user-scalable=yes"
-        );
-      } else {
-        viewport = document.createElement("meta");
-        viewport.setAttribute("name", "viewport");
-        viewport.setAttribute(
-          "content",
-          "width=1024, initial-scale=0.5, user-scalable=yes"
-        );
-        document.head.appendChild(viewport);
-      }
-    };
-
-    // Tambahkan CSS untuk force desktop layout
-    const addDesktopStyles = () => {
-      const style = document.createElement("style");
-      style.textContent = `
-        /* Force desktop layout */
-        html, body {
-          min-width: 1024px !important;
-          overflow-x: auto !important;
-        }
-        
-        /* Table column width control */
-        table {
-          min-width: 800px !important;
-          table-layout: fixed !important;
-          width: 100% !important;
-        }
-        
-        /* Specific column widths */
-        table th:nth-child(1),
-        table td:nth-child(1) {
-          width: 60px !important;
-          max-width: 60px !important;
-          min-width: 60px !important;
-          text-align: center !important;
-        }
-        
-        table th:nth-child(2),
-        table td:nth-child(2) {
-          width: 200px !important;
-          max-width: 200px !important;
-          min-width: 200px !important;
-        }
-        
-        table th:nth-child(3),
-        table td:nth-child(3) {
-          width: auto !important;
-          min-width: 300px !important;
-        }
-        
-        table th:nth-child(4),
-        table td:nth-child(4) {
-          width: 100px !important;
-          max-width: 100px !important;
-          min-width: 100px !important;
-          text-align: center !important;
-        }
-        
-        /* Disable responsive behaviors */
-        * {
-          min-width: auto !important;
-        }
-        
-        /* Force container widths */
-        .container {
-          min-width: 1000px !important;
-          max-width: none !important;
-        }
-        
-        /* Disable mobile-first responsive classes */
-        @media (max-width: 768px) {
-          .sm\\:hidden { display: block !important; }
-          .sm\\:block { display: block !important; }
-          .sm\\:flex { display: flex !important; }
-          .sm\\:grid { display: grid !important; }
-          .sm\\:inline { display: inline !important; }
-          .sm\\:inline-block { display: inline-block !important; }
-        }
-        
-        /* Ensure buttons and elements maintain desktop size */
-        button, input, select, textarea {
-          min-height: 40px !important;
-          font-size: 14px !important;
-        }
-        
-        /* Force desktop padding and margins */
-        .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
-        .py-2 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
-        .px-6 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
-        .py-8 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
-      `;
-      document.head.appendChild(style);
-    };
-
-    setDesktopViewport();
-    addDesktopStyles();
-
-    // Cleanup function
-    return () => {
-      const customStyles = document.querySelectorAll("style");
-      customStyles.forEach((style) => {
-        if (style.textContent?.includes("Force desktop layout")) {
-          style.remove();
-        }
-      });
-    };
-  }, []);
 
   const handleViewDetail = async (location: Location) => {
     try {
@@ -199,48 +81,48 @@ export default function LocationPage() {
     }
   };
 
-  const [, setLocationDetailData] = useState<LocationDetail>({
-    id: 0,
-    Code: "",
-    Name: "",
-    Region: "",
-    Vendor: "",
-    VendorParkingCode: "",
-    ShortName: "",
-    Address: "",
-    StartTime: "",
-    EndTime: "",
-    DateNext: 0,
-    TimeZone: "",
-    CreatedAt: "",
-    UpdatedAt: "",
-    DeletedAt: "",
-    recordStatus: "",
-  });
+  // const [, setLocationDetailData] = useState<LocationDetail>({
+  //   id: 0,
+  //   Code: "",
+  //   Name: "",
+  //   Region: "",
+  //   Vendor: "",
+  //   VendorParkingCode: "",
+  //   ShortName: "",
+  //   Address: "",
+  //   StartTime: "",
+  //   EndTime: "",
+  //   DateNext: 0,
+  //   TimeZone: "",
+  //   CreatedAt: "",
+  //   UpdatedAt: "",
+  //   DeletedAt: "",
+  //   recordStatus: "",
+  // });
 
-  const fetchLocationDetailData = async (id: number) => {
-    try {
-      setIsDataLoading(true);
-      const locationDetailRes = await fetchLocationById(id);
-      setLocationDetailData(locationDetailRes.data);
-    } catch (error) {
-      console.error("Error fetching Location detail:", error);
-    } finally {
-      setIsDataLoading(false);
-    }
-  };
+  // const fetchLocationDetailData = async (id: number) => {
+  //   try {
+  //     setIsDataLoading(true);
+  //     const locationDetailRes = await fetchLocationById(id);
+  //     setLocationDetailData(locationDetailRes.data);
+  //   } catch (error) {
+  //     console.error("Error fetching Location detail:", error);
+  //   } finally {
+  //     setIsDataLoading(false);
+  //   }
+  // };
 
-  const fetchGateByLocationData = async (id: number) => {
-    try {
-      setIsDataLoading(true);
-      const gateByLocationRes = await fetchGateByLocation(id);
-      console.log("Data gateByLocation :", gateByLocationRes);
-    } catch (error) {
-      console.error("Error fetching gate by location:", error);
-    } finally {
-      setIsDataLoading(false);
-    }
-  };
+  // const fetchGateByLocationData = async (id: number) => {
+  //   try {
+  //     setIsDataLoading(true);
+  //     const gateByLocationRes = await fetchGateByLocation(id);
+  //     console.log("Data gateByLocation :", gateByLocationRes);
+  //   } catch (error) {
+  //     console.error("Error fetching gate by location:", error);
+  //   } finally {
+  //     setIsDataLoading(false);
+  //   }
+  // };
 
   const fetchLocationActiveData = async (page = 1, limit = 5) => {
     try {
@@ -277,8 +159,8 @@ export default function LocationPage() {
 
   useEffect(() => {
     fetchLocationData();
-    fetchLocationDetailData(1);
-    fetchGateByLocationData(1);
+    // fetchLocationDetailData(1);
+    // fetchGateByLocationData(1);
     fetchLocationActiveData();
   }, []);
 
@@ -369,29 +251,28 @@ export default function LocationPage() {
       <Head>
         <meta
           name="viewport"
-          content="width=1024, initial-scale=0.5, user-scalable=yes"
+          content="width=device-width, initial-scale=1.0, user-scalable=yes"
         />
       </Head>
 
-      <div
-        className="flex h-screen"
-        style={{ minWidth: "1024px", overflowX: "auto" }}
-      >
+      {/* Responsive container - hapus minWidth dan overflowX */}
+      <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 flex flex-col">
-          <main className="flex-1 overflow-x-hidden overflow-y-auto">
-            <div
-              className="container mx-auto px-6 py-8"
-              style={{ minWidth: "1000px" }}
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Daftar Lokasi</h1>
+          <main className="flex-1 overflow-hidden">
+            {/* Container dengan padding responsif */}
+            <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 w-full">
+              {/* Header responsif */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+                <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
                 <div className="flex space-x-3">
                   {/* Button actions if needed */}
                 </div>
               </div>
-              <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
+              
+              {/* Table wrapper dengan proper horizontal scroll */}
+              <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
                 {isDataLoading ? (
-                  <div className="text-center py-4">
+                  <div className="text-center py-4 p-6">
                     <div className="three-body">
                       <div className="three-body__dot"></div>
                       <div className="three-body__dot"></div>
@@ -402,7 +283,7 @@ export default function LocationPage() {
                     </p>
                   </div>
                 ) : locations.length === 0 ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-8 p-6">
                     <svg
                       className="mx-auto h-12 w-12 text-gray-400"
                       fill="none"
@@ -421,18 +302,21 @@ export default function LocationPage() {
                     </p>
                   </div>
                 ) : (
-                  <div style={{ minWidth: "800px", overflowX: "auto" }}>
-                    <CommonTable
-                      data={locations}
-                      columns={columns}
-                      showPagination={true}
-                      currentPage={locationPagination.currentPage}
-                      totalPages={locationPagination.totalPages}
-                      onPageChange={handleLocationPageChange}
-                      itemsPerPage={locationPagination.itemsPerPage}
-                      totalItems={locationPagination.totalItems}
-                      onItemsPerPageChange={handleItemsPerPageChange}
-                    />
+                  /* Container untuk horizontal scroll - key fix di sini */
+                  <div className="w-full overflow-x-auto">
+                    <div className="p-3 sm:p-6 min-w-max">
+                      <CommonTable
+                        data={locations}
+                        columns={columns}
+                        showPagination={true}
+                        currentPage={locationPagination.currentPage}
+                        totalPages={locationPagination.totalPages}
+                        onPageChange={handleLocationPageChange}
+                        itemsPerPage={locationPagination.itemsPerPage}
+                        totalItems={locationPagination.totalItems}
+                        onItemsPerPageChange={handleItemsPerPageChange}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
