@@ -6,6 +6,8 @@ import {
   SocketProvider,
   UserNumberSetup,
 } from "@/contexts/SocketContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Protected layout - ADA auth check di sini
 export default async function ProtectedLayout({
@@ -27,6 +29,18 @@ export default async function ProtectedLayout({
         <GlobalCallPopup />
         <UserNumberSetup />
         {children}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={true}
+          rtl={false}
+          pauseOnFocusLoss={true}
+          draggable={true}
+          pauseOnHover={true}
+          theme="colored"
+        />
       </LayoutWrapper>
     </SocketProvider>
   );

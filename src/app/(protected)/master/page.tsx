@@ -11,7 +11,7 @@ import {
   editCategory,
 } from "@/hooks/useCategories";
 import CommonTable, { Column } from "@/components/tables/CommonTable";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   addDescription,
@@ -432,7 +432,7 @@ export default function MasterPage() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         Master Data
       </h1>

@@ -8,7 +8,7 @@ import IsseFormInputModal, { Field } from "@/components/IssueFormInputModal";
 import { addIssue, fetchIssues } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { formatDateOnly } from "@/utils/formatDate";
 import {
   fetchGateByLocation,
@@ -489,7 +489,7 @@ export default function ReportsPage() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Laporan</h1>
       </div>

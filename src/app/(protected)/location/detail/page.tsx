@@ -8,7 +8,7 @@ import {
   GateByLocation,
   openGate,
 } from "@/hooks/useLocation";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { closeGate, pingArduino } from "@/hooks/useIOT";
 import { ConfirmationModal } from "@/components/ConfirmationModalV2";
 import formatTanggalUTC from "@/utils/formatDate";
@@ -287,7 +287,7 @@ function LocationDetailContent() {
         <div className="flex-1 flex flex-col">
           <main className="flex-1">
             <div className="container mx-auto px-6 py-8">
-              <ToastContainer />  
+              {/* <ToastContainer />   */}
               <div className="flex items-center mb-6">
                 <button
                   onClick={handleBack}

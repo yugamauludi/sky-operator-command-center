@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { GateStatusUpdate } from "@/types/gate";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { endCall, pingArduino } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
@@ -251,9 +251,11 @@ export function GlobalCallPopup() {
       await pingArduino(parseInt(activeCall.gateId));
       const response = await openGate(activeCall.gateId);
 
-      if (response.ok) {
+      if (response.message === "Gate opened") {
         toast.success("Gate berhasil dibuka");
-        endCallFunction(); // This will now stop the ringtone
+        // setTimeout(() => {
+          endCallFunction();
+        // }, 500);
       } else {
         toast.error("Gagal membuka gate");
       }
@@ -287,9 +289,8 @@ export function GlobalCallPopup() {
   const locationName = activeCall?.location?.Name || "Unknown Location";
 
   return (
-    <>
-      <ToastContainer />
-      <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
+    <div className="modal">
+      <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-5xl max-h-[85vh] overflow-hidden">
           {/* Header */}
           <div className="text-center mb-4">
@@ -591,7 +592,7 @@ export function GlobalCallPopup() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
