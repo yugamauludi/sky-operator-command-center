@@ -492,7 +492,21 @@ export default function ReportsPage() {
     <div className="container mx-auto px-6 py-8">
       {/* <ToastContainer /> */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Laporan</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Laporan</h1>
+          <div className="text-gray-600 mt-1 space-y-1">
+            <p>
+              Manajemen laporan kejadian pada sistem parkir. Anda dapat memantau, mencari, dan menambahkan laporan kejadian di setiap lokasi.
+            </p>
+            <p className="text-sm">
+              • Filter berdasarkan tanggal, lokasi, dan kategori
+              <br />
+              • Tambahkan laporan kejadian baru
+              <br />
+              • Pantau status penyelesaian setiap kejadian
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
