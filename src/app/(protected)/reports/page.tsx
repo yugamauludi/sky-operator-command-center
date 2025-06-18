@@ -16,6 +16,7 @@ import {
   GateByLocation,
   Location,
 } from "@/hooks/useLocation";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 interface Report {
   no?: number;
@@ -505,6 +506,46 @@ export default function ReportsPage() {
               placeholderText="Cari Tanggal"
               dateFormat="yyyy-MM-dd"
               isClearable
+              maxDate={new Date()} // Tidak bisa pilih tanggal masa depan
+              renderCustomHeader={({
+                date,
+                changeYear,
+                changeMonth,
+                decreaseMonth,
+                increaseMonth,
+                prevMonthButtonDisabled,
+                nextMonthButtonDisabled,
+              }) => (
+                <div className="flex items-center justify-between px-2 py-2">
+                  <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>
+                    <IoIosArrowBack />
+                  </button>
+                  <select
+                    value={date.getMonth()}
+                    onChange={({ target: { value } }) => changeMonth(Number(value))}
+                    className="mx-1 px-2 py-1 border rounded"
+                  >
+                    {[
+                      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                    ].map((month, index) => (
+                      <option key={month} value={index}>{month}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={date.getFullYear()}
+                    onChange={({ target: { value } }) => changeYear(Number(value))}
+                    className="mx-1 px-2 py-1 border rounded"
+                  >
+                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>
+                    <IoIosArrowForward />
+                  </button>
+                </div>
+              )}
             />
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               📅

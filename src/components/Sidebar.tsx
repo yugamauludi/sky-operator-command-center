@@ -89,7 +89,7 @@ export default function Sidebar() {
             {/* Toggle Button - dengan posisi yang lebih baik dan tampilan yang lebih proporsional */}
             <button
               onClick={toggleSidebar}
-              className={`absolute -right-10 top-4 w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 dark:text-red-400 transition-all duration-200 hover:scale-105 shadow-md ${isMobile && !isOpen ? 'hidden' : ''
+              className={`absolute -right-10 top-4 w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-black-500 dark:text-red-400 transition-all duration-100 hover:scale-100 shadow-md ${isMobile && !isOpen ? 'hidden' : ''
                 }`}
               aria-label={isOpen ? "Tutup sidebar" : "Buka sidebar"}
             >
