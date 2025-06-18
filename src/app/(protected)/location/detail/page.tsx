@@ -25,8 +25,8 @@ function LocationDetailContent() {
   const searchParams = useSearchParams();
   const locationId = searchParams.get("id");
   const locationName = searchParams.get("name");
-  
-  
+
+
   const [gates, setGates] = useState<GateByLocation[]>([]);
   const [gatePagination, setGatePagination] = useState<PaginationInfo>({
     totalItems: 0,
@@ -34,7 +34,7 @@ function LocationDetailContent() {
     currentPage: 1,
     itemsPerPage: 5,
   });
-  const reqParams = {id: locationId, page: gatePagination.currentPage, limit: gatePagination.itemsPerPage};
+  const reqParams = { id: locationId, page: gatePagination.currentPage, limit: gatePagination.itemsPerPage };
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actioningGateId, setActioningGateId] = useState<number | null>(null);
@@ -53,7 +53,7 @@ function LocationDetailContent() {
       // const gatesData = {data: [], meta: {page: 1, limit: 5, totalPages: 1, totalItems: 0}};
 
       console.log(gatesData, "<<< gatesData");
-      
+
       if (gatesData && gatesData.data && gatesData.meta) {
         setGates(gatesData.data);
         setGatePagination({
@@ -136,18 +136,18 @@ function LocationDetailContent() {
   };
 
   useEffect(() => {
-  if (locationId) {
-    fetchGatesData();
-  }
-}, [locationId]);
+    if (locationId) {
+      fetchGatesData();
+    }
+  }, [locationId]);
 
   const getStatusBadge = (status: number) => {
     return status === 0 ? (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
         Open
       </span>
     ) : (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
         Closed
       </span>
     );
@@ -161,23 +161,22 @@ function LocationDetailContent() {
       <button
         onClick={() => handleGateActionClick(gate)}
         disabled={isLoading || showConfirmModal}
-        className={`${
-          isOpen
+        className={`${isOpen
             ? "bg-red-500 hover:bg-red-600"
             : "bg-green-500 hover:bg-green-600"
-        } text-white px-3 py-1 rounded text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1`}
+          } text-white px-2 py-1 rounded text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 min-w-0`}
       >
         {isLoading ? (
           <>
-            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-            <span>Loading...</span>
+            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white flex-shrink-0"></div>
+            <span className="hidden sm:inline">Loading...</span>
           </>
         ) : (
           <>
             {isOpen ? (
               <>
                 <svg
-                  className="w-3 h-3"
+                  className="w-3 h-3 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -187,12 +186,13 @@ function LocationDetailContent() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>Close Gate</span>
+                <span className="hidden sm:inline">Close</span>
+                <span className="sm:hidden">X</span>
               </>
             ) : (
               <>
                 <svg
-                  className="w-3 h-3"
+                  className="w-3 h-3 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -202,7 +202,8 @@ function LocationDetailContent() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>Open Gate</span>
+                <span className="hidden sm:inline">Open</span>
+                <span className="sm:hidden">▶</span>
               </>
             )}
           </>
@@ -210,6 +211,8 @@ function LocationDetailContent() {
       </button>
     );
   };
+
+
 
   const columns: Column<GateByLocation>[] = [
     {
@@ -224,32 +227,11 @@ function LocationDetailContent() {
       header: "Gate",
       accessor: "gate",
     },
-    // {
-    //   header: "Channel CCTV",
-    //   accessor: "channel_cctv",
-    // },
-    // {
-    //   header: "Arduino",
-    //   accessor: "arduino",
-    //   render: (value) => value?.toString() || "0",
-    // },
     {
       header: "Status",
       accessor: "statusGate",
       render: (value) => getStatusBadge(value as number),
     },
-    // {
-    //   header: "Created At",
-    //   accessor: "createdAt",
-    //   render: (value) =>
-    //     new Date(value as string).toLocaleDateString("id-ID", {
-    //       year: "numeric",
-    //       month: "short",
-    //       day: "numeric",
-    //       hour: "2-digit",
-    //       minute: "2-digit",
-    //     }),
-    // },
     {
       header: "Updated At",
       accessor: "updatedAt",
@@ -271,9 +253,8 @@ function LocationDetailContent() {
 
     return {
       title: isOpen ? "Tutup Gate" : "Buka Gate",
-      message: `Apakah Anda yakin ingin ${
-        isOpen ? "menutup" : "membuka"
-      } gate "${selectedGate.gate}"?`,
+      message: `Apakah Anda yakin ingin ${isOpen ? "menutup" : "membuka"
+        } gate "${selectedGate.gate}"?`,
       confirmText: isOpen ? "Ya, Tutup Gate" : "Ya, Buka Gate",
       cancelText: "Batal",
     };
@@ -283,18 +264,18 @@ function LocationDetailContent() {
 
   return (
     <>
-      <div className="flex h-screen">
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1">
-            <div className="container mx-auto px-6 py-8">
-              {/* <ToastContainer />   */}
-              <div className="flex items-center mb-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="w-full">
+          <main className="w-full">
+            <div className="w-full px-4 sm:px-6 py-4 sm:py-8 max-w-none">
+              {/* Header Section - Improved for mobile */}
+              <div className="flex items-start mb-4 sm:mb-6">
                 <button
                   onClick={handleBack}
-                  className="mr-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                  className="mr-3 sm:mr-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -307,19 +288,32 @@ function LocationDetailContent() {
                     />
                   </svg>
                 </button>
-                <div>
-                  <h1 className="text-2xl font-bold">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
                     Detail Lokasi: {decodeURIComponent(locationName || "")}
                   </h1>
-                  <p className="text-gray-600 mt-1">
-                    Daftar Gate untuk lokasi ini
-                  </p>
+                  <div className="text-gray-600 dark:text-gray-300 mt-2 space-y-1">
+                    <p className="text-sm sm:text-base">
+                      Manajemen gate parkir untuk lokasi ini. Anda dapat memantau dan mengontrol status setiap gate secara real-time.
+                    </p>
+                    <div className="text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-3 rounded-lg">
+                      <p className="flex items-center mb-1">
+                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Gate terbuka (Open) - Kendaraan dapat keluar/masuk
+                      </p>
+                      <p className="flex items-center">
+                        <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                        Gate tertutup (Closed) - Akses kendaraan ditutup
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
+              {/* Content Section */}
+              <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg overflow-x-auto">
                 {isDataLoading ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-8 px-4">
                     <div className="three-body">
                       <div className="three-body__dot"></div>
                       <div className="three-body__dot"></div>
@@ -330,7 +324,7 @@ function LocationDetailContent() {
                     </p>
                   </div>
                 ) : gates.length === 0 ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-8 px-4">
                     <svg
                       className="mx-auto h-12 w-12 text-gray-400"
                       fill="none"
@@ -349,17 +343,19 @@ function LocationDetailContent() {
                     </p>
                   </div>
                 ) : (
-                  <CommonTable
-                    data={gates}
-                    columns={columns}
-                    showPagination={true}
-                    currentPage={gatePagination.currentPage}
-                    totalPages={gatePagination.totalPages}
-                    onPageChange={handlePageChange}
-                    itemsPerPage={gatePagination.itemsPerPage}
-                    totalItems={gatePagination.totalItems}
-                    onItemsPerPageChange={handleItemsPerPageChange}
-                  />
+                  <div className="p-3 sm:p-6">
+                    <CommonTable
+                      data={gates}
+                      columns={columns}
+                      showPagination={true}
+                      currentPage={gatePagination.currentPage}
+                      totalPages={gatePagination.totalPages}
+                      onPageChange={handlePageChange}
+                      itemsPerPage={gatePagination.itemsPerPage}
+                      totalItems={gatePagination.totalItems}
+                      onItemsPerPageChange={handleItemsPerPageChange}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -386,10 +382,10 @@ function LocationDetailContent() {
 // Loading fallback component
 function LoadingFallback() {
   return (
-    <div className="flex h-screen">
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1">
-          <div className="container mx-auto px-6 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full">
+        <main className="w-full">
+          <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
               <p className="text-gray-600 mt-4">Memuat halaman...</p>

@@ -270,6 +270,22 @@ export default function LocationPage() {
                 </div>
               </div>
 
+              {/* Description Text */}
+              <div className="mb-6">
+                <div className="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-4 rounded">
+                  <h2 className="text-lg font-medium text-indigo-700 dark:text-indigo-400 mb-2">
+                    Manajemen Lokasi
+                  </h2>
+                  <p className="text-indigo-600/80 dark:text-indigo-300/80">
+                    Halaman ini digunakan untuk mengelola informasi lokasi gerbang
+                    parkir yang tersedia. Setiap lokasi mencakup detail seperti nama
+                    lokasi, alamat, dan informasi terkait lainnya. Anda dapat
+                    melihat detail lengkap setiap lokasi dengan mengklik tombol
+                    lihat detail pada tabel.
+                  </p>
+                </div>
+              </div>
+
               {/* Table wrapper dengan proper horizontal scroll */}
               <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
                 {isDataLoading ? (
