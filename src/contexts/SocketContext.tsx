@@ -155,7 +155,7 @@ interface DataIssue {
   TrxNo?: string;
 }
 
-// Updated GlobalCallPopup Component with new layout
+// Updated GlobalCallPopup Component with base64 image support
 export function GlobalCallPopup() {
   const { activeCall, endCallFunction } = useGlobalSocket();
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -177,6 +177,25 @@ export function GlobalCallPopup() {
 
   // Check if gate is PM type
   const isPMGate = activeCall?.gate?.toUpperCase().includes("PM") || false;
+
+  // Helper function to format base64 image
+  const formatBase64Image = (base64String: string | undefined): string => {
+    if (!base64String) return "/images/Plat-Nomor-Motor-875.png";
+
+    // If it's already a data URL, return as is
+    if (base64String.startsWith("data:image/")) {
+      return base64String;
+    }
+
+    // If it's just the base64 string without data URL prefix, add it
+    if (base64String.startsWith("/9j/") || base64String.startsWith("iVBOR") ||
+      base64String.startsWith("UklGR") || base64String.startsWith("R0lGOD")) {
+      return `data:image/jpeg;base64,${base64String}`;
+    }
+
+    // Fallback to dummy image if format is unrecognized
+    return "/images/Plat-Nomor-Motor-875.png";
+  };
 
   // Reset all form inputs when modal opens/closes
   useEffect(() => {
@@ -342,12 +361,11 @@ export function GlobalCallPopup() {
 
   if (!activeCall) return null;
 
-  // Get photo URLs or use dummy images
+  // Get photo URLs - prioritize base64 image, fallback to existing URLs or dummy images
   const photoInUrl = activeCall?.photoIn || "/images/Plat-Nomor-Motor-875.png";
-  // const photoOutUrl =
-  //   activeCall?.photoOut || "/images/Plat-Nomor-Motor-875.png";
-  const photoCaptureurl =
-    activeCall?.capture || "/images/Plat-Nomor-Motor-875.png";
+  const photoCaptureUrl = formatBase64Image(activeCall?.imageBase64) ||
+    activeCall?.capture ||
+    "/images/Plat-Nomor-Motor-875.png";
   const locationName = activeCall?.location?.Name || "Unknown Location";
 
   return (
@@ -577,7 +595,7 @@ export function GlobalCallPopup() {
           </div>
         </div>
 
-        {/* Bottom Section - Photos - Conditional display based on gate type */}
+        {/* Bottom Section - Photos - Enhanced with base64 support */}
         <div className="border-t pt-4">
           {isPMGate ? (
             // For PM gates - only show capture photo with larger size
@@ -587,7 +605,7 @@ export function GlobalCallPopup() {
                 <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                   {!imageErrors.photoCapture ? (
                     <Image
-                      src={photoCaptureurl}
+                      src={photoCaptureUrl}
                       alt="Foto Capture"
                       width={400}
                       height={225}
@@ -643,13 +661,18 @@ export function GlobalCallPopup() {
                   </div>
                 </div>
 
-                {/* Foto Capture */}
+                {/* Foto Capture - Now using base64 image */}
                 <div className="text-center">
-                  <p className="text-sm font-medium mb-2">Foto Capture</p>
+                  <p className="text-sm font-medium mb-2">
+                    Foto Capture
+                    {activeCall?.imageBase64 && (
+                      <span className="text-xs text-green-600 ml-1">(Live)</span>
+                    )}
+                  </p>
                   <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                     {!imageErrors.photoCapture ? (
                       <Image
-                        src={photoCaptureurl}
+                        src={photoCaptureUrl}
                         alt="Foto Capture"
                         width={400}
                         height={225}

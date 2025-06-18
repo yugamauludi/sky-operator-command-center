@@ -11,6 +11,7 @@ export interface GateStatusUpdate {
   photoIn?: string;
   photoOut?: string;
   capture?: string
+  imageBase64?: string;
 }
 
 export interface CallEndResponse {
