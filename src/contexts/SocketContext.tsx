@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { endCall, pingArduino } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
-import { Description, fetchDescriptionByCategoryId, fetchDescriptions } from "@/hooks/useDescriptions";
+import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
 import { openGate } from "@/hooks/useLocation";
 import { addIssue } from "@/hooks/useIssues";
 
@@ -344,8 +344,8 @@ export function GlobalCallPopup() {
 
   // Get photo URLs or use dummy images
   const photoInUrl = activeCall?.photoIn || "/images/Plat-Nomor-Motor-875.png";
-  const photoOutUrl =
-    activeCall?.photoOut || "/images/Plat-Nomor-Motor-875.png";
+  // const photoOutUrl =
+  //   activeCall?.photoOut || "/images/Plat-Nomor-Motor-875.png";
   const photoCaptureurl =
     activeCall?.capture || "/images/Plat-Nomor-Motor-875.png";
   const locationName = activeCall?.location?.Name || "Unknown Location";
