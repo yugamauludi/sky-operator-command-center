@@ -13,6 +13,7 @@ export default function Login() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async () => {
     try {
@@ -52,6 +53,25 @@ export default function Login() {
       window.dispatchEvent(new Event("loginSuccess"));
     } catch (error) {
       console.error("Login error:", error);
+      let errorMessage = "Terjadi kesalahan saat login";
+
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+
+        // Mapping error berdasarkan message dari API
+        if (message.includes("credential")) {
+          errorMessage = "Username atau kata sandi salah";
+        } else if (message.includes("server")) {
+          errorMessage = "Terjadi kesalahan saat menghubungi server";
+        } else {
+          errorMessage = "Terjadi kesalahan saat menghubungi server";
+        }
+      } else {
+        errorMessage = "Terjadi kesalahan saat menghubungi server";
+
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -78,6 +98,11 @@ export default function Login() {
             Masuk ke Dashboard OCC
           </p>
         </div>
+        {error && (
+          <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-500">
+            {error}
+          </div>
+        )}
 
         <div className="mt-8 space-y-6">
           <div className="space-y-4">
