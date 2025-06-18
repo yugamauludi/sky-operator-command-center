@@ -497,7 +497,7 @@ export default function ReportsPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
         {/* Filter Section */}
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center w-full sm:w-auto">
-          <div className="relative z-50 w-full sm:w-auto">
+          <div className="relative z-40 w-full sm:w-auto">
             <DatePicker
               selected={searchDate}
               onChange={(date) => setSearchDate(date)}

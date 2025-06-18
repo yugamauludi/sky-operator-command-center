@@ -17,7 +17,7 @@ import {
   addDescription,
   Description,
   fetchDescriptions,
-  fetchDescriptionDetail,
+  fetchDescriptionByCategoryId,
   editDescription,
   deleteDescription,
 } from "@/hooks/useDescriptions";
@@ -175,10 +175,10 @@ export default function MasterPage() {
     }
   };
 
-  const fetchDescriptionDetailData = async (id: number) => {
+  const fetchDescriptionByCategoryIdData = async (id: number) => {
     try {
       setIsDataLoading(true);
-      const descriptionDetailData = await fetchDescriptionDetail(id);
+      const descriptionDetailData = await fetchDescriptionByCategoryId(id);
 
       const category = categories.find(
         (cat) => cat.id === descriptionDetailData.id_category
@@ -210,7 +210,7 @@ export default function MasterPage() {
   };
   const handleEditDescription = (id: number) => {
     setIsEditing(true);
-    fetchDescriptionDetailData(id);
+    fetchDescriptionByCategoryIdData(id);
   };
 
   const handleDelete = (id: number) => {

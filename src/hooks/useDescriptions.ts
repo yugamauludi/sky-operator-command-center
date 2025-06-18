@@ -49,7 +49,7 @@ export const fetchDescriptions = async (page = 1, limit = 5) => {
     }
 };
 
-export const fetchDescriptionDetail = async (id: number) => {
+export const fetchDescriptionByCategoryId = async (id: number) => {
     try {
         const response = await fetch(`/api/description/get-byid/${id.toString()}`);
 

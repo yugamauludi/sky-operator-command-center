@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { endCall, pingArduino } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
-import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
+import { Description, fetchDescriptionByCategoryId, fetchDescriptions } from "@/hooks/useDescriptions";
 import { openGate } from "@/hooks/useLocation";
 import { addIssue } from "@/hooks/useIssues";
 
@@ -32,8 +32,8 @@ const SocketContext = createContext<SocketContextType>({
   connectionStatus: "Disconnected",
   activeCall: null,
   userNumber: null,
-  setUserNumber: () => {},
-  endCallFunction: () => {},
+  setUserNumber: () => { },
+  endCallFunction: () => { },
 });
 
 export const useGlobalSocket = () => useContext(SocketContext);
@@ -67,13 +67,13 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
   const endCallFunction = async () => {
     if (!socket || !activeCall) return;
-    
+
     // Stop the ringtone immediately when ending call
     if (audio) {
       audio.pause();
       audio.currentTime = 0; // Reset audio to beginning
     }
-    
+
     try {
       const response = await endCall(socket.id);
       toast.success(response.message);
@@ -91,7 +91,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket.on("connect", () => {
       setConnectionStatus("Connected");
       // Auto-register if user number exists
-      if (userNumber) {        
+      if (userNumber) {
         socket.emit("register", userNumber);
       }
     });
@@ -172,34 +172,84 @@ export function GlobalCallPopup() {
     photoCapture: false,
   });
 
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [isLoadingDescriptions, setIsLoadingDescriptions] = useState(false);
+
   // Check if gate is PM type
   const isPMGate = activeCall?.gate?.toUpperCase().includes("PM") || false;
+
+  // Reset all form inputs when modal opens/closes
+  useEffect(() => {
+    if (activeCall) {
+      // Reset form when modal opens
+      setSelectedCategory("");
+      setSelectedDescription("");
+      setDescription([]);
+      setDataIssue({});
+      setImageErrors({
+        photoIn: false,
+        photoOut: false,
+        photoCapture: false,
+      });
+    }
+  }, [activeCall]);
 
   // Fetch categories when component mounts
   useEffect(() => {
     const fetchDataCategories = async () => {
+      setIsLoadingCategories(true);
       try {
         const response = await fetchCategories(1, 1000);
         setCategories(response.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
-      }
-    };
-
-    const fetchDataDescription = async () => {
-      try {
-        const response = await fetchDescriptions(1, 1000);
-        setDescription(response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+        toast.error("Gagal memuat kategori");
+      } finally {
+        setIsLoadingCategories(false);
       }
     };
 
     if (activeCall) {
       fetchDataCategories();
-      fetchDataDescription();
     }
   }, [activeCall]);
+
+  // Fetch descriptions when category changes
+  useEffect(() => {
+    const fetchDescriptionsDataByCategoryId = async (categoryId: number) => {
+      console.log(categoryId, "<<<<ini id category");
+
+      setIsLoadingDescriptions(true);
+      try {
+        const response = await fetchDescriptionByCategoryId(categoryId);
+        // Check if response is array or single object
+        if (Array.isArray(response)) {
+          setDescription(response);
+        } else {
+          setDescription([response]);
+        }
+      } catch (error) {
+        console.error("Error fetching description by category ID:", error);
+        toast.error("Gagal memuat deskripsi untuk kategori ini");
+        setDescription([]); // Clear descriptions on error
+      } finally {
+        setIsLoadingDescriptions(false);
+      }
+    };
+
+    if (selectedCategory) {
+      const categoryId = parseInt(selectedCategory);
+      if (!isNaN(categoryId)) {
+        fetchDescriptionsDataByCategoryId(categoryId);
+        // Reset selected description when category changes
+        setSelectedDescription("");
+      }
+    } else {
+      // Clear descriptions when no category is selected
+      setDescription([]);
+      setSelectedDescription("");
+    }
+  }, [selectedCategory]);
 
   const handleCreateIssue = async () => {
     if (!activeCall || !selectedCategory || !selectedDescription) {
@@ -253,9 +303,7 @@ export function GlobalCallPopup() {
 
       if (response.message === "Gate opened") {
         toast.success("Gate berhasil dibuka");
-        // setTimeout(() => {
-          endCallFunction();
-        // }, 500);
+        endCallFunction();
       } else {
         toast.error("Gagal membuka gate");
       }
@@ -278,6 +326,20 @@ export function GlobalCallPopup() {
     });
   };
 
+  // Check if all required fields are filled for Open Gate button
+  const isOpenGateDisabled = !selectedCategory ||
+    !selectedDescription ||
+    isOpeningGate ||
+    isLoadingCategories ||
+    isLoadingDescriptions;
+
+  // Check if all required fields are filled for Submit button
+  const isSubmitDisabled = !selectedCategory ||
+    !selectedDescription ||
+    isCreateIssue ||
+    isLoadingCategories ||
+    isLoadingDescriptions;
+
   if (!activeCall) return null;
 
   // Get photo URLs or use dummy images
@@ -289,246 +351,280 @@ export function GlobalCallPopup() {
   const locationName = activeCall?.location?.Name || "Unknown Location";
 
   return (
-    <div className="modal">
-      <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-5xl max-h-[85vh] overflow-hidden">
-          {/* Header */}
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-semibold text-red-600 mb-1">
-              📞 Incoming Call!
-            </h2>
-          </div>
+    <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-semibold text-red-600 mb-1">
+            📞 Incoming Call!
+          </h2>
+        </div>
 
-          {/* Main Content - Two Column Layout */}
-          <div className="grid grid-cols-2 gap-6 mb-4">
-            {/* Left Column - Information */}
-            <div className="space-y-3">
-              <h3 className="text-base font-semibold border-b pb-1">
-                Information
-              </h3>
+        {/* Main Content - Two Column Layout */}
+        <div className="grid grid-cols-2 gap-6 mb-4">
+          {/* Left Column - Information */}
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold border-b pb-1">
+              Information
+            </h3>
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-medium">Location Name</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {locationName || "-"}
-                  </span>
-                </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-medium">Location Name</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {locationName || "-"}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Gate</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {activeCall.gate || "-"}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Gate</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {activeCall.gate || "-"}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Gate ID</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {activeCall.gateId || "-"}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Gate ID</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {activeCall.gateId || "-"}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">No Transaction</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {dataIssue.TrxNo || "-"}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">No Transaction</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {dataIssue.TrxNo || "-"}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">No Plat Number</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {dataIssue.number_plate || "-"}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">No Plat Number</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {dataIssue.number_plate || "-"}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Date</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {formatDateTime(callInTime).split(" ")[0]}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Date</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {formatDateTime(callInTime).split(" ")[0]}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">In Time</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    {formatDateTime(callInTime).split(" ")[1]}
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">In Time</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  {formatDateTime(callInTime).split(" ")[1]}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Out Time</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    -
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Out Time</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  -
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Payment Time</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    -
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Payment Time</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  -
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Tariff</span>
-                  <span>:</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                    -
-                  </span>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Tariff</span>
+                <span>:</span>
+                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                  -
+                </span>
               </div>
             </div>
+          </div>
 
-            {/* Right Column - Input Issue */}
+          {/* Right Column - Input Issue */}
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold border-b pb-1">
+              Input Issue
+            </h3>
+
             <div className="space-y-3">
-              <h3 className="text-base font-semibold border-b pb-1">
-                Input Issue
-              </h3>
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  Object <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  disabled={isLoadingCategories}
+                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoadingCategories ? (
+                    <option value="">⏳ Memuat kategori...</option>
+                  ) : (
+                    <>
+                      <option value="">-- Pilih Kategori --</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.category}
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
+                {isLoadingCategories && (
+                  <div className="flex items-center mt-1 text-xs text-blue-600">
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                    Memuat data kategori...
+                  </div>
+                )}
+              </div>
 
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Object
-                  </label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                  >
-                    <option value="">-- Pilih Kategori --</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={selectedDescription}
+                  onChange={(e) => setSelectedDescription(e.target.value)}
+                  disabled={isLoadingDescriptions || !selectedCategory}
+                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoadingDescriptions ? (
+                    <option value="">⏳ Memuat deskripsi...</option>
+                  ) : !selectedCategory ? (
+                    <option value="">-- Pilih kategori terlebih dahulu --</option>
+                  ) : description.length === 0 ? (
+                    <option value="">-- Tidak ada deskripsi tersedia --</option>
+                  ) : (
+                    <>
+                      <option value="">-- Pilih Deskripsi --</option>
+                      {description.map((desc) => (
+                        <option key={desc.id} value={desc.id}>
+                          {desc.object}
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
+                {isLoadingDescriptions && (
+                  <div className="flex items-center mt-1 text-xs text-blue-600">
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                    Memuat data deskripsi...
+                  </div>
+                )}
+              </div>
 
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Description
-                  </label>
-                  <select
-                    value={selectedDescription}
-                    onChange={(e) => setSelectedDescription(e.target.value)}
-                    className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                  >
-                    <option value="">-- Pilih Deskripsi --</option>
-                    {description?.map((desc) => (
-                      <option key={desc.id} value={desc.id}>
-                        {desc.object}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  Action
+                </label>
+                <input
+                  type="text"
+                  value={dataIssue.action || ""}
+                  onChange={(e) =>
+                    setDataIssue((prev) => ({
+                      ...prev,
+                      action: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter action"
+                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Action
-                  </label>
-                  <input
-                    type="text"
-                    value={dataIssue.action || ""}
-                    onChange={(e) =>
-                      setDataIssue((prev) => ({
-                        ...prev,
-                        action: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter action"
-                    className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                  />
-                </div>
+              {/* Action Buttons - Updated with proper disable logic */}
+              <div className="flex flex-col space-y-2 pt-2">
+                <button
+                  onClick={handleOpenGate}
+                  disabled={isOpenGateDisabled}
+                  className="w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+                  title={isOpenGateDisabled ? "Pilih kategori dan deskripsi terlebih dahulu" : ""}
+                >
+                  {isOpeningGate ? "Opening..." : "Open Gate"}
+                </button>
 
-                {/* Action Buttons - Moved up and added Open Gate button */}
-                <div className="flex flex-col space-y-2 pt-2">
+                <div className="flex space-x-2">
                   <button
-                    onClick={handleOpenGate}
-                    disabled={!selectedCategory || isOpeningGate}
-                    className="w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
+                    onClick={endCallFunction}
+                    className="flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
                   >
-                    {isOpeningGate ? "Opening..." : "Open Gate"}
+                    End Call
                   </button>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={endCallFunction}
-                      className="flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
-                    >
-                      End Call
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleCreateIssue();
-                        endCallFunction();
-                      }}
-                      disabled={
-                        !selectedCategory ||
-                        !selectedDescription ||
-                        isCreateIssue
-                      }
-                      className="flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-md transition-colors"
-                    >
-                      {isCreateIssue ? "Creating..." : "Submit"}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      handleCreateIssue();
+                      endCallFunction();
+                    }}
+                    disabled={isSubmitDisabled}
+                    className="flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+                    title={isSubmitDisabled ? "Pilih kategori dan deskripsi terlebih dahulu" : ""}
+                  >
+                    {isCreateIssue ? "Creating..." : "Submit"}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Bottom Section - Photos - Conditional display based on gate type */}
-          <div className="border-t pt-3">
-            {isPMGate ? (
-              // For PM gates - only show capture photo
-              <div className="flex justify-center">
-                <div className="text-center w-64">
-                  <p className="text-xs font-medium mb-1">Foto Capture</p>
-                  <div className="w-full h-32 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                    {!imageErrors.photoCapture ? (
-                      <Image
-                        src={photoCaptureurl}
-                        alt="Foto Capture"
-                        width={250}
-                        height={128}
-                        className="w-full h-full object-cover rounded-md"
-                        onError={() => {
-                          setImageErrors((prev) => ({
-                            ...prev,
-                            photoCapture: true,
-                          }));
-                        }}
-                      />
-                    ) : (
-                      <span className="text-xs">Foto Capture</span>
-                    )}
-                  </div>
+        {/* Bottom Section - Photos - Conditional display based on gate type */}
+        <div className="border-t pt-4">
+          {isPMGate ? (
+            // For PM gates - only show capture photo with larger size
+            <div className="flex justify-center">
+              <div className="text-center w-full max-w-md">
+                <p className="text-sm font-medium mb-2">Foto Capture</p>
+                <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
+                  {!imageErrors.photoCapture ? (
+                    <Image
+                      src={photoCaptureurl}
+                      alt="Foto Capture"
+                      width={400}
+                      height={225}
+                      className="w-full h-full object-cover rounded-lg"
+                      onError={() => {
+                        setImageErrors((prev) => ({
+                          ...prev,
+                          photoCapture: true,
+                        }));
+                      }}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm">Foto Capture</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            ) : (
-              // For non-PM gates - show all three photos
-              <div className="grid grid-cols-3 gap-4">
+            </div>
+          ) : (
+            // For non-PM gates - show photos in a better grid layout
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Foto In */}
                 <div className="text-center">
-                  <p className="text-xs font-medium mb-1">Foto In</p>
-                  <div className="w-full h-28 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                  <p className="text-sm font-medium mb-2">Foto In</p>
+                  <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                     {!imageErrors.photoIn ? (
                       <Image
                         src={photoInUrl}
                         alt="Foto In"
-                        width={150}
-                        height={112}
-                        className="w-full h-full object-cover rounded-md"
+                        width={400}
+                        height={225}
+                        className="w-full h-full object-cover rounded-lg"
                         onError={() => {
                           setImageErrors((prev) => ({
                             ...prev,
@@ -537,44 +633,27 @@ export function GlobalCallPopup() {
                         }}
                       />
                     ) : (
-                      <span className="text-xs">Foto In</span>
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm">Foto In</span>
+                      </div>
                     )}
                   </div>
                 </div>
 
+                {/* Foto Capture */}
                 <div className="text-center">
-                  <p className="text-xs font-medium mb-1">Foto Out</p>
-                  <div className="w-full h-28 bg-gray-600 rounded-md flex items-center justify-center text-white">
-                    {!imageErrors.photoOut ? (
-                      <Image
-                        src={photoOutUrl}
-                        alt="Foto Out"
-                        width={150}
-                        height={112}
-                        className="w-full h-full object-cover rounded-md"
-                        onError={() => {
-                          setImageErrors((prev) => ({
-                            ...prev,
-                            photoOut: true,
-                          }));
-                        }}
-                      />
-                    ) : (
-                      <span className="text-xs">Foto Out</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <p className="text-xs font-medium mb-1">Foto Capture</p>
-                  <div className="w-full h-28 bg-gray-600 rounded-md flex items-center justify-center text-white">
+                  <p className="text-sm font-medium mb-2">Foto Capture</p>
+                  <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                     {!imageErrors.photoCapture ? (
                       <Image
                         src={photoCaptureurl}
                         alt="Foto Capture"
-                        width={150}
-                        height={112}
-                        className="w-full h-full object-cover rounded-md"
+                        width={400}
+                        height={225}
+                        className="w-full h-full object-cover rounded-lg"
                         onError={() => {
                           setImageErrors((prev) => ({
                             ...prev,
@@ -583,13 +662,18 @@ export function GlobalCallPopup() {
                         }}
                       />
                     ) : (
-                      <span className="text-xs">Foto Capture</span>
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm">Foto Capture</span>
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

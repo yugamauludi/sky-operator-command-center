@@ -79,18 +79,149 @@ export default function CommonTable<T>({
       return pages;
     };
 
+    const getMobileVisiblePages = () => {
+      // For mobile, show fewer pages for better spacing
+      if (totalPages <= 3) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+      }
+
+      const pages: (number | string)[] = [];
+
+      if (currentPage === 1) {
+        pages.push(1, 2, 3);
+        if (totalPages > 3) {
+          pages.push("...");
+        }
+      } else if (currentPage === totalPages) {
+        if (totalPages > 3) {
+          pages.push("...");
+        }
+        pages.push(totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        if (currentPage > 2) {
+          pages.push("...");
+        }
+        pages.push(currentPage - 1, currentPage, currentPage + 1);
+        if (currentPage < totalPages - 1) {
+          pages.push("...");
+        }
+      }
+
+      return pages;
+    };
+
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 sm:px-6">
-        {/* Results Info - Mobile */}
-        <div className="flex flex-1 justify-between sm:hidden">
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            Showing {startItem} to {endItem} of {totalItems || data.length}{" "}
-            results
-          </span>
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        {/* Mobile Layout */}
+        <div className="sm:hidden">
+          {/* Results Info - Mobile */}
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
+                Showing <span className="font-medium">{startItem}</span> to{" "}
+                <span className="font-medium">{endItem}</span> of{" "}
+                <span className="font-medium">{totalItems || data.length}</span>{" "}
+                results
+              </p>
+              {onItemsPerPageChange && (
+                <div className="flex items-center justify-center gap-2">
+                  <label
+                    htmlFor="itemsPerPage-mobile"
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    Per page:
+                  </label>
+                  <select
+                    id="itemsPerPage-mobile"
+                    value={itemsPerPage}
+                    onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                    className="block w-16 rounded-md border-0 py-1 px-2 text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 text-sm bg-white dark:bg-gray-800"
+                  >
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation - Mobile */}
+          <div className="px-4 py-3">
+            <nav className="flex items-center justify-center">
+              <div className="flex items-center space-x-1">
+                {/* First Page */}
+                <button
+                  onClick={() => onPageChange(1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  title="First page"
+                >
+                  <ChevronsLeft className="w-4 h-4" />
+                </button>
+
+                {/* Previous Page */}
+                <button
+                  onClick={() => onPageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Page Numbers - Mobile */}
+                <div className="flex items-center space-x-1 mx-2">
+                  {getMobileVisiblePages().map((page, index) => (
+                    <React.Fragment key={index}>
+                      {page === "..." ? (
+                        <span className="px-2 py-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => onPageChange(page as number)}
+                          className={`relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
+                              ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                              : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            }`}
+                          title={`Go to page ${page}`}
+                        >
+                          {page}
+                        </button>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+
+                {/* Next Page */}
+                <button
+                  onClick={() => onPageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  title="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Last Page */}
+                <button
+                  onClick={() => onPageChange(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  title="Last page"
+                >
+                  <ChevronsRight className="w-4 h-4" />
+                </button>
+              </div>
+            </nav>
+          </div>
         </div>
 
         {/* Desktop Layout */}
-        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
             <p className="text-sm text-gray-700 dark:text-gray-300">
               Showing <span className="font-medium">{startItem}</span> to{" "}
@@ -158,11 +289,10 @@ export default function CommonTable<T>({
                   ) : (
                     <button
                       onClick={() => onPageChange(page as number)}
-                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${
-                        currentPage === page
+                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
                           ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                           : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-                      }`}
+                        }`}
                       title={`Go to page ${page}`}
                     >
                       {page}
@@ -213,7 +343,7 @@ export default function CommonTable<T>({
                     <th
                       key={index}
                       className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 whitespace-nowrap"
-                      style={{ 
+                      style={{
                         width: column.width,
                         minWidth: column.minWidth || '120px'
                       }}
@@ -227,17 +357,16 @@ export default function CommonTable<T>({
                 {data.map((item, rowIndex) => (
                   <tr
                     key={rowIndex}
-                    className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                      rowIndex % 2 === 0
+                    className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${rowIndex % 2 === 0
                         ? "bg-white dark:bg-gray-900"
                         : "bg-gray-200 dark:bg-gray-800"
-                    }`}
+                      }`}
                   >
                     {columns.map((column, colIndex) => (
                       <td
                         key={colIndex}
                         className="p-4 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap"
-                        style={{ 
+                        style={{
                           width: column.width,
                           minWidth: column.minWidth || '120px'
                         }}
