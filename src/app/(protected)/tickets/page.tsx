@@ -22,7 +22,7 @@ export default function TicketsPage() {
       location: "Jakarta",
       category: "Technical",
       description: "Network issue",
-      vehicleNo: "B 1234 XYZ",
+      vehicleNo: "B1234XYZ",
       inputBy: "Admin",
     },
     {
@@ -31,7 +31,7 @@ export default function TicketsPage() {
       location: "Bandung",
       category: "Technical",
       description: "Network issue",
-      vehicleNo: "B 5678 XYZ",
+      vehicleNo: "B5678XYZ",
       inputBy: "Admin",
     },
   ]);

@@ -417,7 +417,7 @@ export default function ReportsPage() {
       label: "Number Plate",
       type: "text",
       value: formFieldValues.number_plate || "",
-      placeholder: "Contoh: B 1234 XYZ",
+      placeholder: "Contoh: B1234XYZ",
       required: true,
       validation: validateIndonesianLicensePlate,  // Pastikan ini terhubung
       onChange: (value) => {
