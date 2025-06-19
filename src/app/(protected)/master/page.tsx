@@ -121,7 +121,11 @@ export default function MasterPage() {
       itemsPerPage: 5,
     });
 
-  const { isInitialLoad, markTabAsLoaded, isTabLoaded } = useDataLoader();
+  const { 
+    // isInitialLoad,
+    markTabAsLoaded, 
+    isTabLoaded 
+  } = useDataLoader();
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch functions dengan lazy loading

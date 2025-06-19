@@ -73,8 +73,8 @@ const ModalSkeleton = () => (
 
 export default function LocationPage() {
   const router = useRouter();
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  // const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   // const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
