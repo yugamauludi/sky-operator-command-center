@@ -1,20 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { useSocket } from "@/hooks/useSocket";
 import { useGlobalSocket } from "@/contexts/SocketContext";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-// import { endCall } from "@/hooks/useIOT";
-// import { GateStatusUpdate } from "@/types/gate";
-// import DynamicInputModal from "@/components/DynamicInputModal";
-// import { toast } from "react-toastify";
+// import { ApexChart } from 'apexcharts';
+import React from 'react';
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
+
+// Import table components
+import CallQuantityTable from "@/components/tables/CallQuantityTable";
+import CallByTimeTable from "@/components/tables/CallByTimeTable";
+import CallByGateTable from "@/components/tables/CallByGateTable";
+import TrafficCallTable from "@/components/tables/TrafficCallTable";
+import CallByIncidentTable from "@/components/tables/CallByIncidentTable";
 
 interface HelpRequest {
   id: string;
@@ -24,107 +28,54 @@ interface HelpRequest {
   createdAt: string;
 }
 
-// interface CustomerService {
-//   id: string;
-//   name: string;
-//   status: "active" | "busy" | "offline";
-//   handledRequests: number;
-// }
-
 interface MonthlyComplaintData {
   month: string;
   date: string;
   complaints: number;
 }
 
-// interface AdminData {
-//   id: string;
-//   name: string;
-//   agentNumber: string;
-//   status: "active" | "busy" | "offline";
-// }
+// Define table types
+type TableType = "call-quantity" | "call-by-time" | "call-by-gate" | "call-by-incident" | "traffic-call";
+type SummaryListType = "today" | "weekly" | "monthly" | "yearly";
+
+const tableOptions = [
+  { value: "call-quantity", label: "Kuantitas Panggilan" },
+  { value: "call-by-time", label: "Panggilan per Waktu" },
+  { value: "call-by-gate", label: "Panggilan per Gate" },
+  { value: "call-by-incident", label: "Panggilan per Insiden" },
+  { value: "traffic-call", label: "Panggilan dan Traffic" }
+] as const;
+
+const summaryListOptions = [
+  { value: "today", label: "Hari Ini" },
+  { value: "weekly", label: "Mingguan" },
+  { value: "monthly", label: "Bulanan" },
+  { value: "yearly", label: "Tahunan" }
+] as const;
 
 export default function Dashboard() {
   const { connectionStatus, userNumber } = useGlobalSocket();
-  // const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  // const [socketId, setSocketId] = useState<undefined | null | string | number>("-");
-  // const [showSetupModal, setShowSetupModal] = useState(true);
   const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
-  const [totalOpen, ] = useState(0);
-  const [totalInProgress, ] = useState(0);
-  const [totalResolved, ] = useState(0);
-  const [
-    filterStatus,
-    //  setFilterStatus
-    ] = useState<
-    "all" | "open" | "in_progress" | "resolved"
-  >("all");
-  const [
-    searchQuery, 
-    // setSearchQuery
-  ] = useState("");
+  const [totalOpen] = useState(0);
+  const [totalInProgress] = useState(0);
+  const [totalResolved] = useState(0);
+  const [filterStatus] = useState<"all" | "open" | "in_progress" | "resolved">("all");
+  const [searchQuery] = useState("");
+
+  // State for managing active table
+  const [activeTable, setActiveTable] = useState<TableType>("call-quantity");
+  const [activeSummaryList, setActiveSummaryList] = useState<SummaryListType>("today");
 
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (searchParams.get("loginSuccess") === "1") {
       toast.success("Berhasil login!");
-      // Optional: kamu bisa hapus query param dari URL (bersih)
       const url = new URL(window.location.href);
       url.searchParams.delete("loginSuccess");
       window.history.replaceState({}, '', url.toString());
     }
   }, [searchParams]);
-
-
-  // const [showSetupModal, setShowSetupModal] = useState(true);
-
-  // const [adminData, setAdminData] = useState<AdminData>({
-  //   id: "1",
-  //   name: "John Doe", // Akan diambil dari data login
-  //   agentNumber: "",
-  //   status: "active",
-  // });
-
-  // const handleUserNumberSubmit = (values: Record<string, string>) => {
-  //   const userNum = parseInt(values.userNumber);
-  //   if (![1, 2, 3].includes(userNum)) {
-  //     alert("User number harus 1, 2, atau 3");
-  //     return;
-  //   }
-  //   setUserNumber(userNum);
-  //   setShowSetupModal(false);
-
-  //   // Register user number ke socket
-  //   if (socket) {
-  //     socket.emit("register", userNum);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (!socket) return;
-
-  //   const handleHelpRequest = (data: HelpRequest) => {
-  //     setHelpRequests((prev) => [data, ...prev]);
-  //   };
-
-  //   socket.on("help_request", handleHelpRequest);
-  //   return () => socket.off("help_request", handleHelpRequest);
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   const open = helpRequests.filter((req) => req.status === "open").length;
-  //   const inProgress = helpRequests.filter(
-  //     (req) => req.status === "in_progress"
-  //   ).length;
-  //   const resolved = helpRequests.filter(
-  //     (req) => req.status === "resolved"
-  //   ).length;
-
-  //   setTotalOpen(open);
-  //   setTotalInProgress(inProgress);
-  //   setTotalResolved(resolved);
-  // }, [helpRequests]);
 
   const updateRequestStatus = (
     requestId: string,
@@ -138,8 +89,7 @@ export default function Dashboard() {
   };
 
   const filteredRequests = helpRequests.filter((request) => {
-    const matchesStatus =
-      filterStatus === "all" || request.status === filterStatus;
+    const matchesStatus = filterStatus === "all" || request.status === filterStatus;
     const matchesSearch = request.gateId
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
@@ -167,7 +117,7 @@ export default function Dashboard() {
     },
     dataLabels: {
       style: {
-        colors: ["#ffffff"], // Changed to white
+        colors: ["#ffffff"],
       },
     },
   };
@@ -245,9 +195,7 @@ export default function Dashboard() {
     },
   };
 
-  const [monthlyComplaintData, setMonthlyComplaintData] = useState<
-    MonthlyComplaintData[]
-  >([]);
+  const [monthlyComplaintData, setMonthlyComplaintData] = useState<MonthlyComplaintData[]>([]);
   const [isLoadingMonthlyData, setIsLoadingMonthlyData] = useState(false);
 
   const fetchMonthlyComplaintData = async () => {
@@ -285,7 +233,6 @@ export default function Dashboard() {
     },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [activeAdmins] = useState<any>({
     id: "1",
     name: "John Doe",
@@ -295,21 +242,57 @@ export default function Dashboard() {
 
   const categoryComplaintSeries = [30, 25, 20, 15];
 
+  // Function to render the active table
+  const renderActiveTable = () => {
+    switch (activeTable) {
+      case "call-quantity":
+        return <CallQuantityTable />;
+
+      case "call-by-time":
+        return <CallByTimeTable />;
+
+      case "call-by-gate":
+        return <CallByGateTable />;
+
+      case "call-by-incident":
+        return <CallByIncidentTable />;
+
+      case "traffic-call":
+        return <TrafficCallTable />;
+
+      default:
+        return null;
+    }
+  };
+
+  // Function to render active summary content
+  const renderActiveSummaryList = () => {
+    switch (activeSummaryList) {
+      case "today":
+        return <div>Today's Summary</div>;
+      case "weekly":
+        return <div>Weekly Summary</div>;
+      case "monthly":
+        return <div>Monthly Summary</div>;
+      case "yearly":
+        return <div>Yearly Summary</div>;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <>
-    {/* <ToastContainer /> */}
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      {/* Make container more responsive */}
       <div className="container mx-auto px-2 md:px-4 lg:px-6 py-2 md:py-4 lg:py-8 max-w-7xl">
-        {/* Connection Status Card - Improve mobile view */}
-        <div className="bg-white dark:bg-[#222B36] p-2 md:p-4 rounded-lg mb-3 md:mb-6">
-          <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:justify-between md:items-center">
+
+        {/* Navigation Header */}
+        <div className="bg-white dark:bg-[#222B36] p-4 rounded-lg mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex flex-col md:flex-row gap-2 md:gap-6">
               <div className="text-sm md:text-base">
                 <span className="text-gray-500">Status: </span>
-                <span className={`font-semibold ${
-                  connectionStatus === "Connected" ? "text-green-500" : "text-red-500"
-                }`}>
+                <span className={`font-semibold ${connectionStatus === "Connected" ? "text-green-500" : "text-red-500"
+                  }`}>
                   {connectionStatus}
                 </span>
               </div>
@@ -321,7 +304,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Status Summary and List - Improve grid layout */}
+        {/* Status Summary */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-3 md:gap-6 mb-3 md:mb-6">
           {/* Need Help Card - Better mobile scaling */}
           <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6 border-l-4 border-red-500">
@@ -453,9 +436,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Charts and Summary - Better mobile layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-6">
-          {/* Line Chart - Responsive height */}
+        {/* Charts and Summary */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-6 mb-3 md:mb-6">
           <div className="bg-white dark:bg-[#222B36] p-3 md:p-4 rounded-lg">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
               <h3 className="text-base md:text-lg font-semibold">Statistik Bulanan</h3>
@@ -468,7 +450,6 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* Responsive chart container */}
             <div className="w-full h-[200px] md:h-[250px] lg:h-[300px]">
               {isLoadingMonthlyData ? (
                 <div className="flex items-center justify-center h-full">
@@ -505,9 +486,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Right Column - Better spacing on mobile */}
           <div className="space-y-3 md:space-y-6">
-            {/* Pie Chart - Responsive size */}
             <div className="bg-white dark:bg-[#222B36] p-3 md:p-4 rounded-lg">
               <div className="w-full h-[200px] md:h-[250px]">
                 <ReactApexChart
@@ -533,20 +512,18 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Admin Section - Better mobile layout */}
             <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4">
               <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Informasi Admin</h3>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                 <h4 className="text-base md:text-lg font-medium">{activeAdmins.name}</h4>
-                <span className={`px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium rounded-full ${
-                  activeAdmins.status === "active"
-                    ? "bg-green-500/20 text-green-400"
-                    : activeAdmins.status === "busy"
+                <span className={`px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium rounded-full ${activeAdmins.status === "active"
+                  ? "bg-green-500/20 text-green-400"
+                  : activeAdmins.status === "busy"
                     ? "bg-yellow-500/20 text-yellow-400"
                     : "bg-gray-500/20 text-gray-400"
-                }`}>
-                  {activeAdmins.status === "active" ? "Aktif" : 
-                   activeAdmins.status === "busy" ? "Sibuk" : "Offline"}
+                  }`}>
+                  {activeAdmins.status === "active" ? "Aktif" :
+                    activeAdmins.status === "busy" ? "Sibuk" : "Offline"}
                 </span>
               </div>
               <div className="mt-3 md:mt-4">
@@ -556,8 +533,30 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        {/* Table Section with Horizontal Tab Bar */}
+        <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6 mb-6">
+          {/* Horizontal Tab Bar */}
+          <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
+            {tableOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setActiveTable(option.value)}
+                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 border-b-2 ${activeTable === option.value
+                    ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Table Content */}
+          <div className="min-h-[400px]">
+            {renderActiveTable()}
+          </div>
+        </div>
       </div>
     </div>
-    </>
   );
 }
