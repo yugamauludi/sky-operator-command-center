@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense, lazy } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import CommonTable, { Column } from "@/components/tables/CommonTable";
-import IsseFormInputModal, { Field } from "@/components/IssueFormInputModal";
+import { Column } from "@/components/tables/CommonTable";
+// Replace regular imports with lazy ones
+const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
+const IsseFormInputModal = lazy(() => import("@/components/IssueFormInputModal"));
+import { Field } from "@/components/IssueFormInputModal";
 import { addIssue, fetchIssues } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptions } from "@/hooks/useDescriptions";
@@ -496,11 +501,11 @@ export default function ReportsPage() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      {/* <ToastContainer /> */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Laporan</h1>
       </div>
 
+      {/* Wrap DatePicker with Suspense */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
         {/* Filter Section */}
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center w-full sm:w-auto">
@@ -605,11 +610,11 @@ export default function ReportsPage() {
           </button>
 
           {/* <button
-            onClick={handleExport}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
-          >
-            Export Data
-          </button> */}
+              onClick={handleExport}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
+            >
+              Export Data
+            </button> */}
         </div>
       </div>
 
@@ -642,53 +647,58 @@ export default function ReportsPage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
-        {isDataLoading ? (
-          <div className="text-center py-4">
-            <div className="three-body">
-              <div className="three-body__dot"></div>
-              <div className="three-body__dot"></div>
-              <div className="three-body__dot"></div>
-            </div>{" "}
-            <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-              Memuat data kategori...
-            </p>
-          </div>
-        ) : filteredReports.length === 0 && hasActiveFilters ? (
-          <div className="text-center py-8">
-            <div className="text-gray-500 dark:text-gray-400">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-lg font-medium mb-2">
-                Tidak ada data ditemukan
-              </h3>
-              <p className="text-sm">Coba ubah filter pencarian Anda</p>
+      {/* Wrap Table with Suspense */}
+      <Suspense fallback={<LoadingSpinner />}>
+        <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
+          {isDataLoading ? (
+            <div className="text-center py-4">
+              <div className="three-body">
+                <div className="three-body__dot"></div>
+                <div className="three-body__dot"></div>
+                <div className="three-body__dot"></div>
+              </div>{" "}
+              <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                Memuat data kategori...
+              </p>
             </div>
-          </div>
-        ) : (
-          <CommonTable
-            data={paginatedFilteredReports}
-            columns={columns}
-            showPagination={true}
-            currentPage={filteredPagination.currentPage}
-            totalPages={filteredPagination.totalPages}
-            onPageChange={handleIssuesPageChange}
-            itemsPerPage={filteredPagination.itemsPerPage}
-            totalItems={filteredPagination.totalItems}
-            onItemsPerPageChange={handleItemsReportPerPageChange}
-          />
-        )}
-      </div>
+          ) : filteredReports.length === 0 && hasActiveFilters ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500 dark:text-gray-400">
+                <div className="text-4xl mb-4">🔍</div>
+                <h3 className="text-lg font-medium mb-2">
+                  Tidak ada data ditemukan
+                </h3>
+                <p className="text-sm">Coba ubah filter pencarian Anda</p>
+              </div>
+            </div>
+          ) : (
+            <CommonTable
+              data={paginatedFilteredReports}
+              columns={columns as any}
+              showPagination={true}
+              currentPage={filteredPagination.currentPage}
+              totalPages={filteredPagination.totalPages}
+              onPageChange={handleIssuesPageChange}
+              itemsPerPage={filteredPagination.itemsPerPage}
+              totalItems={filteredPagination.totalItems}
+              onItemsPerPageChange={handleItemsReportPerPageChange}
+            />
+          )}
+        </div>
+      </Suspense>
 
-      {/* New Report Modal */}
-      <IsseFormInputModal
-        isOpen={isNewReportModalOpen}
-        onClose={handleModalClose}
-        onSubmit={handleNewReportSubmit}
-        title="Tambah Laporan Baru"
-        fields={newReportFields}
-        confirmText="Submit"
-        cancelText="Cancel"
-      />
+      {/* Wrap Modal with Suspense */}
+      <Suspense fallback={null}>
+        <IsseFormInputModal
+          isOpen={isNewReportModalOpen}
+          onClose={handleModalClose}
+          onSubmit={handleNewReportSubmit}
+          title="Tambah Laporan Baru"
+          fields={newReportFields}
+          confirmText="Submit"
+          cancelText="Cancel"
+        />
+      </Suspense>
     </div>
   );
 }
