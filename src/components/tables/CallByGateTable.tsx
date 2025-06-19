@@ -282,7 +282,7 @@ const CallByGateTable: React.FC = () => {
                     <tbody>
                         {gateNames.map((gateName, index) => {
                             const gateData = getDataForGate(gateName);
-                            const rowClass = index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800';
+                            // const rowClass = index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800';
 
                             const totalCarHumanError = gateData.hpmLku.car.humanError + gateData.lmp.car.humanError + gateData.pv.car.humanError;
                             const totalCarCustomerBehaviour = gateData.hpmLku.car.customerBehaviour + gateData.lmp.car.customerBehaviour + gateData.pv.car.customerBehaviour;

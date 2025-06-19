@@ -145,7 +145,7 @@ const TrafficCallTable: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((location, locationIndex) => (
+                        {data.map((location) => (
                             <React.Fragment key={location.location}>
                                 {/* Car rows */}
                                 <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">

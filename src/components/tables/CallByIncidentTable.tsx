@@ -174,17 +174,17 @@ const CallByIncidentTable: React.FC = () => {
             <td className="border border-gray-300 px-2 py-1 text-sm">
                 {categoryName}
             </td>
-            {locations.map((location, index) => (
+            {locations.map((location) => (
                 <td key={`${location.name}-car-${categoryType}`} className="border border-gray-300 px-2 py-1 text-right text-sm">
                     {formatNumber(location.data.car[categoryType][selectedMonth])}
                 </td>
             ))}
-            {locations.map((location, index) => (
+            {locations.map((location) => (
                 <td key={`${location.name}-bike-${categoryType}`} className="border border-gray-300 px-2 py-1 text-right text-sm">
                     {formatNumber(location.data.bike[categoryType][selectedMonth])}
                 </td>
             ))}
-            {locations.map((location, index) => (
+            {locations.map((location) => (
                 <td key={`${location.name}-total-${categoryType}`} className="border border-gray-300 px-2 py-1 text-right text-sm">
                     {formatNumber(location.data.total[categoryType][selectedMonth])}
                 </td>
