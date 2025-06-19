@@ -280,7 +280,7 @@ const CallByGateTable: React.FC = () => {
                     </thead>
 
                     <tbody>
-                        {gateNames.map((gateName, index) => {
+                        {gateNames.map((gateName) => {
                             const gateData = getDataForGate(gateName);
                             // const rowClass = index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800';
 

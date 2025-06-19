@@ -260,7 +260,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 }) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const [fieldValidationStates, setFieldValidationStates] = useState<Record<string, {
+  const [, setFieldValidationStates] = useState<Record<string, {
     isValid: boolean;
     message: string;
   }>>({});

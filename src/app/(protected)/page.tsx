@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -36,21 +37,12 @@ interface MonthlyComplaintData {
 
 // Define table types
 type TableType = "call-quantity" | "call-by-time" | "call-by-gate" | "call-by-incident" | "traffic-call";
-type SummaryListType = "today" | "weekly" | "monthly" | "yearly";
-
 const tableOptions = [
   { value: "call-quantity", label: "Kuantitas Panggilan" },
   { value: "call-by-time", label: "Panggilan per Waktu" },
   { value: "call-by-gate", label: "Panggilan per Gate" },
   { value: "call-by-incident", label: "Panggilan per Insiden" },
   { value: "traffic-call", label: "Panggilan dan Traffic" }
-] as const;
-
-const summaryListOptions = [
-  { value: "today", label: "Hari Ini" },
-  { value: "weekly", label: "Mingguan" },
-  { value: "monthly", label: "Bulanan" },
-  { value: "yearly", label: "Tahunan" }
 ] as const;
 
 export default function Dashboard() {
@@ -64,7 +56,6 @@ export default function Dashboard() {
 
   // State for managing active table
   const [activeTable, setActiveTable] = useState<TableType>("call-quantity");
-  const [activeSummaryList, setActiveSummaryList] = useState<SummaryListType>("today");
 
   const searchParams = useSearchParams();
 
@@ -260,22 +251,6 @@ export default function Dashboard() {
       case "traffic-call":
         return <TrafficCallTable />;
 
-      default:
-        return null;
-    }
-  };
-
-  // Function to render active summary content
-  const renderActiveSummaryList = () => {
-    switch (activeSummaryList) {
-      case "today":
-        return <div>Today's Summary</div>;
-      case "weekly":
-        return <div>Weekly Summary</div>;
-      case "monthly":
-        return <div>Monthly Summary</div>;
-      case "yearly":
-        return <div>Yearly Summary</div>;
       default:
         return null;
     }
