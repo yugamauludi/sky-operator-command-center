@@ -17,6 +17,7 @@ import {
   Location,
 } from "@/hooks/useLocation";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 
 interface Report {
   no?: number;
@@ -414,11 +415,16 @@ export default function ReportsPage() {
     {
       id: "number_plate",
       label: "Number Plate",
-      type: "text" as const,
+      type: "text",
       value: formFieldValues.number_plate || "",
-      placeholder: "Enter number plate",
+      placeholder: "Contoh: B 1234 XYZ",
       required: true,
-      onChange: (value) => handleFieldValueChange("number_plate", value),
+      validation: validateIndonesianLicensePlate,  // Pastikan ini terhubung
+      onChange: (value) => {
+        // Konversi input ke uppercase
+        const upperValue = value.toUpperCase();
+        handleFieldValueChange("number_plate", upperValue);
+      }
     },
     {
       id: "foto",

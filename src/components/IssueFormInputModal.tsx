@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { toast } from "react-toastify";
 
 interface FieldOption {
   value: string;
@@ -24,6 +25,7 @@ export interface Field {
   onLoadMore?: (searchTerm: string, page: number) => Promise<FieldOption[]>;
   hasMore?: boolean;
   loading?: boolean;
+  validation?: (value: string) => { isValid: boolean; message: string };
 }
 
 interface SearchableSelectProps {
@@ -151,8 +153,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={`w-full p-3 border rounded-md text-sm text-left flex items-center justify-between ${disabled
-            ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-            : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+          ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+          : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
           } dark:border-gray-600 ${isOpen ? "border-blue-500 dark:border-blue-400" : ""
           }`}
         disabled={disabled}
@@ -205,8 +207,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   type="button"
                   onClick={() => handleOptionSelect(option.value)}
                   className={`w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 ${value === option.value
-                      ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                      : "text-gray-900 dark:text-white"
+                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                    : "text-gray-900 dark:text-white"
                     }`}
                 >
                   {option.label}
@@ -257,6 +259,11 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
   cancelText = "Cancel",
 }) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [fieldValidationStates, setFieldValidationStates] = useState<Record<string, {
+    isValid: boolean;
+    message: string;
+  }>>({});
 
   // Initialize form values when modal opens or fields change
   useEffect(() => {
@@ -266,6 +273,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
         initialValues[field.id] = field.value;
       });
       setFormValues(initialValues);
+      setValidationErrors({});
     }
   }, [isOpen, fields]);
 
@@ -288,51 +296,33 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     }
   }, [fields, isOpen]);
 
-  const handleInputChange = (fieldId: string, value: string) => {
-    setFormValues((prev) => ({
-      ...prev,
-      [fieldId]: value,
-    }));
-
-    // Call the field's onChange callback if provided
-    const field = fields.find(f => f.id === fieldId);
-    if (field?.onChange) {
-      field.onChange(value);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate required fields
-    const requiredFields = fields.filter(field => field.required);
-    const missingFields = requiredFields.filter(field => !formValues[field.id] || formValues[field.id].trim() === "");
-
-    if (missingFields.length > 0) {
-      alert(`Please fill in all required fields: ${missingFields.map(f => f.label).join(", ")}`);
-      return;
-    }
-
-    onSubmit(formValues);
-    onClose();
-  };
-
+  // Update renderField function untuk input plat nomor
   const renderField = (field: Field) => {
     const value = formValues[field.id] || "";
     const isReadonly = field.readonly || false;
     const isDisabled = field.disabled || false;
+    const hasError = !!validationErrors[field.id];
+    const inputClassName = `w-full p-3 border rounded-md text-sm ${hasError
+      ? "border-red-500 dark:border-red-400"
+      : "dark:border-gray-600"
+      } ${isDisabled || isReadonly
+        ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+        : "bg-white dark:bg-gray-700"
+      }`;
 
     switch (field.type) {
       case "select":
         // Use enhanced searchable select for select fields
         if (field.searchable || field.lazyLoad) {
           return (
-            <SearchableSelect
-              field={field}
-              value={value}
-              onChange={(newValue) => handleInputChange(field.id, newValue)}
-              disabled={isDisabled || isReadonly}
-            />
+            <div>
+              <SearchableSelect
+                field={field}
+                value={value}
+                onChange={(newValue) => handleInputChange(field.id, newValue)}
+                disabled={isDisabled || isReadonly}
+              />
+            </div>
           );
         }
 
@@ -341,10 +331,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
           <select
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
-            className={`w-full p-3 border rounded-md text-sm ${isDisabled || isReadonly
-                ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                : "bg-white dark:bg-gray-700"
-              } dark:border-gray-600`}
+            className={inputClassName}
             disabled={isReadonly || isDisabled}
             required={field.required}
           >
@@ -363,10 +350,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
             placeholder={field.placeholder}
-            className={`w-full p-3 border rounded-md text-sm resize-none ${isDisabled || isReadonly
-                ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                : "bg-white dark:bg-gray-700"
-              } dark:border-gray-600`}
+            className={`${inputClassName} resize-none`}
             rows={3}
             readOnly={isReadonly}
             disabled={isDisabled}
@@ -376,21 +360,128 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
       default:
         return (
-          <input
-            type={field.type}
-            value={value}
-            onChange={(e) => handleInputChange(field.id, e.target.value)}
-            placeholder={field.placeholder}
-            className={`w-full p-3 border rounded-md text-sm ${isReadonly || isDisabled
-                ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                : "bg-white dark:bg-gray-700"
-              } dark:border-gray-600`}
-            readOnly={isReadonly}
-            disabled={isDisabled}
-            required={field.required}
-          />
+          <div>
+            <input
+              type={field.type}
+              value={value}
+              onChange={(e) => {
+                // Khusus untuk plat nomor
+                if (field.id === "number_plate") {
+                  const upperValue = e.target.value.toUpperCase();
+                  handleInputChange(field.id, upperValue);
+
+                  // Validasi real-time
+                  if (field.validation) {
+                    const result = field.validation(upperValue);
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      [field.id]: result.isValid ? "" : result.message
+                    }));
+                  }
+                } else {
+                  handleInputChange(field.id, e.target.value);
+                }
+              }}
+              onBlur={() => {
+                // Validasi saat field kehilangan fokus
+                if (field.validation) {
+                  const result = field.validation(value);
+                  setValidationErrors(prev => ({
+                    ...prev,
+                    [field.id]: result.isValid ? "" : result.message
+                  }));
+                }
+              }}
+              placeholder={field.placeholder}
+              className={`${inputClassName} ${
+                validationErrors[field.id] ? 'border-red-500 focus:border-red-500' : ''
+              }`}
+              readOnly={isReadonly}
+              disabled={isDisabled}
+              required={field.required}
+              // Tambahkan pattern untuk plat nomor
+              pattern={field.id === "number_plate" ? "[A-Z0-9 ]{5,11}" : undefined}
+              maxLength={field.id === "number_plate" ? 11 : undefined}
+            />
+            {/* {validationErrors[field.id] && (
+              <p className="mt-1 text-sm text-red-500">
+                {validationErrors[field.id]}
+              </p>
+            )} */}
+          </div>
         );
     }
+  };
+
+  const handleInputChange = (fieldId: string, value: string) => {
+    setFormValues(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
+
+    const field = fields.find(f => f.id === fieldId);
+    if (field?.validation) {
+      const result = field.validation(value);
+      setValidationErrors(prev => ({
+        ...prev,
+        [fieldId]: result.isValid ? "" : result.message
+      }));
+    }
+
+    // Call field's onChange if exists
+    field?.onChange?.(value);
+  };
+
+  const validateForm = (): boolean => {
+    const newValidationStates: Record<string, { isValid: boolean; message: string }> = {};
+    let isValid = true;
+
+    fields.forEach((field) => {
+      const value = formValues[field.id] || "";
+      
+      // Required field validation
+      if (field.required && (!value || value.trim() === "")) {
+        newValidationStates[field.id] = {
+          isValid: false,
+          message: `${field.label} wajib diisi`
+        };
+        isValid = false;
+      }
+      
+      // Custom field validation
+      else if (field.validation) {
+        const validationResult = field.validation(value);
+        newValidationStates[field.id] = validationResult;
+        if (!validationResult.isValid) {
+          isValid = false;
+        }
+      }
+    });
+
+    setFieldValidationStates(newValidationStates);
+    setValidationErrors(
+      Object.entries(newValidationStates).reduce((acc, [key, value]) => ({
+        ...acc,
+        [key]: value.isValid ? "" : value.message
+      }), {})
+    );
+
+    return isValid;
+  };
+
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate all fields
+    if (!validateForm()) {
+      // Show error toast or alert
+      toast?.error("Harap perbaiki error yang ada sebelum submit");
+      return;
+    }
+
+    onSubmit(formValues);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -425,6 +516,11 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                     {renderField(field)}
+                    {validationErrors[field.id] && (
+                      <p className="mt-1 text-sm text-red-500 dark:text-red-400">
+                        {validationErrors[field.id]}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -438,6 +534,11 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                     {renderField(field)}
+                    {validationErrors[field.id] && (
+                      <p className="mt-1 text-sm text-red-500 dark:text-red-400">
+                        {validationErrors[field.id]}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
