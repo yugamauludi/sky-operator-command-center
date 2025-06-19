@@ -171,6 +171,8 @@ export function GlobalCallPopup() {
     photoOut: false,
     photoCapture: false,
   });
+  // Add mute state
+  const [isMuted, setIsMuted] = useState(false);
 
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isLoadingDescriptions, setIsLoadingDescriptions] = useState(false);
@@ -197,6 +199,36 @@ export function GlobalCallPopup() {
     return "/images/Plat-Nomor-Motor-875.png";
   };
 
+  // Function to handle ringtone mute/unmute
+  const handleMuteRingtone = () => {
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      if (isMuted) {
+        // Unmute - restore volume
+        audio.volume = 1;
+        audio.muted = false;
+      } else {
+        // Mute - set volume to 0 and mute
+        audio.volume = 0;
+        audio.muted = true;
+      }
+    });
+    setIsMuted(!isMuted);
+  };
+
+  // Function to handle modal close and stop audio
+  const handleCloseModal = () => {
+    // Stop any playing audio (you may need to adjust this based on your audio implementation)
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
+
+    // End the call
+    endCallFunction();
+  };
+
   // Reset all form inputs when modal opens/closes
   useEffect(() => {
     if (activeCall) {
@@ -210,6 +242,8 @@ export function GlobalCallPopup() {
         photoOut: false,
         photoCapture: false,
       });
+      // Reset mute state when new call comes in
+      setIsMuted(false);
     }
   }, [activeCall]);
 
@@ -370,12 +404,59 @@ export function GlobalCallPopup() {
 
   return (
     <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
+        {/* Header Controls - Close Button and Mute Button */}
+        <div className="absolute top-4 right-4 z-10 flex space-x-2">
+          {/* Mute Ringtone Button */}
+          <button
+            onClick={handleMuteRingtone}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isMuted
+                ? 'bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300'
+              } hover:text-gray-800 dark:hover:text-white`}
+            title={isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"}
+          >
+            {isMuted ? (
+              // Muted icon
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            ) : (
+              // Unmuted icon
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            )}
+          </button>
+
+          {/* Close Button */}
+          <button
+            onClick={handleCloseModal}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+            title="Tutup modal dan hentikan audio"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
         {/* Header */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-4 pr-16">
           <h2 className="text-lg font-semibold text-red-600 mb-1">
             📞 Incoming Call!
           </h2>
+          {/* Ringtone Status Indicator */}
+          {isMuted && (
+            <p className="text-xs text-red-500 flex items-center justify-center">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+              Ringtone dimatikan
+            </p>
+          )}
         </div>
 
         {/* Main Content - Two Column Layout */}

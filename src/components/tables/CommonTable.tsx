@@ -13,6 +13,7 @@ export interface Column<T> {
   render?: (value: T[keyof T], row: T) => React.ReactNode;
   width?: string | number;
   minWidth?: string | number;
+  maxWidth?: string | number;
 }
 
 interface TableProps<T> {
@@ -184,8 +185,8 @@ export default function CommonTable<T>({
                         <button
                           onClick={() => onPageChange(page as number)}
                           className={`relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
-                              ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                              : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                             }`}
                           title={`Go to page ${page}`}
                         >
@@ -290,8 +291,8 @@ export default function CommonTable<T>({
                     <button
                       onClick={() => onPageChange(page as number)}
                       className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
-                          ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                          : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                         }`}
                       title={`Go to page ${page}`}
                     >
@@ -334,7 +335,7 @@ export default function CommonTable<T>({
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         {/* Horizontal scroll container */}
         <div className="overflow-x-auto thin-scrollbar">
-          {/* Vertical scroll container */}
+          {/* Table container - removed max height and vertical scroll for better fit */}
           <div className="max-h-120 overflow-y-auto">
             <table className="w-full min-w-full">
               <thead className="sticky top-0 z-10">
@@ -345,7 +346,8 @@ export default function CommonTable<T>({
                       className="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 whitespace-nowrap"
                       style={{
                         width: column.width,
-                        minWidth: column.minWidth || '120px'
+                        minWidth: column.minWidth || '20px',
+                        maxWidth: column.maxWidth || '300px'
                       }}
                     >
                       {column.header}
@@ -358,24 +360,52 @@ export default function CommonTable<T>({
                   <tr
                     key={rowIndex}
                     className={`transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700 ${rowIndex % 2 === 0
-                        ? "bg-white dark:bg-gray-900"
-                        : "bg-gray-200 dark:bg-gray-800"
+                      ? "bg-white dark:bg-gray-900"
+                      : "bg-gray-200 dark:bg-gray-800"
                       }`}
                   >
-                    {columns.map((column, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className="p-4 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap"
-                        style={{
-                          width: column.width,
-                          minWidth: column.minWidth || '120px'
-                        }}
-                      >
-                        {column.render
-                          ? column.render(item[column.accessor], item)
-                          : item[column.accessor]?.toString()}
-                      </td>
-                    ))}
+                    {columns.map((column, colIndex) => {
+                      const cellValue = column.render
+                        ? column.render(item[column.accessor], item)
+                        : item[column.accessor]?.toString() || '';
+
+                      const cellText = typeof cellValue === 'string' ? cellValue : '';
+                      const shouldTruncate = cellText.length > 30; // Truncate if text is longer than 30 characters
+
+                      return (
+                        <td
+                          key={colIndex}
+                          className="p-4 text-sm text-gray-900 dark:text-gray-100 relative group"
+                          style={{
+                            width: column.width,
+                            minWidth: column.minWidth || '20px',
+                            maxWidth: column.maxWidth || '300px'
+                          }}
+                        >
+                          <div
+                            className="truncate"
+                            style={{
+                              maxWidth: column.maxWidth || '300px'
+                            }}
+                          >
+                            {cellValue}
+                          </div>
+
+                          {/* Tooltip on hover - positioned above the cell */}
+                          {shouldTruncate && (
+                            <div className="absolute left-4 bottom-full mb-1 z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-200 delay-300">
+                              <div className="bg-gray-900 dark:bg-gray-700 text-white dark:text-gray-100 text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs break-words">
+                                {cellText}
+                                {/* Arrow pointing down */}
+                                <div className="absolute top-full left-4 transform -translate-x-1/2">
+                                  <div className="border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>

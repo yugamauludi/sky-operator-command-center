@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { FiEdit2, FiTrash2, FiX } from "react-icons/fi";
 import {
   addCategory,
@@ -10,7 +10,6 @@ import {
   fetchCategoryDetail,
   editCategory,
 } from "@/hooks/useCategories";
-import CommonTable, { Column } from "@/components/tables/CommonTable";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -24,6 +23,38 @@ import {
 import { CustomSelect } from "@/components/CustomSelect";
 import formatTanggalUTC from "@/utils/formatDate";
 
+// Lazy load komponen yang berat
+const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
+
+// Define Column interface to match your CommonTable expectations
+interface Column<T> {
+  header: string;
+  accessor: keyof T;
+  render?: (value: any, item: T) => React.ReactNode;
+}
+
+// Komponen loading skeleton
+const TableSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+    {[...Array(5)].map((_, i) => (
+      <div key={i} className="h-16 bg-gray-100 dark:bg-gray-800 rounded mb-2"></div>
+    ))}
+  </div>
+);
+
+// Komponen loading untuk tab content
+const TabContentLoader = () => (
+  <div className="text-center py-8">
+    <div className="three-body">
+      <div className="three-body__dot"></div>
+      <div className="three-body__dot"></div>
+      <div className="three-body__dot"></div>
+    </div>
+    <p className="text-gray-600 dark:text-gray-300 mt-4">Memuat data...</p>
+  </div>
+);
+
 interface CategoryData {
   id: number | null;
   categoryName: string;
@@ -35,6 +66,21 @@ interface PaginationInfo {
   currentPage: number;
   itemsPerPage: number;
 }
+
+// Custom hook untuk lazy loading data
+const useDataLoader = () => {
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
+
+  const markTabAsLoaded = (tab: string) => {
+    setLoadedTabs(prev => new Set(prev).add(tab));
+    setIsInitialLoad(false);
+  };
+
+  const isTabLoaded = (tab: string) => loadedTabs.has(tab);
+
+  return { isInitialLoad, markTabAsLoaded, isTabLoaded };
+};
 
 export default function MasterPage() {
   const [isDataLoading, setIsDataLoading] = useState(false);
@@ -73,9 +119,20 @@ export default function MasterPage() {
       itemsPerPage: 5,
     });
 
-  const fetchCategoriesData = async (page = 1, limit = 5) => {
+  const { isInitialLoad, markTabAsLoaded, isTabLoaded } = useDataLoader();
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Fetch functions dengan lazy loading
+  const fetchCategoriesData = async (page = 1, limit = 5, isLazy = false) => {
     try {
       setIsDataLoading(true);
+
+      // Jika lazy loading dan data sudah ada, skip fetch
+      if (isLazy && categories.length > 0) {
+        setIsDataLoading(false);
+        return;
+      }
+
       const categoriesData = await fetchCategories(page, limit);
       if (categoriesData.data && categoriesData.meta) {
         setCategories(categoriesData.data);
@@ -112,6 +169,8 @@ export default function MasterPage() {
         }));
         setCategoryName(category);
       }
+
+      markTabAsLoaded("category");
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -119,9 +178,16 @@ export default function MasterPage() {
     }
   };
 
-  const fetchDescriptionData = async (page = 1, limit = 5) => {
+  const fetchDescriptionData = async (page = 1, limit = 5, isLazy = false) => {
     try {
       setIsDataLoading(true);
+
+      // Jika lazy loading dan data sudah ada, skip fetch
+      if (isLazy && descriptions.length > 0) {
+        setIsDataLoading(false);
+        return;
+      }
+
       const descriptionsData = await fetchDescriptions(page, limit);
       if (descriptionsData.data && descriptionsData.meta) {
         setDescriptions(descriptionsData.data);
@@ -146,10 +212,26 @@ export default function MasterPage() {
           itemsPerPage: limit,
         });
       }
+
+      markTabAsLoaded("description");
     } catch (error) {
       console.error("Error fetching descriptions:", error);
     } finally {
       setIsDataLoading(false);
+    }
+  };
+
+  // Handle tab change dengan lazy loading
+  const handleTabChange = async (tab: string) => {
+    setActiveTab(tab);
+
+    // Lazy load data hanya ketika tab diklik dan belum pernah dimuat
+    if (!isTabLoaded(tab)) {
+      if (tab === "category") {
+        await fetchCategoriesData(1, 5, true);
+      } else if (tab === "description") {
+        await fetchDescriptionData(1, 5, true);
+      }
     }
   };
 
@@ -162,7 +244,6 @@ export default function MasterPage() {
           id: categoryDetailData.id,
           categoryName: categoryDetailData.category,
         });
-
         setShowAddModal(true);
       } else {
         console.warn("Category not found in response");
@@ -191,23 +272,24 @@ export default function MasterPage() {
       });
       setShowAddModal(true);
     } catch (error) {
-      setIsDataLoading(false);
       console.error("Error fetching category detail:", error);
     } finally {
       setIsDataLoading(false);
     }
   };
 
+  // Initial load - hanya load tab yang aktif
   useEffect(() => {
-    fetchCategoriesData();
-    fetchDescriptionData();
+    if (activeTab === "category") {
+      fetchCategoriesData();
+    }
   }, []);
 
-  const [isEditing, setIsEditing] = useState(false);
   const handleEditCategory = (id: number) => {
     setIsEditing(true);
     fetchCategoryDetailData(id);
   };
+
   const handleEditDescription = (id: number) => {
     setIsEditing(true);
     fetchDescriptionByCategoryIdData(id);
@@ -218,11 +300,12 @@ export default function MasterPage() {
     setIsConfirmationOpen(true);
   };
 
-  const categoryColumns: Column<Category>[] = [
+  // Fixed column definitions with proper typing
+  const getCategoryColumns = (): Column<Category>[] => [
     {
       header: "No",
       accessor: "id",
-      render: (value, item) => {
+      render: (value: any, item: Category) => {
         const index = categories.findIndex((cat) => cat.id === item.id);
         return index + 1;
       },
@@ -238,12 +321,12 @@ export default function MasterPage() {
     {
       header: "Tanggal Dibuat",
       accessor: "createdAt",
-      render: (value) => (value ? formatTanggalUTC(value.toString()) : ""),
+      render: (value: any) => (value ? formatTanggalUTC(value.toString()) : ""),
     },
     {
       header: "Aksi",
       accessor: "id",
-      render: (value, item) => (
+      render: (value: any, item: Category) => (
         <div className="flex space-x-2">
           <button
             className="p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
@@ -262,11 +345,11 @@ export default function MasterPage() {
     },
   ];
 
-  const descriptionColumns: Column<Description>[] = [
+  const getDescriptionColumns = (): Column<Description>[] => [
     {
       header: "No",
       accessor: "id",
-      render: (value, item) => {
+      render: (value: any, item: Description) => {
         const index = descriptions.findIndex((desc) => desc.id === item.id);
         return index + 1;
       },
@@ -282,15 +365,18 @@ export default function MasterPage() {
     {
       header: "Tanggal Dibuat",
       accessor: "createdAt",
-      render: (value) => (value ? formatTanggalUTC(value.toString()) : ""),
+      render: (value: any) => (value ? formatTanggalUTC(value.toString()) : ""),
     },
     {
       header: "Action",
       accessor: "id",
-      render: (value, item) => (
+      render: (value: any, item: Description) => (
         <div className="flex space-x-2">
-          <button className="p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
-            <FiEdit2 size={16} onClick={() => handleEditDescription(item.id)} />
+          <button
+            className="p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
+            onClick={() => handleEditDescription(item.id)}
+          >
+            <FiEdit2 size={16} />
           </button>
           <button
             onClick={() => handleDelete(item.id)}
@@ -303,6 +389,7 @@ export default function MasterPage() {
     },
   ];
 
+  // Rest of the handlers remain the same...
   const handleAddCategory = async () => {
     try {
       if (isEditing) {
@@ -432,7 +519,6 @@ export default function MasterPage() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      {/* <ToastContainer /> */}
       <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         Master Data
       </h1>
@@ -441,24 +527,22 @@ export default function MasterPage() {
       <ul className="flex border-b border-gray-200 dark:border-gray-900 mb-6">
         <li className="w-full mr-2">
           <button
-            onClick={() => setActiveTab("category")}
-            className={`w-full inline-block px-6 py-3 rounded-t-lg ${
-              activeTab === "category"
+            onClick={() => handleTabChange("category")}
+            className={`w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
                 ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-gray-500"
                 : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-            }`}
+              }`}
           >
             Kategori
           </button>
         </li>
         <li className="w-full">
           <button
-            onClick={() => setActiveTab("description")}
-            className={`w-full inline-block px-6 py-3 rounded-t-lg ${
-              activeTab === "description"
+            onClick={() => handleTabChange("description")}
+            className={`w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
                 ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
                 : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-            }`}
+              }`}
           >
             Deskripsi
           </button>
@@ -502,62 +586,48 @@ export default function MasterPage() {
           </button>
         </div>
 
-        {/* Tables */}
+        {/* Tables with Lazy Loading */}
         <div className="overflow-x-auto">
           {activeTab === "category" ? (
             <>
-              {isDataLoading ? (
-                <div className="text-center py-4">
-                  <div className="three-body">
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                  </div>{" "}
-                  <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                    Memuat data kategori...
-                  </p>
-                </div>
+              {!isTabLoaded("category") || isDataLoading ? (
+                <TabContentLoader />
               ) : (
-                <CommonTable
-                  data={categories}
-                  columns={categoryColumns}
-                  showPagination={true}
-                  currentPage={categoryPagination.currentPage}
-                  totalPages={categoryPagination.totalPages}
-                  onPageChange={handleCategoryPageChange}
-                  itemsPerPage={categoryPagination.itemsPerPage}
-                  totalItems={categoryPagination.totalItems}
-                  onItemsPerPageChange={handleItemsCategoryPerPageChange}
-                  className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
-                />
+                <Suspense fallback={<TableSkeleton />}>
+                  <CommonTable
+                    data={categories}
+                    columns={getCategoryColumns() as any}
+                    showPagination={true}
+                    currentPage={categoryPagination.currentPage}
+                    totalPages={categoryPagination.totalPages}
+                    onPageChange={handleCategoryPageChange}
+                    itemsPerPage={categoryPagination.itemsPerPage}
+                    totalItems={categoryPagination.totalItems}
+                    onItemsPerPageChange={handleItemsCategoryPerPageChange}
+                    className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                  />
+                </Suspense>
               )}
             </>
           ) : (
             <>
-              {isDataLoading ? (
-                <div className="text-center py-4">
-                  <div className="three-body">
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                    <div className="three-body__dot"></div>
-                  </div>{" "}
-                  <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                    Memuat data location...
-                  </p>
-                </div>
+              {!isTabLoaded("description") || isDataLoading ? (
+                <TabContentLoader />
               ) : (
-                <CommonTable
-                  columns={descriptionColumns}
-                  data={descriptions}
-                  showPagination={true}
-                  currentPage={descriptionPagination.currentPage}
-                  totalPages={descriptionPagination.totalPages}
-                  onPageChange={handleDescriptionPageChange}
-                  itemsPerPage={descriptionPagination.itemsPerPage}
-                  totalItems={descriptionPagination.totalItems}
-                  onItemsPerPageChange={handleItemsDescriptionPerPageChange}
-                  className="text-gray-700 dark:text-grasy-300 border-b border-gray-200 dark:border-gray-700"
-                />
+                <Suspense fallback={<TableSkeleton />}>
+                  <CommonTable
+                    columns={getDescriptionColumns() as any}
+                    data={descriptions}
+                    showPagination={true}
+                    currentPage={descriptionPagination.currentPage}
+                    totalPages={descriptionPagination.totalPages}
+                    onPageChange={handleDescriptionPageChange}
+                    itemsPerPage={descriptionPagination.itemsPerPage}
+                    totalItems={descriptionPagination.totalItems}
+                    onItemsPerPageChange={handleItemsDescriptionPerPageChange}
+                    className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                  />
+                </Suspense>
               )}
             </>
           )}

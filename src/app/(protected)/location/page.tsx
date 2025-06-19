@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
-import ConfirmationModal from "@/components/ConfirmationModal";
-import CommonTable, { Column } from "@/components/tables/CommonTable";
+import { toast } from "react-toastify";
+
+// Lazy load heavy components
+const ConfirmationModal = lazy(() => import("@/components/ConfirmationModal"));
+const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
+const DynamicInputModal = lazy(() => import("@/components/DynamicInputModal"));
+
+// Import only the functions we need
 import {
   createGate,
-  // fetchGateByLocation,
   fetchLocation,
   fetchLocationActive,
-  // fetchLocationById,
-  // LocationDetail,
 } from "@/hooks/useLocation";
-import DynamicInputModal from "@/components/DynamicInputModal";
-import { toast } from "react-toastify";
+
+// Import types
+import type { Column } from "@/components/tables/CommonTable";
 
 interface Location {
   id: number;
@@ -31,14 +35,73 @@ interface PaginationInfo {
   itemsPerPage: number;
 }
 
+// Loading skeleton component
+const TableSkeleton = () => (
+  <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full p-6">
+    <div className="animate-pulse">
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex space-x-4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Modal loading fallback
+const ModalSkeleton = () => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-6"></div>
+        <div className="flex space-x-3">
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function LocationPage() {
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const handleViewDetail = async (location: Location) => {
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [locationPagination, setLocationPagination] = useState<PaginationInfo>({
+    totalItems: 0,
+    totalPages: 0,
+    currentPage: 1,
+    itemsPerPage: 5,
+  });
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+
+  // Memoized fields to prevent unnecessary re-renders
+  const fields = useMemo(() => [
+    {
+      id: "name",
+      label: "Nama Lokasi",
+      type: "text",
+      value: "",
+      placeholder: "Masukkan nama lokasi",
+    },
+  ], []);
+
+  // Optimized handlers with useCallback
+  const handleViewDetail = useCallback(async (location: Location) => {
     try {
       router.push(
         `/location/detail?id=${location.id}&name=${encodeURIComponent(
@@ -49,99 +112,70 @@ export default function LocationPage() {
       console.error("Error navigating to detail:", error);
       toast.error("Gagal membuka detail lokasi");
     }
-  };
+  }, [router]);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     console.log("Deleting location:", selectedLocation);
     setIsDeleteModalOpen(false);
-  };
+  }, [selectedLocation]);
 
-  const handleConfirmEdit = () => {
+  const handleConfirmEdit = useCallback(() => {
     console.log("Editing location:", selectedLocation);
     setIsEditModalOpen(false);
-  };
+  }, [selectedLocation]);
 
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [locationPagination, setLocationPagination] = useState<PaginationInfo>({
-    totalItems: 0,
-    totalPages: 0,
-    currentPage: 1,
-    itemsPerPage: 5,
-  });
+  const handleSubmit = useCallback(async (values: Record<string, string>) => {
+    console.log("Form values:", values);
+    try {
+      await createGate(values);
+      setIsAddModalOpen(false);
+      toast.success("gate baru berhasil ditambahkan!");
+      // Refresh data after successful creation
+      fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
+    } catch (error) {
+      setIsAddModalOpen(false);
+      console.error("Gagal menambahkan gate baru:", error);
+      toast.error("gate baru gagal ditambahkan!");
+    }
+  }, []);
 
-  const fetchLocationData = async (page = 1, limit = 5) => {
+  const handleConfirmAdd = useCallback(() => {
+    setIsConfirmationModalOpen(false);
+    setIsAddModalOpen(true);
+  }, []);
+
+  // Debounced fetch function to prevent multiple rapid calls
+  const fetchLocationData = useCallback(async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
       const locationsData = await fetchLocation(page, limit);
       console.log("DATA LOCATION : ", locationsData);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      toast.error("Gagal memuat data lokasi");
     } finally {
       setIsDataLoading(false);
     }
-  };
+  }, []);
 
-  // const [, setLocationDetailData] = useState<LocationDetail>({
-  //   id: 0,
-  //   Code: "",
-  //   Name: "",
-  //   Region: "",
-  //   Vendor: "",
-  //   VendorParkingCode: "",
-  //   ShortName: "",
-  //   Address: "",
-  //   StartTime: "",
-  //   EndTime: "",
-  //   DateNext: 0,
-  //   TimeZone: "",
-  //   CreatedAt: "",
-  //   UpdatedAt: "",
-  //   DeletedAt: "",
-  //   recordStatus: "",
-  // });
-
-  // const fetchLocationDetailData = async (id: number) => {
-  //   try {
-  //     setIsDataLoading(true);
-  //     const locationDetailRes = await fetchLocationById(id);
-  //     setLocationDetailData(locationDetailRes.data);
-  //   } catch (error) {
-  //     console.error("Error fetching Location detail:", error);
-  //   } finally {
-  //     setIsDataLoading(false);
-  //   }
-  // };
-
-  // const fetchGateByLocationData = async (id: number) => {
-  //   try {
-  //     setIsDataLoading(true);
-  //     const gateByLocationRes = await fetchGateByLocation(id);
-  //     console.log("Data gateByLocation :", gateByLocationRes);
-  //   } catch (error) {
-  //     console.error("Error fetching gate by location:", error);
-  //   } finally {
-  //     setIsDataLoading(false);
-  //   }
-  // };
-
-  const fetchLocationActiveData = async (page = 1, limit = 5) => {
+  const fetchLocationActiveData = useCallback(async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
       const locationsActiveData = await fetchLocationActive(page, limit);
+      
       if (
         locationsActiveData &&
         locationsActiveData.data &&
         locationsActiveData.meta
       ) {
         const mappedLocation: Location[] = locationsActiveData.data.map(
-          (loc, index) => {
-            return {
-              id: loc.id || index + 1,
-              name: loc.Name,
-              address: loc.Address,
-            };
-          }
+          (loc, index) => ({
+            id: loc.id || index + 1,
+            name: loc.Name,
+            address: loc.Address,
+          })
         );
+        
         setLocationPagination({
           totalItems: locationsActiveData.meta.totalItems,
           totalPages: locationsActiveData.meta.totalPages,
@@ -152,30 +186,40 @@ export default function LocationPage() {
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
+      toast.error("Gagal memuat data lokasi aktif");
     } finally {
       setIsDataLoading(false);
+      setIsInitialLoad(false);
     }
-  };
-
-  useEffect(() => {
-    fetchLocationData();
-    // fetchLocationDetailData(1);
-    // fetchGateByLocationData(1);
-    fetchLocationActiveData();
   }, []);
 
-  const handleLocationPageChange = (page: number) => {
+  // Optimized page change handler
+  const handleLocationPageChange = useCallback((page: number) => {
     setLocationPagination((prev) => ({ ...prev, currentPage: page }));
-    fetchLocationData(page, locationPagination.itemsPerPage);
-  };
+    fetchLocationActiveData(page, locationPagination.itemsPerPage);
+  }, [fetchLocationActiveData, locationPagination.itemsPerPage]);
 
-  const columns: Column<Location>[] = [
+  const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
+    setLocationPagination((prev) => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      currentPage: 1,
+    }));
+    fetchLocationActiveData(1, newItemsPerPage);
+  }, [fetchLocationActiveData]);
+
+  // Memoized table columns to prevent re-creation on every render
+  const columns: Column<Location>[] = useMemo(() => [
     {
       header: "No",
       accessor: "id",
+      render: (value, item) => {
+        const index = locations.findIndex((cat) => cat.id === item.id);
+        return index + 1;
+      },
     },
     { header: "Name", accessor: "name" },
-    { header: "Address", accessor: "address" },
+    { header: "Address", accessor: "address", maxWidth: "720px" },
     {
       header: "Aksi",
       accessor: "id",
@@ -204,47 +248,19 @@ export default function LocationPage() {
         </div>
       ),
     },
-  ];
+  ], [locations, handleViewDetail]);
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  // Load data only once on mount
+  useEffect(() => {
+    const initializeData = async () => {
+      // Start with active data first (most important)
+      await fetchLocationActiveData();
+      // Then load general location data (less critical)
+      fetchLocationData();
+    };
 
-  const fields = [
-    {
-      id: "name",
-      label: "Nama Lokasi",
-      type: "text",
-      value: "",
-      placeholder: "Masukkan nama lokasi",
-    },
-  ];
-
-  const handleSubmit = async (values: Record<string, string>) => {
-    console.log("Form values:", values);
-    try {
-      await createGate(values);
-      setIsAddModalOpen(false);
-      toast.success("gate baru berhasil ditambahkan!");
-    } catch (error) {
-      setIsAddModalOpen(false);
-      console.error("Gagal menambahkan gate baru:", error);
-      toast.success("gate baru gagal ditambahkan!");
-    }
-  };
-
-  const handleConfirmAdd = () => {
-    setIsConfirmationModalOpen(false);
-    setIsAddModalOpen(true);
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setLocationPagination((prev) => ({
-      ...prev,
-      itemsPerPage: newItemsPerPage,
-      currentPage: 1,
-    }));
-    fetchLocationData(1, newItemsPerPage);
-  };
+    initializeData();
+  }, []); // Empty dependency array for mount only
 
   return (
     <>
@@ -255,14 +271,11 @@ export default function LocationPage() {
         />
       </Head>
 
-      {/* Responsive container - hapus minWidth dan 
-      X */}
       <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 flex flex-col">
           <main className="flex-1 overflow-hidden">
-            {/* Container dengan padding responsif */}
             <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 w-full">
-              {/* Header responsif */}
+              {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                 <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
                 <div className="flex space-x-3">
@@ -270,7 +283,7 @@ export default function LocationPage() {
                 </div>
               </div>
 
-              {/* Description Text */}
+              {/* Description */}
               <div className="mb-6">
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-4 rounded">
                   <h2 className="text-lg font-medium text-indigo-700 dark:text-indigo-400 mb-2">
@@ -286,103 +299,121 @@ export default function LocationPage() {
                 </div>
               </div>
 
-              {/* Table wrapper dengan proper horizontal scroll */}
-              <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
-                {isDataLoading ? (
-                  <div className="text-center py-4 p-6">
-                    <div className="three-body">
-                      <div className="three-body__dot"></div>
-                      <div className="three-body__dot"></div>
-                      <div className="three-body__dot"></div>
+              {/* Table Section with Lazy Loading */}
+              {isInitialLoad ? (
+                <TableSkeleton />
+              ) : (
+                <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
+                  {isDataLoading ? (
+                    <div className="text-center py-4 p-6">
+                      <div className="three-body">
+                        <div className="three-body__dot"></div>
+                        <div className="three-body__dot"></div>
+                        <div className="three-body__dot"></div>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                        Memuat data location...
+                      </p>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                      Memuat data location...
-                    </p>
-                  </div>
-                ) : locations.length === 0 ? (
-                  <div className="text-center py-8 p-6">
-                    <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                  ) : locations.length === 0 ? (
+                    <div className="text-center py-8 p-6">
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                        />
+                      </svg>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Tidak ada lokasi ditemukan
+                      </p>
+                    </div>
+                  ) : (
+                    <Suspense fallback={<TableSkeleton />}>
+                      <CommonTable
+                        data={locations}
+                        columns={columns as any}
+                        showPagination={true}
+                        currentPage={locationPagination.currentPage}
+                        totalPages={locationPagination.totalPages}
+                        onPageChange={handleLocationPageChange}
+                        itemsPerPage={locationPagination.itemsPerPage}
+                        totalItems={locationPagination.totalItems}
+                        onItemsPerPageChange={handleItemsPerPageChange}
                       />
-                    </svg>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Tidak ada lokasi ditemukan
-                    </p>
-                  </div>
-                ) : (
-                  /* Container untuk horizontal scroll - key fix di sini */
-                  <CommonTable
-                    data={locations}
-                    columns={columns}
-                    showPagination={true}
-                    currentPage={locationPagination.currentPage}
-                    totalPages={locationPagination.totalPages}
-                    onPageChange={handleLocationPageChange}
-                    itemsPerPage={locationPagination.itemsPerPage}
-                    totalItems={locationPagination.totalItems}
-                    onItemsPerPageChange={handleItemsPerPageChange}
-                  />
-                )}
-              </div>
+                    </Suspense>
+                  )}
+                </div>
+              )}
             </div>
           </main>
         </div>
 
-        {/* Modal Konfirmasi Delete */}
-        <ConfirmationModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={handleConfirmDelete}
-          title="Konfirmasi Hapus"
-          message={`Apakah Anda yakin ingin menghapus lokasi ${selectedLocation?.name}?`}
-          confirmText="Hapus"
-          cancelText="Batal"
-          type="delete"
-        />
+        {/* Lazy Loaded Modals */}
+        {isDeleteModalOpen && (
+          <Suspense fallback={<ModalSkeleton />}>
+            <ConfirmationModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onConfirm={handleConfirmDelete}
+              title="Konfirmasi Hapus"
+              message={`Apakah Anda yakin ingin menghapus lokasi ${selectedLocation?.name}?`}
+              confirmText="Hapus"
+              cancelText="Batal"
+              type="delete"
+            />
+          </Suspense>
+        )}
 
-        {/* Modal Konfirmasi Edit */}
-        <ConfirmationModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onConfirm={handleConfirmEdit}
-          title="Konfirmasi Edit"
-          message={`Anda akan mengubah data lokasi ${selectedLocation?.name}`}
-          confirmText="Edit"
-          cancelText="Batal"
-          type="edit"
-        />
+        {isEditModalOpen && (
+          <Suspense fallback={<ModalSkeleton />}>
+            <ConfirmationModal
+              isOpen={isEditModalOpen}
+              onClose={() => setIsEditModalOpen(false)}
+              onConfirm={handleConfirmEdit}
+              title="Konfirmasi Edit"
+              message={`Anda akan mengubah data lokasi ${selectedLocation?.name}`}
+              confirmText="Edit"
+              cancelText="Batal"
+              type="edit"
+            />
+          </Suspense>
+        )}
 
-        {/* Modal Tambah Lokasi */}
-        <ConfirmationModal
-          isOpen={isConfirmationModalOpen}
-          onClose={() => setIsConfirmationModalOpen(false)}
-          onConfirm={handleConfirmAdd}
-          title="Tambah Lokasi"
-          message="Apakah Anda yakin ingin menambah lokasi baru?"
-          confirmText="Tambah"
-          cancelText="Batal"
-          type="edit"
-        />
+        {isConfirmationModalOpen && (
+          <Suspense fallback={<ModalSkeleton />}>
+            <ConfirmationModal
+              isOpen={isConfirmationModalOpen}
+              onClose={() => setIsConfirmationModalOpen(false)}
+              onConfirm={handleConfirmAdd}
+              title="Tambah Lokasi"
+              message="Apakah Anda yakin ingin menambah lokasi baru?"
+              confirmText="Tambah"
+              cancelText="Batal"
+              type="edit"
+            />
+          </Suspense>
+        )}
 
-        {/* Modal Input */}
-        <DynamicInputModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          onSubmit={handleSubmit}
-          title="Form Input"
-          fields={fields}
-          confirmText="Simpan"
-          cancelText="Batal"
-        />
+        {isAddModalOpen && (
+          <Suspense fallback={<ModalSkeleton />}>
+            <DynamicInputModal
+              isOpen={isAddModalOpen}
+              onClose={() => setIsAddModalOpen(false)}
+              onSubmit={handleSubmit}
+              title="Form Input"
+              fields={fields}
+              confirmText="Simpan"
+              cancelText="Batal"
+            />
+          </Suspense>
+        )}
       </div>
     </>
   );
