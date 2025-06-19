@@ -1,4 +1,6 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 
 import { useState, useEffect, lazy, Suspense } from "react";
 import { FiEdit2, FiTrash2, FiX } from "react-icons/fi";
@@ -529,8 +531,8 @@ export default function MasterPage() {
           <button
             onClick={() => handleTabChange("category")}
             className={`w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
-                ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-gray-500"
-                : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+              ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-gray-500"
+              : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
               }`}
           >
             Kategori
@@ -540,8 +542,8 @@ export default function MasterPage() {
           <button
             onClick={() => handleTabChange("description")}
             className={`w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
-                ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
-                : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+              ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+              : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
               }`}
           >
             Deskripsi

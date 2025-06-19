@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState, lazy, Suspense, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -74,7 +75,7 @@ export default function LocationPage() {
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  // const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -114,15 +115,15 @@ export default function LocationPage() {
     }
   }, [router]);
 
-  const handleConfirmDelete = useCallback(() => {
-    console.log("Deleting location:", selectedLocation);
-    setIsDeleteModalOpen(false);
-  }, [selectedLocation]);
+  // const handleConfirmDelete = useCallback(() => {
+  //   console.log("Deleting location:", selectedLocation);
+  //   setIsDeleteModalOpen(false);
+  // }, [selectedLocation]);
 
-  const handleConfirmEdit = useCallback(() => {
-    console.log("Editing location:", selectedLocation);
-    setIsEditModalOpen(false);
-  }, [selectedLocation]);
+  // const handleConfirmEdit = useCallback(() => {
+  //   console.log("Editing location:", selectedLocation);
+  //   setIsEditModalOpen(false);
+  // }, [selectedLocation]);
 
   const handleSubmit = useCallback(async (values: Record<string, string>) => {
     console.log("Form values:", values);
@@ -162,7 +163,7 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const locationsActiveData = await fetchLocationActive(page, limit);
-      
+
       if (
         locationsActiveData &&
         locationsActiveData.data &&
@@ -175,7 +176,7 @@ export default function LocationPage() {
             address: loc.Address,
           })
         );
-        
+
         setLocationPagination({
           totalItems: locationsActiveData.meta.totalItems,
           totalPages: locationsActiveData.meta.totalPages,
@@ -356,7 +357,7 @@ export default function LocationPage() {
         </div>
 
         {/* Lazy Loaded Modals */}
-        {isDeleteModalOpen && (
+        {/* {isDeleteModalOpen && (
           <Suspense fallback={<ModalSkeleton />}>
             <ConfirmationModal
               isOpen={isDeleteModalOpen}
@@ -369,9 +370,9 @@ export default function LocationPage() {
               type="delete"
             />
           </Suspense>
-        )}
+        )} */}
 
-        {isEditModalOpen && (
+        {/* {isEditModalOpen && (
           <Suspense fallback={<ModalSkeleton />}>
             <ConfirmationModal
               isOpen={isEditModalOpen}
@@ -384,7 +385,7 @@ export default function LocationPage() {
               type="edit"
             />
           </Suspense>
-        )}
+        )} */}
 
         {isConfirmationModalOpen && (
           <Suspense fallback={<ModalSkeleton />}>
