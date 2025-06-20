@@ -318,7 +318,7 @@ export function GlobalCallPopup() {
         idGate: parseInt(activeCall.gateId),
         description: selectedDescription,
         action: "CREATE_ISSUE",
-        foto: activeCall.photoIn || "-",
+        // foto: activeCall.photoIn || "-",
         number_plate: dataIssue.number_plate || "DUM 111 YYY",
         TrxNo: dataIssue.TrxNo || "123DUMYYY345",
       };
@@ -394,13 +394,28 @@ export function GlobalCallPopup() {
     isLoadingDescriptions;
 
   if (!activeCall) return null;
+  // const imageUrl = (path: string) => {
+  //   if (!path) return '';
+  //   return `/api/proxy/image?path=${encodeURIComponent(path)}`;
+  // };
 
-  // Get photo URLs - prioritize base64 image, fallback to existing URLs or dummy images
-  const photoInUrl = activeCall?.photoIn || "/images/Plat-Nomor-Motor-875.png";
-  const photoCaptureUrl = formatBase64Image(activeCall?.imageBase64) ||
-    activeCall?.capture ||
-    "/images/Plat-Nomor-Motor-875.png";
+  // Mapping for detailGate
+  const detailGate = activeCall?.detailGate || {};
   const locationName = activeCall?.location?.Name || "Unknown Location";
+  const gateName = activeCall?.gate || detailGate.gate || "-";
+  const gateId = activeCall?.gateId || detailGate.id || "-";
+  const ticketNo = detailGate.ticket || "-";
+  const numberPlate = detailGate.number_plate || "-";
+
+  // Foto In
+  const fotoInUrl = detailGate.foto_in
+    ? `https://devtest09.skyparking.online/uploads/${detailGate.foto_in}`
+    : "/images/Plat-Nomor-Motor-875.png";
+
+  // Foto Capture
+  const photoCaptureUrl = activeCall?.imageFile?.filename
+    ? `https://devtest09.skyparking.online/uploads/${activeCall.imageFile.filename}`
+    : "/images/Plat-Nomor-Motor-875.png";
 
   return (
     <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
@@ -411,8 +426,8 @@ export function GlobalCallPopup() {
           <button
             onClick={handleMuteRingtone}
             className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isMuted
-                ? 'bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200'
-                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300'
+              ? 'bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200'
+              : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300'
               } hover:text-gray-800 dark:hover:text-white`}
             title={isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"}
           >
@@ -480,7 +495,7 @@ export function GlobalCallPopup() {
                 <span className="font-medium">Gate</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {activeCall.gate || "-"}
+                  {gateName}
                 </span>
               </div>
 
@@ -488,7 +503,7 @@ export function GlobalCallPopup() {
                 <span className="font-medium">Gate ID</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {activeCall.gateId || "-"}
+                  {gateId}
                 </span>
               </div>
 
@@ -496,7 +511,7 @@ export function GlobalCallPopup() {
                 <span className="font-medium">No Transaction</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {dataIssue.TrxNo || "-"}
+                  {ticketNo || "-"}
                 </span>
               </div>
 
@@ -504,7 +519,7 @@ export function GlobalCallPopup() {
                 <span className="font-medium">No Plat Number</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {dataIssue.number_plate || "-"}
+                  {numberPlate || "-"}
                 </span>
               </div>
 
@@ -719,7 +734,7 @@ export function GlobalCallPopup() {
                   <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
                     {!imageErrors.photoIn ? (
                       <Image
-                        src={photoInUrl}
+                        src={fotoInUrl}
                         alt="Foto In"
                         width={400}
                         height={225}
@@ -746,7 +761,7 @@ export function GlobalCallPopup() {
                 <div className="text-center">
                   <p className="text-sm font-medium mb-2">
                     Foto Capture
-                    {activeCall?.imageBase64 && (
+                    {activeCall?.imageFile?.filename && (
                       <span className="text-xs text-green-600 ml-1">(Live)</span>
                     )}
                   </p>

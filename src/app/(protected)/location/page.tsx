@@ -272,7 +272,7 @@ export default function LocationPage() {
         />
       </Head>
 
-      <div className="flex flex-col min-h-screen w-full">
+      <div className="flex flex-col w-full">
         <div className="flex-1 flex flex-col">
           <main className="flex-1 overflow-hidden">
             <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
