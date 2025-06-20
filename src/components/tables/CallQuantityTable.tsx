@@ -233,7 +233,7 @@ const CallQuantityTable: React.FC = () => {
       </div>
 
       {/* Mobile Summary Cards */}
-      <div className="mt-6 grid grid-cols-2 md:hidden gap-3">
+      {/* <div className="mt-6 grid grid-cols-2 md:hidden gap-3">
         <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
           <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Panggilan</p>
           <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
@@ -250,7 +250,7 @@ const CallQuantityTable: React.FC = () => {
              Math.max(rowTotal.jan, rowTotal.feb, rowTotal.mar, rowTotal.apr, rowTotal.mei, rowTotal.juni) === rowTotal.mei ? 'Mei' : 'Juni'}
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
