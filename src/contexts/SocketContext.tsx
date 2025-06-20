@@ -27,13 +27,19 @@ interface SocketContextType {
   endCallFunction: () => void;
 }
 
-const SocketContext = createContext<SocketContextType>({
+const SocketContext = createContext<SocketContextType & {
+  muteRingtone?: () => void;
+  unmuteRingtone?: () => void;
+
+}>({
   socket: null,
   connectionStatus: "Disconnected",
   activeCall: null,
   userNumber: null,
   setUserNumber: () => { },
   endCallFunction: () => { },
+  muteRingtone: undefined,
+  unmuteRingtone: undefined,
 });
 
 export const useGlobalSocket = () => useContext(SocketContext);
@@ -62,6 +68,19 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("admin_user_number", num.toString());
     if (socket) {
       socket.emit("register", num);
+    }
+  };
+
+  const muteRingtone = () => {
+    if (audio) {
+      audio.volume = 0;
+      audio.muted = true;
+    }
+  };
+  const unmuteRingtone = () => {
+    if (audio) {
+      audio.volume = 1;
+      audio.muted = false;
     }
   };
 
@@ -138,6 +157,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         userNumber,
         setUserNumber,
         endCallFunction,
+        muteRingtone,
+        unmuteRingtone
       }}
     >
       {children}
@@ -157,7 +178,7 @@ interface DataIssue {
 
 // Updated GlobalCallPopup Component with base64 image support
 export function GlobalCallPopup() {
-  const { activeCall, endCallFunction } = useGlobalSocket();
+  const { activeCall, endCallFunction, muteRingtone, unmuteRingtone } = useGlobalSocket();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDescription, setSelectedDescription] = useState("");
   const [description, setDescription] = useState<Description[]>([]);
@@ -182,18 +203,11 @@ export function GlobalCallPopup() {
 
   // Function to handle ringtone mute/unmute
   const handleMuteRingtone = () => {
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
-      if (isMuted) {
-        // Unmute - restore volume
-        audio.volume = 1;
-        audio.muted = false;
-      } else {
-        // Mute - set volume to 0 and mute
-        audio.volume = 0;
-        audio.muted = true;
-      }
-    });
+    if (isMuted) {
+      unmuteRingtone?.();
+    } else {
+      muteRingtone?.();
+    }
     setIsMuted(!isMuted);
   };
 
