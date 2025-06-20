@@ -71,7 +71,6 @@ function LocationDetailContent() {
     setSelectedLedGate(null);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchGatesData = async () => {
     if (!locationId) return;
 
@@ -165,7 +164,7 @@ function LocationDetailContent() {
     if (locationId) {
       fetchGatesData();
     }
-  }, [locationId, fetchGatesData]);
+  }, [locationId]);
 
   const getStatusBadge = (status: number) => {
     return status === 1 ? (
