@@ -200,7 +200,6 @@ export default function ReportsPage() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchGateData = async (data: any) => {
     try {
       const response = await fetchGateByLocation(data);

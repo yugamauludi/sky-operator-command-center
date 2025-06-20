@@ -230,7 +230,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     if (field.lazyLoad && options.length === 0 && !loading) {
       loadMoreOptions(true);
     }
-  }, [field.lazyLoad]);
+  }, [field.lazyLoad, loadMoreOptions, loading, options.length]);
 
   // Scroll highlighted option into view
   useEffect(() => {
@@ -407,7 +407,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
         setFormValues(updatedValues);
       }
     }
-  }, [fields, isOpen]);
+  }, [fields, isOpen, formValues]);
 
   // Update renderField function untuk input plat nomor
   const renderField = (field: Field) => {

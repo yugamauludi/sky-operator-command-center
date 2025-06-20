@@ -289,7 +289,7 @@ export default function MasterPage() {
     if (activeTab === "category") {
       fetchCategoriesData();
     }
-  }, []);
+  }, [activeTab, fetchCategoriesData]);
 
   const handleEditCategory = (id: number) => {
     setIsEditing(true);

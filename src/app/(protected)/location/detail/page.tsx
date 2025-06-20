@@ -164,7 +164,7 @@ function LocationDetailContent() {
     if (locationId) {
       fetchGatesData();
     }
-  }, [locationId]);
+  }, [locationId, fetchGatesData]);
 
   const getStatusBadge = (status: number) => {
     return status === 1 ? (

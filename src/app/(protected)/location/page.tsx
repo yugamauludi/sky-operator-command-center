@@ -124,41 +124,6 @@ export default function LocationPage() {
   //   console.log("Editing location:", selectedLocation);
   //   setIsEditModalOpen(false);
   // }, [selectedLocation]);
-
-  const handleSubmit = useCallback(async (values: Record<string, string>) => {
-    console.log("Form values:", values);
-    try {
-      await createGate(values);
-      setIsAddModalOpen(false);
-      toast.success("gate baru berhasil ditambahkan!");
-      // Refresh data after successful creation
-      fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
-    } catch (error) {
-      setIsAddModalOpen(false);
-      console.error("Gagal menambahkan gate baru:", error);
-      toast.error("gate baru gagal ditambahkan!");
-    }
-  }, []);
-
-  const handleConfirmAdd = useCallback(() => {
-    setIsConfirmationModalOpen(false);
-    setIsAddModalOpen(true);
-  }, []);
-
-  // Debounced fetch function to prevent multiple rapid calls
-  const fetchLocationData = useCallback(async (page = 1, limit = 5) => {
-    try {
-      setIsDataLoading(true);
-      const locationsData = await fetchLocation(page, limit);
-      console.log("DATA LOCATION : ", locationsData);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      toast.error("Gagal memuat data lokasi");
-    } finally {
-      setIsDataLoading(false);
-    }
-  }, []);
-
   const fetchLocationActiveData = useCallback(async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
@@ -193,6 +158,41 @@ export default function LocationPage() {
       setIsInitialLoad(false);
     }
   }, []);
+
+  const handleSubmit = useCallback(async (values: Record<string, string>) => {
+    console.log("Form values:", values);
+    try {
+      await createGate(values);
+      setIsAddModalOpen(false);
+      toast.success("gate baru berhasil ditambahkan!");
+      // Refresh data after successful creation
+      fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
+    } catch (error) {
+      setIsAddModalOpen(false);
+      console.error("Gagal menambahkan gate baru:", error);
+      toast.error("gate baru gagal ditambahkan!");
+    }
+  }, [fetchLocationActiveData, locationPagination.currentPage, locationPagination.itemsPerPage]);
+
+  const handleConfirmAdd = useCallback(() => {
+    setIsConfirmationModalOpen(false);
+    setIsAddModalOpen(true);
+  }, []);
+
+  // Debounced fetch function to prevent multiple rapid calls
+  const fetchLocationData = useCallback(async (page = 1, limit = 5) => {
+    try {
+      setIsDataLoading(true);
+      const locationsData = await fetchLocation(page, limit);
+      console.log("DATA LOCATION : ", locationsData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Gagal memuat data lokasi");
+    } finally {
+      setIsDataLoading(false);
+    }
+  }, []);
+
 
   // Optimized page change handler
   const handleLocationPageChange = useCallback((page: number) => {
@@ -261,7 +261,7 @@ export default function LocationPage() {
     };
 
     initializeData();
-  }, []); // Empty dependency array for mount only
+  }, [fetchLocationActiveData, fetchLocationData]); // Empty dependency array for mount only
 
   return (
     <>

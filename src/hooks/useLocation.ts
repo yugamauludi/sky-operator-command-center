@@ -110,7 +110,6 @@ export const fetchLocationById = async (id: number) => {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchGateByLocation = async (locationData: any) => {
     try {
         const response = await fetch(`/api/location/get-gate-by-location/${locationData.id}?page=${locationData.page}limit=${locationData.limit}`);
