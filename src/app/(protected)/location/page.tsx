@@ -275,8 +275,7 @@ export default function LocationPage() {
       <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 flex flex-col">
           <main className="flex-1 overflow-hidden">
-            <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 w-full">
-              {/* Header */}
+            <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                 <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
                 <div className="flex space-x-3">

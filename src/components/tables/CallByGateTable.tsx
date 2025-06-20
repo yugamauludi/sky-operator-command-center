@@ -190,29 +190,29 @@ const CallByGateTable: React.FC = () => {
 
     const getRowClassName = (gateName: string): string => {
         if (gateName === 'TOTAL') {
-            return 'bg-blue-900 text-white font-bold';
+            return 'bg-blue-900 dark:bg-blue-950 text-white font-bold';
         }
         if (gateName.includes('Total')) {
-            return 'bg-blue-800 text-white font-bold';
+            return 'bg-blue-800 dark:bg-blue-900 text-white font-bold';
         }
-        return 'bg-white hover:bg-gray-50';
+        return 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700';
     };
 
     return (
         <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
             <div>
-                <h3 className="text-lg md:text-xl font-semibold mb-2">Call by Gate</h3>
+                <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900 dark:text-white">Call by Gate</h3>
             </div>
             {/* Month Selector */}
             <div className="mb-4 rounded-lg">
-                <label htmlFor="month-select" className="block text-sm text-gray-500 dark:text-gray-400 mb-2">
+                <label htmlFor="month-select" className="block text-sm text-gray-600 dark:text-gray-300 mb-2">
                     Select Month:
                 </label>
                 <select
                     id="month-select"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="block w-full max-w-xs px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-800 text-black dark:text-white"
+                    className="block w-full max-w-xs px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                     {months.map((month) => (
                         <option key={month.value} value={month.value}>
@@ -220,58 +220,61 @@ const CallByGateTable: React.FC = () => {
                         </option>
                     ))}
                 </select>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Currently showing data for: <span className="font-semibold capitalize">{selectedMonth}</span>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    Currently showing data for: <span className="font-semibold capitalize text-gray-900 dark:text-white">{selectedMonth}</span>
                 </p>
             </div>
 
             <div className="w-full overflow-x-auto thin-scrollbar">
-                <table className="w-full border-collapse border border-gray-400 dark:border-gray-700 text-xs">
+                <table className="w-full border-collapse border border-gray-400 dark:border-gray-600 text-xs">
                     <thead>
-                        {/* Second header row - Location names */}
+                        {/* First header row - Location names */}
                         <tr>
-                            <th rowSpan={3} className="border border-gray-400 dark:border-gray-700 bg-blue-900 text-white p-2 min-w-[120px]">
+                            <th
+                                rowSpan={3}
+                                className="sticky left-0 z-10 border border-gray-400 dark:border-gray-600 bg-blue-900 dark:bg-blue-950 text-white p-2 min-w-[120px] font-bold"
+                            >
                                 GATE
                             </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-700 bg-green-100 dark:bg-green-900 text-black dark:text-white p-1 text-center">
+                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
                                 HPM LKU
                             </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-700 bg-green-100 dark:bg-green-900 text-black dark:text-white p-1 text-center">
+                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
                                 LMP
                             </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-700 bg-green-100 dark:bg-green-900 text-black dark:text-white p-1 text-center">
+                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
                                 PV
                             </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-700 bg-orange-100 dark:bg-orange-900 text-black dark:text-white p-1 text-center">
+                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-orange-200 dark:bg-orange-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
                                 TOTAL
                             </th>
                         </tr>
 
-                        {/* Third header row - Car/Bike */}
+                        {/* Second header row - Car/Bike */}
                         <tr>
                             {Array.from({ length: 4 }).map((_, i) => (
                                 <React.Fragment key={i}>
-                                    <th colSpan={3} className={`border border-gray-400 dark:border-gray-700 ${i === 3 ? 'bg-orange-200 dark:bg-orange-800' : 'bg-blue-100 dark:bg-blue-800'} text-black dark:text-white p-1 text-center`}>
+                                    <th colSpan={3} className={`border border-gray-400 dark:border-gray-600 ${i === 3 ? 'bg-orange-100 dark:bg-orange-700' : 'bg-blue-200 dark:bg-blue-700'} text-gray-900 dark:text-white p-1 text-center font-medium`}>
                                         Car
                                     </th>
-                                    <th colSpan={3} className={`border border-gray-400 dark:border-gray-700 ${i === 3 ? 'bg-orange-200 dark:bg-orange-800' : 'bg-blue-100 dark:bg-blue-800'} text-black dark:text-white p-1 text-center`}>
+                                    <th colSpan={3} className={`border border-gray-400 dark:border-gray-600 ${i === 3 ? 'bg-orange-100 dark:bg-orange-700' : 'bg-blue-200 dark:bg-blue-700'} text-gray-900 dark:text-white p-1 text-center font-medium`}>
                                         Bike
                                     </th>
                                 </React.Fragment>
                             ))}
                         </tr>
 
-                        {/* Fourth header row - Error types */}
+                        {/* Third header row - Error types */}
                         <tr>
                             {Array.from({ length: 8 }).map((_, i) => (
                                 <React.Fragment key={i}>
-                                    <th className="border border-gray-400 dark:border-gray-700 bg-blue-100 dark:bg-blue-800 text-black dark:text-white p-1 text-center min-w-[60px]">
+                                    <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
                                         Human Error
                                     </th>
-                                    <th className="border border-gray-400 dark:border-gray-700 bg-blue-100 dark:bg-blue-800 text-black dark:text-white p-1 text-center min-w-[60px]">
+                                    <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
                                         Customer Behaviour
                                     </th>
-                                    <th className="border border-gray-400 dark:border-gray-700 bg-blue-100 dark:bg-blue-800 text-black dark:text-white p-1 text-center min-w-[60px]">
+                                    <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
                                         Asset / System
                                     </th>
                                 </React.Fragment>
@@ -282,7 +285,6 @@ const CallByGateTable: React.FC = () => {
                     <tbody>
                         {gateNames.map((gateName) => {
                             const gateData = getDataForGate(gateName);
-                            // const rowClass = index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800';
 
                             const totalCarHumanError = gateData.hpmLku.car.humanError + gateData.lmp.car.humanError + gateData.pv.car.humanError;
                             const totalCarCustomerBehaviour = gateData.hpmLku.car.customerBehaviour + gateData.lmp.car.customerBehaviour + gateData.pv.car.customerBehaviour;
@@ -295,15 +297,13 @@ const CallByGateTable: React.FC = () => {
                             return (
                                 <tr
                                     key={gateName}
-                                    className={`${getRowClassName(gateName)} transition duration-150`}
+                                    className={`${getRowClassName(gateName)} transition-colors duration-150`}
                                 >
-                                    <td className={`border border-gray-400 dark:border-gray-700 p-2 font-medium ${gateName.includes('Total') || gateName === 'TOTAL'
-                                            ? 'text-white'
-                                            : 'text-black dark:text-white'
-                                        }`}>
+                                    <td className={`sticky left-0 z-10 border border-gray-400 dark:border-gray-600 ${gateName.includes('Total') || gateName === 'TOTAL'
+                                        ? 'bg-blue-900 dark:bg-blue-950 text-white font-bold'
+                                        : 'bg-blue-900 dark:bg-blue-950 text-white'} p-2 font-medium`}>
                                         {gateName}
                                     </td>
-
                                     {/* Render all 24 data cells */}
                                     {[
                                         gateData.hpmLku.car, gateData.hpmLku.bike,
@@ -319,7 +319,13 @@ const CallByGateTable: React.FC = () => {
                                         ].map((value, j) => (
                                             <td
                                                 key={`${i}-${j}`}
-                                                className={`border border-gray-400 dark:border-gray-700 p-1 text-center font-medium ${i >= 6 ? 'bg-orange-50 dark:bg-orange-800 text-black dark:text-white' : 'text-black dark:text-white'
+                                                className={`border border-gray-400 dark:border-gray-600 p-1 text-center font-medium transition-colors duration-150 ${gateName.includes('Total') || gateName === 'TOTAL'
+                                                        ? i >= 6
+                                                            ? 'bg-orange-200 dark:bg-orange-800 text-white font-bold'
+                                                            : 'bg-blue-900 dark:bg-blue-950 text-white font-bold'
+                                                        : i >= 6
+                                                            ? 'bg-orange-50 dark:bg-orange-900/50 text-gray-900 dark:text-orange-100'
+                                                            : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                                                     }`}
                                             >
                                                 {value || '-'}

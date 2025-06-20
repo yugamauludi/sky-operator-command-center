@@ -121,10 +121,10 @@ export default function MasterPage() {
       itemsPerPage: 5,
     });
 
-  const { 
+  const {
     // isInitialLoad,
-    markTabAsLoaded, 
-    isTabLoaded 
+    markTabAsLoaded,
+    isTabLoaded
   } = useDataLoader();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -524,7 +524,7 @@ export default function MasterPage() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
       <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         Master Data
       </h1>

@@ -145,7 +145,10 @@ const CallByTimeTable: React.FC = () => {
                 <table className="w-full border-collapse border border-gray-400 dark:border-gray-700 text-xs">
                     <thead>
                         <tr>
-                            <th rowSpan={3} className="border border-gray-400 dark:border-gray-700 bg-blue-900 text-white p-2 min-w-[100px]">
+                            <th
+                                rowSpan={3}
+                                className="sticky left-0 z-10 border border-gray-400 dark:border-gray-700 bg-blue-900 text-white p-2 min-w-[100px]"
+                            >
                                 HOUR
                             </th>
                             {locations.map((location) => (
@@ -185,7 +188,9 @@ const CallByTimeTable: React.FC = () => {
                     <tbody>
                         {timeSlots.map((timeSlot, index) => (
                             <tr key={timeSlot} className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}>
-                                <td className="border border-gray-400 dark:border-gray-700 bg-blue-900 text-white p-2 font-medium text-center">
+                                <td
+                                    className="sticky left-0 z-10 border border-gray-400 dark:border-gray-700 bg-blue-900 text-white p-2 font-medium text-center"
+                                >
                                     {timeSlot}
                                 </td>
                                 {locations.map((location) => {
@@ -207,8 +212,9 @@ const CallByTimeTable: React.FC = () => {
                             </tr>
                         ))}
                         <tr className="bg-blue-900 text-white font-bold">
-                            <td className="border border-gray-400 dark:border-gray-700 p-2 text-center">TOTAL</td>
-                            {locations.map((location) => {
+                            <td className="sticky left-0 z-10 border border-gray-400 dark:border-gray-700 bg-blue-900 text-white p-2 text-center font-bold">
+                                TOTAL
+                            </td>                            {locations.map((location) => {
                                 const totalCall = timeSlots.reduce((sum, timeSlot) => sum + getDataForTimeSlot(timeSlot, location).call, 0);
                                 const totalNoAnswer = timeSlots.reduce((sum, timeSlot) => sum + getDataForTimeSlot(timeSlot, location).noAnswer, 0);
                                 const totalDoublePush = timeSlots.reduce((sum, timeSlot) => sum + getDataForTimeSlot(timeSlot, location).doublePush, 0);
@@ -222,8 +228,9 @@ const CallByTimeTable: React.FC = () => {
                             })}
                         </tr>
                         <tr className="bg-blue-800 text-white">
-                            <td className="border border-gray-400 dark:border-gray-700 p-2 text-center">%</td>
-                            {locations.map((location) => {
+                            <td className="sticky left-0 z-10 border border-gray-400 dark:border-gray-700 bg-blue-800 text-white p-2 text-center font-bold">
+                                %
+                            </td>                            {locations.map((location) => {
                                 const totalCall = timeSlots.reduce((sum, timeSlot) => sum + getDataForTimeSlot(timeSlot, location).call, 0);
                                 const totalNoAnswer = timeSlots.reduce((sum, timeSlot) => sum + getDataForTimeSlot(timeSlot, location).noAnswer, 0);
                                 const totalMissed = totalNoAnswer;

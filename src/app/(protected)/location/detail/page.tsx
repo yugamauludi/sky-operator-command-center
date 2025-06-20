@@ -337,19 +337,32 @@ function LocationDetailContent() {
                   <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
                     Detail Lokasi: {decodeURIComponent(locationName || "")}
                   </h1>
-                  <div className="text-gray-600 dark:text-gray-300 mt-2 space-y-1">
-                    <p className="text-sm sm:text-base">
+                  <div className="text-gray-700 dark:text-gray-200 mt-2 space-y-2 text-base sm:text-[1.05rem] leading-relaxed">
+                    <p>
                       Manajemen gate parkir untuk lokasi ini. Anda dapat memantau dan mengontrol status setiap gate secara real-time.
                     </p>
-                    <div className="text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-3 rounded-lg">
-                      <p className="flex items-center mb-1">
-                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                        Gate terbuka (Open) - Kendaraan dapat keluar/masuk
-                      </p>
-                      <p className="flex items-center">
-                        <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                        Gate tertutup (Closed) - Akses kendaraan ditutup
-                      </p>
+                    <div className="text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span className="font-medium">Gate terbuka (Open)</span>
+                        <span className="text-gray-500 dark:text-gray-400">- Kendaraan dapat keluar/masuk</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span className="font-medium">Gate tertutup (Closed)</span>
+                        <span className="text-gray-500 dark:text-gray-400">- Akses kendaraan ditutup</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-4 h-4">
+                          <GreenDownArrow className="w-4 h-4 text-green-500" />
+                        </span>
+                        <span>
+                          <b>LED Arrow</b> adalah tombol untuk mengubah arah LED di atas gate parkir.
+                          Jika terjadi kendala pada gate, ubah menjadi
+                          <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
+                          agar antrian kendaraan beralih ke gate lainnya.
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -431,9 +444,8 @@ function LocationDetailContent() {
               ? "Matikan LED Arrow"
               : "Nyalakan LED Arrow"
           }
-          message={`Apakah Anda yakin ingin ${
-            (ledArrowStatus[selectedLedGate.id] ?? true) ? "mematikan" : "menyalakan"
-          } LED Arrow pada gate "${selectedLedGate.gate}"?`}
+          message={`Apakah Anda yakin ingin ${(ledArrowStatus[selectedLedGate.id] ?? true) ? "mematikan" : "menyalakan"
+            } LED Arrow pada gate "${selectedLedGate.gate}"?`}
           confirmText="Ya, Lanjutkan"
           cancelText="Batal"
           isLoading={false}

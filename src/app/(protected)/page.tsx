@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import React from 'react';
+import { fetchIssuesMonthly } from "@/hooks/useIssues";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -39,7 +40,7 @@ interface MonthlyComplaintData {
 // Define table types
 type TableType = "call-quantity" | "call-by-time" | "call-by-gate" | "call-by-incident" | "traffic-call";
 const tableOptions = [
-  { value: "call-quantity", label: "Kuantitas Panggilan" },
+  { value: "call-quantity", label: "Jumlah Panggilan per Periode" },
   { value: "call-by-time", label: "Panggilan per Waktu" },
   { value: "call-by-gate", label: "Panggilan per Gate" },
   { value: "call-by-incident", label: "Panggilan per Insiden" },
@@ -193,8 +194,17 @@ export default function Dashboard() {
   const fetchMonthlyComplaintData = async () => {
     setIsLoadingMonthlyData(true);
     try {
-      const response = await fetch("/api/complaints/monthly");
-      const data: MonthlyComplaintData[] = await response.json();
+      const response = await fetchIssuesMonthly();
+      // response.data = [{ month: "2025-01", total: 3941 }, ...]
+      const apiData = response.data;
+
+      // Map ke format yang digunakan chart
+      const data: MonthlyComplaintData[] = apiData.map((item: { month: string; total: number }) => ({
+        month: item.month,
+        date: item.month + "-01", // tambahkan hari agar bisa diparse ke Date
+        complaints: item.total,
+      }));
+
       setMonthlyComplaintData(data);
     } catch (error) {
       console.error("Error fetching monthly complaint data:", error);
@@ -260,8 +270,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="container mx-auto px-2 md:px-4 lg:px-6 py-2 md:py-4 lg:py-8 max-w-7xl">
-
+      <div className="flex flex-col w-full min-h-screen px-2 md:px-4 lg:px-6 py-2 md:py-4 lg:py-8">
         {/* Navigation Header */}
         <div className="bg-white dark:bg-[#222B36] p-4 rounded-lg mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -303,7 +312,7 @@ export default function Dashboard() {
               {/* Column headers with better mobile spacing */}
               <div className="space-y-3 md:space-y-4">
                 {/* Open Status Column */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-row items-center gap-2 mb-4">
                   <span className="flex items-center">
                     <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
                     Perlu Bantuan
@@ -342,7 +351,7 @@ export default function Dashboard() {
 
               {/* In Progress Column */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-row items-center gap-2 mb-4">
                   <span className="flex items-center">
                     <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
                     Sedang Ditangani
@@ -381,7 +390,7 @@ export default function Dashboard() {
 
               {/* Resolved Column */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-row items-center gap-2 mb-4">
                   <span className="flex items-center">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                     Selesai
@@ -510,11 +519,11 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        
+
         {/* Table Section with Horizontal Tab Bar */}
         <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6 mb-6">
-          {/* Horizontal Tab Bar */}
-          <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
+          {/* Horizontal Tab Bar (desktop/tablet) */}
+          <div className="hidden md:flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
             {tableOptions.map((option) => (
               <button
                 key={option.value}
@@ -527,6 +536,21 @@ export default function Dashboard() {
                 {option.label}
               </button>
             ))}
+          </div>
+
+          {/* Select Input (mobile) */}
+          <div className="mb-6 md:hidden">
+            <select
+              value={activeTable}
+              onChange={e => setActiveTable(e.target.value as TableType)}
+              className="w-full rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#222B36] text-gray-900 dark:text-gray-100 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              {tableOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Table Content */}

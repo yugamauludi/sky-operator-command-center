@@ -46,6 +46,13 @@ export default function Sidebar() {
     setIsOpen(!isOpen);
   };
 
+  const handleLogout = () => {
+    // Lakukan proses logout di sini, misal clear token dan redirect
+    // Contoh:
+    // localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
+
   return (
     <>
       {/* Mobile overlay when sidebar is open */}
@@ -61,9 +68,8 @@ export default function Sidebar() {
           } h-full transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 relative ${isMobile ? 'fixed left-0 top-0 z-50 md:relative' : ''
           }`}
       >
-        {/* Header Section */}
         <div className="flex flex-col h-full">
-          {/* Logo and Title Section */}
+          {/* Header Section */}
           <div className="flex flex-col items-center py-6 px-4 relative">
             {/* Logo */}
             <div className="flex justify-center items-center mb-3">
@@ -89,11 +95,26 @@ export default function Sidebar() {
             {/* Toggle Button - dengan posisi yang lebih baik dan tampilan yang lebih proporsional */}
             <button
               onClick={toggleSidebar}
-              className={`absolute -right-10 top-4 w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-black-500 dark:text-red-400 transition-all duration-100 hover:scale-100 shadow-md ${isMobile && !isOpen ? 'hidden' : ''
-                }`}
+              className={`
+                absolute -right-12 top-4 w-10 h-10 flex items-center justify-center
+                bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700
+                rounded-md shadow-md transition-all duration-300
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600
+                active:scale-95
+                ${isMobile && !isOpen ? 'hidden' : ''}
+              `}
               aria-label={isOpen ? "Tutup sidebar" : "Buka sidebar"}
             >
-              <HiOutlineBars3 size={24} />
+              <span
+                className={`
+                  transition-transform duration-300
+                  ${isOpen ? "rotate-0" : "rotate-90"}
+                  text-black
+                `}
+              >
+                <HiOutlineBars3 size={26} />
+              </span>
             </button>
           </div>
 
@@ -134,8 +155,8 @@ export default function Sidebar() {
                 {/* Label dengan animasi slide */}
                 <div
                   className={`transition-all duration-300 overflow-hidden ${isOpen
-                      ? "opacity-100 max-w-full ml-3"
-                      : "opacity-0 max-w-0 ml-0"
+                    ? "opacity-100 max-w-full ml-3"
+                    : "opacity-0 max-w-0 ml-0"
                     }`}
                 >
                   <span className="font-medium whitespace-nowrap">
@@ -155,12 +176,34 @@ export default function Sidebar() {
             </div>
           )}
 
+          {/* Logout menu item (sticky at bottom) */}
+          <div className="mt-auto px-3 pb-4">
+            <button
+              onClick={handleLogout}
+              className={`
+              flex items-center w-full px-3 py-3 rounded-lg text-gray-600 dark:text-gray-300
+              hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400
+              transition-all duration-200 font-medium
+              ${!isOpen ? "justify-center" : ""}
+            `}
+            >
+              <span className="text-lg flex-shrink-0">{/* Icon Logout */}🚪</span>
+              <span
+                className={`transition-all duration-300 overflow-hidden ${
+                  isOpen ? "opacity-100 max-w-full ml-3" : "opacity-0 max-w-0 ml-0"
+                }`}
+              >
+                Logout
+              </span>
+            </button>
+          </div>
+
           {/* Footer space */}
           <div className="p-4">{/* Space for footer content if needed */}</div>
         </div>
       </div>
 
-      {/* Mobile toggle button when sidebar is collapsed (icon-only mode) */}
+      {/* Mobile collapsed sidebar */}
       {isMobile && !isOpen && (
         <div className="fixed top-0 left-0 w-16 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 flex flex-col">
           {/* Mobile toggle button */}
@@ -197,6 +240,20 @@ export default function Sidebar() {
               </Link>
             ))}
           </nav>
+          {/* Logout for collapsed mobile */}
+          <div className="px-2 pb-4 mt-auto">
+            <button
+              onClick={handleLogout}
+              className={`
+              flex items-center justify-center w-full px-2 py-3 rounded-lg text-gray-600 dark:text-gray-300
+              hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400
+              transition-all duration-200 font-medium
+            `}
+              title="Logout"
+            >
+              <span className="text-xl">🚪</span>
+            </button>
+          </div>
         </div>
       )}
     </>

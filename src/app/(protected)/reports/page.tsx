@@ -500,7 +500,7 @@ export default function ReportsPage() {
   // };
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Laporan</h1>
       </div>
@@ -517,7 +517,7 @@ export default function ReportsPage() {
               placeholderText="Cari Tanggal"
               dateFormat="yyyy-MM-dd"
               isClearable
-              maxDate={new Date()} // Tidak bisa pilih tanggal masa depan
+              maxDate={new Date()}
               renderCustomHeader={({
                 date,
                 changeYear,
@@ -658,7 +658,7 @@ export default function ReportsPage() {
                 <div className="three-body__dot"></div>
               </div>{" "}
               <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                Memuat data kategori...
+                Memuat data laporan...
               </p>
             </div>
           ) : filteredReports.length === 0 && hasActiveFilters ? (
