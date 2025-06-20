@@ -72,6 +72,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   }, [value, options]);
 
   // Load more options for lazy loading
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreOptions = async (resetOptions = false) => {
     if (!field.lazyLoad || !field.onLoadMore || loading) return;
 

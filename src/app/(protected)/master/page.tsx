@@ -129,6 +129,7 @@ export default function MasterPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch functions dengan lazy loading
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchCategoriesData = async (page = 1, limit = 5, isLazy = false) => {
     try {
       setIsDataLoading(true);
