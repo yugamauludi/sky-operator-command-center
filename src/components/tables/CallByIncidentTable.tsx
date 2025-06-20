@@ -171,7 +171,7 @@ const CallByIncidentTable: React.FC = () => {
 
     const renderCategoryRow = (categoryName: string, categoryType: keyof CategoryData) => (
         <tr key={categoryName} className="hover:bg-gray-50">
-            <td className="border border-gray-300 px-2 py-1 text-sm">
+            <td className="border border-gray-300 px-2 py-1 text-sm sticky left-0 z-10 bg-white dark:bg-[#222B36]">
                 {categoryName}
             </td>
             {locations.map((location) => (
@@ -225,7 +225,10 @@ const CallByIncidentTable: React.FC = () => {
                 <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600 text-xs">
                     <thead>
                         <tr className="bg-gray-100 dark:bg-gray-800">
-                            <th rowSpan={2} className="border border-gray-300 dark:border-gray-600 px-2 py-2 text-left font-medium text-black dark:text-white">
+                            <th
+                                rowSpan={2}
+                                className="border border-gray-300 dark:border-gray-600 px-2 py-2 text-left font-medium text-black dark:text-white sticky left-0 z-20 bg-white dark:bg-[#222B36]"
+                            >
                                 CATEGORY
                             </th>
                             <th colSpan={5} className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center font-medium text-black dark:text-white">

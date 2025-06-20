@@ -120,7 +120,10 @@ const TrafficCallTable: React.FC = () => {
                 <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-800">
-                            <th rowSpan={2} className="border border-gray-300 dark:border-gray-700 px-2 py-1 text-left font-medium text-sm text-black dark:text-white">
+                            <th
+                                rowSpan={2}
+                                className="border border-gray-300 dark:border-gray-700 px-2 py-1 text-left font-medium text-sm text-black dark:text-white sticky left-0 z-20 bg-white dark:bg-[#222B36]"
+                            >
                                 Location
                             </th>
                             <th rowSpan={2} className="border border-gray-300 dark:border-gray-700 px-2 py-1 text-center font-medium text-sm text-black dark:text-white">
@@ -149,7 +152,10 @@ const TrafficCallTable: React.FC = () => {
                             <React.Fragment key={location.location}>
                                 {/* Car rows */}
                                 <tr className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td rowSpan={4} className="border border-gray-300 dark:border-gray-700 px-2 py-1 text-sm font-medium text-black dark:text-white align-top">
+                                    <td
+                                        rowSpan={4}
+                                        className="border border-gray-300 dark:border-gray-700 px-2 py-1 text-sm font-medium text-black dark:text-white align-top sticky left-0 z-10 bg-white dark:bg-[#222B36]"
+                                    >
                                         {location.location}
                                     </td>
                                     <td rowSpan={2} className="border border-gray-300 dark:border-gray-700 px-2 py-1 text-center text-sm text-black dark:text-white align-middle">
