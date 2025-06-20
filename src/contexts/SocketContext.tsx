@@ -251,7 +251,7 @@ export function GlobalCallPopup() {
   // Fetch descriptions when category changes
   useEffect(() => {
     const fetchDescriptionsDataByCategoryId = async (categoryId: number) => {
-      console.log(categoryId, "<<<<ini id category");
+      // console.log(categoryId, "<<<<ini id category");
 
       setIsLoadingDescriptions(true);
       try {

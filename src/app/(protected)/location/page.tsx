@@ -160,7 +160,7 @@ export default function LocationPage() {
   }, []);
 
   const handleSubmit = useCallback(async (values: Record<string, string>) => {
-    console.log("Form values:", values);
+    // console.log("Form values:", values);
     try {
       await createGate(values);
       setIsAddModalOpen(false);
@@ -184,7 +184,7 @@ export default function LocationPage() {
     try {
       setIsDataLoading(true);
       const locationsData = await fetchLocation(page, limit);
-      console.log("DATA LOCATION : ", locationsData);
+      // console.log("DATA LOCATION : ", locationsData);
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast.error("Gagal memuat data lokasi");
