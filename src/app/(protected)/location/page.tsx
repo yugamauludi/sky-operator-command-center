@@ -14,7 +14,6 @@ const DynamicInputModal = lazy(() => import("@/components/DynamicInputModal"));
 // Import only the functions we need
 import {
   createGate,
-  fetchLocation,
   fetchLocationActive,
 } from "@/hooks/useLocation";
 
@@ -179,19 +178,19 @@ export default function LocationPage() {
     setIsAddModalOpen(true);
   }, []);
 
-  // Debounced fetch function to prevent multiple rapid calls
-  const fetchLocationData = useCallback(async (page = 1, limit = 5) => {
-    try {
-      setIsDataLoading(true);
-      const locationsData = await fetchLocation(page, limit);
-      // console.log("DATA LOCATION : ", locationsData);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      toast.error("Gagal memuat data lokasi");
-    } finally {
-      setIsDataLoading(false);
-    }
-  }, []);
+  // // Debounced fetch function to prevent multiple rapid calls
+  // const fetchLocationData = useCallback(async (page = 1, limit = 5) => {
+  //   try {
+  //     setIsDataLoading(true);
+  //     const locationsData = await fetchLocation(page, limit);
+  //     console.log("DATA LOCATION : ", locationsData);
+  //   } catch (error) {
+  //     console.error("Error fetching categories:", error);
+  //     toast.error("Gagal memuat data lokasi");
+  //   } finally {
+  //     setIsDataLoading(false);
+  //   }
+  // }, []);
 
 
   // Optimized page change handler
@@ -257,11 +256,10 @@ export default function LocationPage() {
       // Start with active data first (most important)
       await fetchLocationActiveData();
       // Then load general location data (less critical)
-      fetchLocationData();
     };
 
     initializeData();
-  }, [fetchLocationActiveData, fetchLocationData]); // Empty dependency array for mount only
+  }, [fetchLocationActiveData]); // Empty dependency array for mount only
 
   return (
     <>
