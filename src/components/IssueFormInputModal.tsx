@@ -91,7 +91,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   };
 
   // Debounced search for lazy loading
-  const debouncedSearch = (term: string) => {
+  const debouncedSearch = () => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
@@ -112,7 +112,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     setHighlightedIndex(-1);
 
     if (field.lazyLoad) {
-      debouncedSearch(term);
+      debouncedSearch();
     }
   };
 
