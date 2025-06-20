@@ -1,3 +1,6 @@
+import GreenDownArrow from "@/public/icons/GreenDownArrow";
+import RedCross from "@/public/icons/RedCross";
+
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,30 +32,19 @@ export function ConfirmationModal({
       <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex items-center mb-4">
           <div
-            className={`p-2 rounded-full mr-3 ${
-              type === "open"
+            className={`p-2 rounded-full mr-3 ${type === "open"
                 ? "bg-green-100 text-green-600"
                 : "bg-red-100 text-red-600"
-            }`}
+              }`}
           >
+
             {type === "open" ? (
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <GreenDownArrow />
             ) : (
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <RedCross />
             )}
           </div>
+
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {title}
           </h3>
@@ -71,11 +63,10 @@ export function ConfirmationModal({
           <button
             onClick={onConfirm}
             disabled={isLoading}
-            className={`px-4 py-2 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${
-              type === "open"
+            className={`px-4 py-2 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 ${type === "open"
                 ? "bg-green-500 hover:bg-green-600"
                 : "bg-red-500 hover:bg-red-600"
-            }`}
+              }`}
           >
             {isLoading ? (
               <>

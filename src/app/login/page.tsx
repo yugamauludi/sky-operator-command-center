@@ -17,6 +17,7 @@ export default function Login() {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       const response = await LoginAuth({
         identifier: formData.username,
         password: formData.password,
@@ -79,7 +80,19 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-      <div
+      {isLoading ? (
+        <div className="text-center py-4 p-6">
+          <div className="three-body">
+            <div className="three-body__dot"></div>
+            <div className="three-body__dot"></div>
+            <div className="three-body__dot"></div>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+            Memproses Login...
+          </p>
+        </div>
+      ) : (
+        <div
         id="card-login"
         className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
       >
@@ -149,11 +162,12 @@ export default function Login() {
               onClick={handleSubmit}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer"
             >
-              {isLoading ? "Memproses..." : "Masuk"}
+              Masuk
             </button>
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

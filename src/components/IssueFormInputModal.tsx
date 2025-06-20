@@ -47,23 +47,29 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(field.hasMore ?? true);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filter options based on search term
   const filteredOptions = useMemo(() => {
     if (!field.searchable) return options;
+    if (!searchTerm.trim()) return options;
+
     return options.filter(option =>
-      option.label.toLowerCase().includes(searchTerm.toLowerCase())
+      option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      option.value.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [options, searchTerm, field.searchable]);
 
   // Get selected option label
   const selectedLabel = useMemo(() => {
     const selected = options.find(opt => opt.value === value);
-    return selected ? selected.label : field.placeholder;
-  }, [value, options, field.placeholder]);
+    return selected ? selected.label : "";
+  }, [value, options]);
 
   // Load more options for lazy loading
   const loadMoreOptions = async (resetOptions = false) => {
@@ -84,19 +90,72 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
+  // Debounced search for lazy loading
+  const debouncedSearch = (term: string) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (field.lazyLoad) {
+        setPage(1);
+        setHasMore(true);
+        loadMoreOptions(true);
+      }
+    }, 300);
+  };
+
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
+    setHighlightedIndex(-1);
 
     if (field.lazyLoad) {
-      setPage(1);
-      setHasMore(true);
-      // Debounce search for lazy loading
-      const timeoutId = setTimeout(() => {
-        loadMoreOptions(true);
-      }, 300);
-      return () => clearTimeout(timeoutId);
+      debouncedSearch(term);
+    }
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev =>
+          prev < filteredOptions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev =>
+          prev > 0 ? prev - 1 : filteredOptions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
+          handleOptionSelect(filteredOptions[highlightedIndex].value);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        setSearchTerm("");
+        setHighlightedIndex(-1);
+        break;
+      case 'Tab':
+        setIsOpen(false);
+        setSearchTerm("");
+        setHighlightedIndex(-1);
+        break;
     }
   };
 
@@ -115,6 +174,27 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     onChange(optionValue);
     setIsOpen(false);
     setSearchTerm("");
+    setHighlightedIndex(-1);
+  };
+
+  // Handle input click/focus
+  const handleInputFocus = () => {
+    if (!disabled) {
+      setIsOpen(true);
+      if (field.lazyLoad && options.length === 0) {
+        loadMoreOptions(true);
+      }
+    }
+  };
+
+  // Handle clear selection
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange("");
+    setSearchTerm("");
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
   };
 
   // Handle click outside
@@ -123,21 +203,27 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setSearchTerm("");
+        setHighlightedIndex(-1);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
   }, []);
 
   // Focus search input when dropdown opens
   useEffect(() => {
-    if (isOpen && field.searchable && searchInputRef.current) {
+    if (isOpen && searchInputRef.current) {
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 100);
     }
-  }, [isOpen, field.searchable]);
+  }, [isOpen]);
 
   // Initialize lazy loading
   useEffect(() => {
@@ -146,50 +232,75 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [field.lazyLoad]);
 
+  // Scroll highlighted option into view
+  useEffect(() => {
+    if (highlightedIndex >= 0 && listRef.current) {
+      const highlightedElement = listRef.current.children[highlightedIndex] as HTMLElement;
+      if (highlightedElement) {
+        highlightedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }
+    }
+  }, [highlightedIndex]);
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Select trigger */}
-      <button
-        type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full p-3 border rounded-md text-sm text-left flex items-center justify-between ${disabled
-          ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-          : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-          } dark:border-gray-600 ${isOpen ? "border-blue-500 dark:border-blue-400" : ""
-          }`}
-        disabled={disabled}
-      >
-        <span className={value ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}>
-          {selectedLabel}
-        </span>
-        <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""
-            }`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      {/* Search Input */}
+      <div className="relative">
+        <input
+          ref={searchInputRef}
+          type="text"
+          value={isOpen ? searchTerm : selectedLabel}
+          onChange={handleSearchChange}
+          onFocus={handleInputFocus}
+          onKeyDown={handleKeyDown}
+          placeholder={field.placeholder}
+          className={`w-full p-3 pr-20 border rounded-md text-sm ${disabled
+              ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+              : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+            } dark:border-gray-600 ${isOpen ? "border-blue-500 dark:border-blue-400" : ""
+            } text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400`}
+          disabled={disabled}
+          autoComplete="off"
+        />
+
+        {/* Clear button */}
+        {value && !disabled && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+
+        {/* Dropdown arrow */}
+        <button
+          type="button"
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2"
+          disabled={disabled}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""
+              }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
 
       {/* Dropdown */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-hidden">
-          {/* Search input */}
-          {field.searchable && (
-            <div className="p-2 border-b border-gray-200 dark:border-gray-600">
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="Search..."
-                className="w-full p-2 text-sm border border-gray-300 dark:border-gray-500 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
-              />
-            </div>
-          )}
-
           {/* Options list */}
           <div
             ref={listRef}
@@ -198,17 +309,19 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
           >
             {filteredOptions.length === 0 && !loading ? (
               <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                {searchTerm ? "No options found" : "No options available"}
+                {searchTerm ? "Tidak ada opsi yang cocok" : "Tidak ada opsi tersedia"}
               </div>
             ) : (
-              filteredOptions.map((option) => (
+              filteredOptions.map((option, index) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => handleOptionSelect(option.value)}
-                  className={`w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 ${value === option.value
-                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                    : "text-gray-900 dark:text-white"
+                  className={`w-full text-left p-3 text-sm transition-colors ${value === option.value
+                      ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                      : highlightedIndex === index
+                        ? "bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
+                        : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
                     }`}
                 >
                   {option.label}
@@ -221,7 +334,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
               <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
                 <div className="flex items-center justify-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                  <span>Loading...</span>
+                  <span>Memuat...</span>
                 </div>
               </div>
             )}
@@ -229,7 +342,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
             {/* Load more indicator */}
             {field.lazyLoad && hasMore && !loading && filteredOptions.length > 0 && (
               <div className="p-2 text-xs text-gray-400 dark:text-gray-500 text-center">
-                Scroll down to load more...
+                Scroll ke bawah untuk memuat lebih banyak...
               </div>
             )}
           </div>
@@ -312,36 +425,19 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
     switch (field.type) {
       case "select":
-        // Use enhanced searchable select for select fields
-        if (field.searchable || field.lazyLoad) {
-          return (
-            <div>
-              <SearchableSelect
-                field={field}
-                value={value}
-                onChange={(newValue) => handleInputChange(field.id, newValue)}
-                disabled={isDisabled || isReadonly}
-              />
-            </div>
-          );
-        }
-
-        // Fallback to regular select
+        // Always use enhanced searchable select for all select fields
         return (
-          <select
-            value={value}
-            onChange={(e) => handleInputChange(field.id, e.target.value)}
-            className={inputClassName}
-            disabled={isReadonly || isDisabled}
-            required={field.required}
-          >
-            <option value="">{field.placeholder}</option>
-            {field.options?.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div>
+            <SearchableSelect
+              field={{
+                ...field,
+                searchable: true // Enable search for all select fields
+              }}
+              value={value}
+              onChange={(newValue) => handleInputChange(field.id, newValue)}
+              disabled={isDisabled || isReadonly}
+            />
+          </div>
         );
 
       case "textarea":
@@ -393,9 +489,8 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
                 }
               }}
               placeholder={field.placeholder}
-              className={`${inputClassName} ${
-                validationErrors[field.id] ? 'border-red-500 focus:border-red-500' : ''
-              }`}
+              className={`${inputClassName} ${validationErrors[field.id] ? 'border-red-500 focus:border-red-500' : ''
+                }`}
               readOnly={isReadonly}
               disabled={isDisabled}
               required={field.required}
@@ -403,11 +498,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               pattern={field.id === "number_plate" ? "[A-Z0-9 ]{5,11}" : undefined}
               maxLength={field.id === "number_plate" ? 11 : undefined}
             />
-            {/* {validationErrors[field.id] && (
-              <p className="mt-1 text-sm text-red-500">
-                {validationErrors[field.id]}
-              </p>
-            )} */}
           </div>
         );
     }
@@ -438,7 +528,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
     fields.forEach((field) => {
       const value = formValues[field.id] || "";
-      
+
       // Required field validation
       if (field.required && (!value || value.trim() === "")) {
         newValidationStates[field.id] = {
@@ -447,7 +537,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
         };
         isValid = false;
       }
-      
+
       // Custom field validation
       else if (field.validation) {
         const validationResult = field.validation(value);
@@ -468,7 +558,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
     return isValid;
   };
-
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

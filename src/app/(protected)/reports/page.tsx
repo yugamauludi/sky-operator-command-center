@@ -424,7 +424,7 @@ export default function ReportsPage() {
       value: formFieldValues.number_plate || "",
       placeholder: "Contoh: B1234XYZ",
       required: true,
-      validation: validateIndonesianLicensePlate,  // Pastikan ini terhubung
+      validation: validateIndonesianLicensePlate,
       onChange: (value) => {
         // Konversi input ke uppercase
         const upperValue = value.toUpperCase();
