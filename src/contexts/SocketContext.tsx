@@ -10,7 +10,7 @@ import {
 import { useSocket } from "@/hooks/useSocket";
 import { GateStatusUpdate } from "@/types/gate";
 import { toast } from "react-toastify";
-import { endCall, pingArduino } from "@/hooks/useIOT";
+import { changeStatusGate, endCall, pingArduino } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
@@ -314,7 +314,7 @@ export function GlobalCallPopup() {
         description: selectedDescription,
         action: "CREATE_ISSUE",
         // foto: activeCall.photoIn || "-",
-        number_plate: dataIssue.number_plate || "DUM 111 YYY",
+        number_plate: dataIssue.number_plate?.toUpperCase() || "DUM 111 YYY",
         TrxNo: dataIssue.TrxNo || "123DUMYYY345",
       };
       const response = await addIssue(issueData);
@@ -346,8 +346,7 @@ export function GlobalCallPopup() {
 
     setIsOpeningGate(true);
     try {
-      await pingArduino(parseInt(activeCall.gateId));
-      const response = await openGate(activeCall.gateId);
+      const response = await changeStatusGate(activeCall.gateId, "OPEN");
 
       if (response.message === "Gate opened") {
         toast.success("Gate berhasil dibuka");
@@ -400,7 +399,7 @@ export function GlobalCallPopup() {
   const gateName = activeCall?.gate || detailGate.gate || "-";
   const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate.ticket || "-";
-  const numberPlate = detailGate.number_plate || "-";
+  const numberPlate = detailGate.number_plate.toUpperCase() || "-";
 
   // Foto In
   const fotoInUrl = detailGate.foto_in
