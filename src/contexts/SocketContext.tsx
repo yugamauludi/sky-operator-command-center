@@ -10,11 +10,10 @@ import {
 import { useSocket } from "@/hooks/useSocket";
 import { GateStatusUpdate } from "@/types/gate";
 import { toast } from "react-toastify";
-import { changeStatusGate, endCall, pingArduino } from "@/hooks/useIOT";
+import { changeStatusGate, endCall } from "@/hooks/useIOT";
 import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
-import { openGate } from "@/hooks/useLocation";
 import { addIssue } from "@/hooks/useIssues";
 
 interface SocketContextType {
