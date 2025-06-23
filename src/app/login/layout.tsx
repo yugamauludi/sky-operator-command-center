@@ -22,6 +22,7 @@ export default async function LoginLayout({
       redirect("/");
     } catch (err) {
       // Jika token tidak valid/expired, biarkan tetap di halaman login
+      console.error("Invalid token:", err);
     }
   }
 

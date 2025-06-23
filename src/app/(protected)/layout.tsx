@@ -28,8 +28,10 @@ export default async function ProtectedLayout({
     // Ganti 'your_jwt_secret' dengan secret yang sama dengan backend Anda
     jwt.verify(token, process.env.JWT_SECRET!);
   } catch (err) {
+    console.error("Invalid token:", err);
     // Token tidak valid atau expired
     redirect("/login");
+
   }
 
   return (
