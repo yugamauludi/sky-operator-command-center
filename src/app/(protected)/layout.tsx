@@ -1,6 +1,7 @@
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 import {
   GlobalCallPopup,
   SocketProvider,
@@ -20,6 +21,14 @@ export default async function ProtectedLayout({
   const token = cookieStore.get("token")?.value;
 
   if (!token) {
+    redirect("/login");
+  }
+
+  try {
+    // Ganti 'your_jwt_secret' dengan secret yang sama dengan backend Anda
+    jwt.verify(token, process.env.JWT_SECRET!);
+  } catch (err) {
+    // Token tidak valid atau expired
     redirect("/login");
   }
 

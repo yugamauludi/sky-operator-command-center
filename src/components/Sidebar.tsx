@@ -110,7 +110,7 @@ export default function Sidebar() {
                 className={`
                   transition-transform duration-300
                   ${isOpen ? "rotate-0" : "rotate-90"}
-                  text-black
+                  text-black dark:text-white
                 `}
               >
                 <HiOutlineBars3 size={26} />
