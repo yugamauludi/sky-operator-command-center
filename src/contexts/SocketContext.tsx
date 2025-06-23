@@ -501,14 +501,15 @@ export function GlobalCallPopup() {
                   {gateId}
                 </span>
               </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">No Transaction</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {ticketNo || "-"}
-                </span>
-              </div>
+              {!isPMGate && (
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">No Transaction</span>
+                  <span>:</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                    {ticketNo || "-"}
+                  </span>
+                </div>
+              )}
 
               <div className="flex justify-between items-center">
                 <span className="font-medium">No Plat Number</span>
@@ -534,29 +535,31 @@ export function GlobalCallPopup() {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Out Time</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  -
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Payment Time</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  -
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Tariff</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  -
-                </span>
-              </div>
+              {!isPMGate && (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Out Time</span>
+                    <span>:</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      -
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Payment Time</span>
+                    <span>:</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      -
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Tariff</span>
+                    <span>:</span>
+                    <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                      -
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
