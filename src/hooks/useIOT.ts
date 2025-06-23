@@ -1,25 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const closeGate = async (gateId: string | number) => {
+export const changeStatusGate = async (gateId: string | number, status: "OPEN" | "CLOSE" = "CLOSE") => {
     try {
-        const response = await fetch(`/api/iot/close-gate/${gateId.toString()}`, {
+        await pingArduino(gateId as number);
+        const response = await fetch(`/api/iot/control-gate/${gateId.toString()}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                status: "CLOSE"
+                status // status dinamis: "OPEN" atau "CLOSE"
             })
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Gagal menutup gate');
+            throw new Error(errorData.message || 'Gagal mengubah status gate');
         }
 
         return await response.json();
     } catch (error) {
-        console.error('Error close gate:', error);
+        console.error('Error change gate status:', error);
         throw error;
     }
 };

@@ -6,10 +6,9 @@ import CommonTable, { Column } from "@/components/tables/CommonTable";
 import {
   fetchGateByLocation,
   GateByLocation,
-  openGate,
 } from "@/hooks/useLocation";
 import { toast } from "react-toastify";
-import { closeGate, pingArduino } from "@/hooks/useIOT";
+import { changeStatusGate } from "@/hooks/useIOT";
 import { ConfirmationModal } from "@/components/ConfirmationModalV2";
 import formatTanggalUTC from "@/utils/formatDate";
 import GreenDownArrow from "@/public/icons/GreenDownArrow"
@@ -111,12 +110,11 @@ function LocationDetailContent() {
 
       if (selectedGate.statusGate === 0) {
         // Gate is close, so open it
-        await openGate(selectedGate.id);
+        await changeStatusGate(selectedGate.id, "OPEN");
         toast.success(`Gate ${selectedGate.gate} berhasil dibuka`);
       } else {
         // Gate is open, so close it
-        await pingArduino(selectedGate.id);
-        await closeGate(selectedGate.id);
+        await changeStatusGate(selectedGate.id, "CLOSE");
         toast.success(`Gate ${selectedGate.gate} berhasil ditutup`);
       }
 
