@@ -446,7 +446,7 @@ function LocationDetailContent() {
               : "Nyalakan LED Arrow"
           }
           message={`Apakah Anda yakin ingin ${(ledArrowStatus[selectedLedGate.id] ?? true) ? "mematikan" : "menyalakan"
-            } LED Arrow pada gate "${selectedLedArrowGate.gate}"?`}
+            } LED Arrow pada gate "${selectedLedGate.gate}"?`}
           confirmText="Ya, Lanjutkan"
           cancelText="Batal"
           isLoading={false}
