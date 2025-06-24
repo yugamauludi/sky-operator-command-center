@@ -4,7 +4,7 @@ export interface Location {
 }
 
 export interface GateStatusUpdate {
-  gate: string
+  gate: string;
   gateId: string;
   gateStatus: string;
   // photoIn?: string;
@@ -14,7 +14,7 @@ export interface GateStatusUpdate {
   location: {
     Name: string;
     Code: string;
-  }
+  };
   imageFile: {
     fieldname: string;
     originalname: string;
@@ -23,8 +23,8 @@ export interface GateStatusUpdate {
     destination: string;
     filename: string;
     path: string;
-    size: number
-  },
+    size: number;
+  };
   detailGate: {
     id: number;
     ticket: string;
@@ -32,7 +32,11 @@ export interface GateStatusUpdate {
     lokasi: string;
     foto_in: string;
     number_plate: string;
-  }
+    payment_status: string;
+    payment_method: string;
+    issuer_name: string;
+    payment_time: string;
+  };
 }
 
 export interface CallEndResponse {

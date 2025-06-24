@@ -15,6 +15,7 @@ import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
 import { addIssue } from "@/hooks/useIssues";
+import formatTanggalUTC from "@/utils/formatDate";
 
 interface SocketContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -518,18 +519,11 @@ export function GlobalCallPopup() {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="font-medium">Date</span>
-                <span>:</span>
-                <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {formatDateTime(callInTime).split(" ")[0]}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
                 <span className="font-medium">In Time</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {formatDateTime(callInTime).split(" ")[1]}
+                  {callInTime
+                    ? formatTanggalUTC(callInTime.toString()) : "-"}
                 </span>
               </div>
 
@@ -543,19 +537,46 @@ export function GlobalCallPopup() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Payment Time</span>
+                    <span className="font-medium">Payment Status</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                      -
+                      {detailGate.payment_status === "PAID" ? "Paid" : "Unpaid"}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  {detailGate.payment_status === "PAID" && (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Payment Time</span>
+                        <span>:</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                          {detailGate.payment_time
+                            ? formatTanggalUTC(detailGate.payment_time)
+                            : "-"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Payment Method</span>
+                        <span>:</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                          {detailGate.payment_method || "-"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Issuer Name</span>
+                        <span>:</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                          {detailGate.issuer_name || "-"}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  {/* <div className="flex justify-between items-center">
                     <span className="font-medium">Tariff</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                       -
                     </span>
-                  </div>
+                  </div> */}
                 </>
               )}
             </div>
