@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import RouteLoader from "@/components/RouteLoader";
 import { LoaderProvider } from "@/contexts/LoaderContext";
-import GlobalLoader from "@/components/GlobalLoader";
+// import GlobalLoader from "@/components/GlobalLoader";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -34,7 +34,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LoaderProvider>
-          <GlobalLoader />
+          <RouteLoader />
           {children}
         </LoaderProvider>
       </body>
