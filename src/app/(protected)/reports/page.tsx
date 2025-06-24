@@ -332,6 +332,7 @@ export default function ReportsPage() {
       setDescriptions([]);
     } catch (error) {
       console.error("Error creating new report:", error);
+      toast.error("Failed to create report. Please try again.");
     } finally {
       setIsDataLoading(false);
     }
