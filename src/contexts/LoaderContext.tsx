@@ -1,9 +1,14 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, Dispatch, SetStateAction } from "react";
 
-const LoaderContext = createContext({
+type LoaderContextType = {
+  show: boolean;
+  setShow: Dispatch<SetStateAction<boolean>>;
+};
+
+const LoaderContext = createContext<LoaderContextType>({
   show: false,
-  setShow: (_: boolean) => {},
+  setShow: () => {}, // Tidak perlu parameter yang tidak dipakai
 });
 
 export function LoaderProvider({ children }: { children: React.ReactNode }) {
