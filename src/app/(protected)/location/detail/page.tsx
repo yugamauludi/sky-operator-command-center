@@ -359,7 +359,7 @@ function LocationDetailContent() {
                           <span>
                             Jika terjadi kendala pada gate, ubah menjadi
                             <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
-                            <span className="font-semibold text-red-500">merah</span>
+                            <span className="font-semibold text-red-500">merah </span>
                             agar antrian kendaraan beralih ke gate lainnya.
                           </span>
                         </div>
