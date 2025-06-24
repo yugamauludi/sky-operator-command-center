@@ -24,6 +24,7 @@ import {
 } from "@/hooks/useDescriptions";
 import { CustomSelect } from "@/components/CustomSelect";
 import formatTanggalUTC from "@/utils/formatDate";
+import NoData from "@/components/NoData";
 
 // Lazy load komponen yang berat
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
@@ -181,6 +182,7 @@ export default function MasterPage() {
       console.error("Error fetching categories:", error);
     } finally {
       setIsDataLoading(false);
+      markTabAsLoaded("category");
     }
   };
 
@@ -224,6 +226,8 @@ export default function MasterPage() {
       console.error("Error fetching descriptions:", error);
     } finally {
       setIsDataLoading(false);
+      markTabAsLoaded("description");
+
     }
   };
 
@@ -523,6 +527,9 @@ export default function MasterPage() {
     fetchDescriptionData(1, newItemsPerPage);
   };
 
+  console.log(categories, descriptions);
+
+
   return (
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
       <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
@@ -598,6 +605,8 @@ export default function MasterPage() {
             <>
               {!isTabLoaded("category") || isDataLoading ? (
                 <TabContentLoader />
+              ) : categories.length === 0 ? (
+                <NoData message="Belum ada data kategori yang tersedia. Silakan refresh halaman untuk mencoba lagi." />
               ) : (
                 <Suspense fallback={<TableSkeleton />}>
                   <CommonTable
@@ -619,6 +628,8 @@ export default function MasterPage() {
             <>
               {!isTabLoaded("description") || isDataLoading ? (
                 <TabContentLoader />
+              ) : descriptions.length === 0 ? (
+                <NoData message="Belum ada data deskripsi yang tersedia. Silakan refresh halaman untuk mencoba lagi." />
               ) : (
                 <Suspense fallback={<TableSkeleton />}>
                   <CommonTable

@@ -13,6 +13,7 @@ import { ConfirmationModal } from "@/components/ConfirmationModalV2";
 import formatTanggalUTC from "@/utils/formatDate";
 import GreenDownArrow from "@/public/icons/GreenDownArrow"
 import RedCross from "@/public/icons/RedCross";
+import NoData from "@/components/NoData";
 
 interface PaginationInfo {
   totalItems: number;
@@ -354,9 +355,9 @@ function LocationDetailContent() {
                         <span className="font-bold">LED Arrow</span> menunjukkan status gate parkir:
                         <br />
                         <span>
-                          Jika <GreenDownArrow className="inline w-4 h-4 text-green-500 align-middle mx-1" /> 
+                          Jika <GreenDownArrow className="inline w-4 h-4 text-green-500 align-middle mx-1" />
                           <span className="font-semibold text-green-600">panah hijau</span>, gate <b>dapat digunakan</b> untuk keluar/masuk kendaraan.
-                          Jika <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" /> 
+                          Jika <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
                           <span className="font-semibold text-red-500">silang merah</span>, gate sedang <b>trouble</b> (misal: ada masalah pembayaran atau kendaraan tidak bisa keluar/masuk).
                           {/* <br />
                           <span className="ml-0 sm:ml-5">
@@ -383,24 +384,7 @@ function LocationDetailContent() {
                     </p>
                   </div>
                 ) : gates.length === 0 ? (
-                  <div className="text-center py-8 px-4">
-                    <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
-                      />
-                    </svg>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Tidak ada gate ditemukan untuk lokasi ini
-                    </p>
-                  </div>
+                  <NoData message="Tidak ada gate ditemukan untuk lokasi ini" />
                 ) : (
                   <div className="p-3 sm:p-6">
                     <CommonTable
