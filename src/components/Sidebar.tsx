@@ -83,10 +83,7 @@ export default function Sidebar() {
             </div>
 
             {/* Title - dengan animasi fade */}
-            <div
-              className={`transition-all duration-300 overflow-hidden ${isOpen ? "opacity-100 max-h-10" : "opacity-0 max-h-0"
-                }`}
-            >
+            <div className={`transition-all duration-300 overflow-hidden ${isOpen ? "opacity-100 max-h-10" : "opacity-0 max-h-0"}`}>
               <h1 className="text-xl font-bold text-gray-800 dark:text-white text-center whitespace-nowrap">
                 Sky Command
               </h1>
@@ -189,9 +186,8 @@ export default function Sidebar() {
             >
               <span className="text-lg flex-shrink-0">{/* Icon Logout */}🚪</span>
               <span
-                className={`transition-all duration-300 overflow-hidden ${
-                  isOpen ? "opacity-100 max-w-full ml-3" : "opacity-0 max-w-0 ml-0"
-                }`}
+                className={`transition-all duration-300 overflow-hidden ${isOpen ? "opacity-100 max-w-full ml-3" : "opacity-0 max-w-0 ml-0"
+                  }`}
               >
                 Logout
               </span>

@@ -350,16 +350,19 @@ function LocationDetailContent() {
                         <span className="font-medium">Gate tertutup (Closed)</span>
                         <span className="text-gray-500 dark:text-gray-400">- Akses kendaraan ditutup</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block w-4 h-4">
+                      <div className="flex items-start gap-2">
+                        <span className="inline-block w-4 h-4 mt-1">
                           <GreenDownArrow className="w-4 h-4 text-green-500" />
                         </span>
-                        <span>
-                          <b>LED Arrow</b> adalah tombol untuk mengubah arah LED di atas gate parkir.
-                          Jika terjadi kendala pada gate, ubah menjadi
-                          <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
-                          agar antrian kendaraan beralih ke gate lainnya.
-                        </span>
+                        <div className="flex-1 text-gray-700 dark:text-gray-200 text-xs sm:text-sm">
+                          <span className="font-bold">LED Arrow</span> adalah tombol untuk <b>mengubah arah LED</b> di atas gate parkir.<br />
+                          <span>
+                            Jika terjadi kendala pada gate, ubah menjadi
+                            <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
+                            <span className="font-semibold text-red-500">merah</span>
+                            agar antrian kendaraan beralih ke gate lainnya.
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
