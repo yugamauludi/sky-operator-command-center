@@ -128,9 +128,13 @@ export default function Sidebar() {
                   flex items-center px-3 py-3 mb-2 rounded-lg text-gray-600 dark:text-gray-300
                   hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200
                   hover:scale-[1.02] active:scale-[0.98]
-                  ${pathname === item.href
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : ""
+                  ${item.href === "/"
+                    ? pathname === "/"
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : ""
+                    : pathname.startsWith(item.href)
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : ""
                   }
                   ${!isOpen ? "justify-center" : ""}
                 `}
@@ -223,7 +227,7 @@ export default function Sidebar() {
                   flex items-center justify-center px-2 py-3 mb-2 rounded-lg text-gray-600 dark:text-gray-300
                   hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200
                   hover:scale-[1.02] active:scale-[0.98]
-                  ${pathname === item.href
+                  ${pathname.startsWith(item.href)
                     ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
                     : ""
                   }
