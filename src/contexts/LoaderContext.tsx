@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from "react";
 
 const LoaderContext = createContext({
   show: false,
-  setShow: (v: boolean) => {},
+  setShow: (_: boolean) => {},
 });
 
 export function LoaderProvider({ children }: { children: React.ReactNode }) {
