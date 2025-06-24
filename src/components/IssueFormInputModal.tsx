@@ -43,7 +43,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [options, setOptions] = useState<FieldOption[]>(field.options || []);
+  // PERBAIKAN: Gunakan field.options secara langsung, tidak perlu state terpisah
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(field.hasMore ?? true);
@@ -53,6 +53,9 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const listRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // PERBAIKAN: Gunakan field.options langsung
+  const options = field.options || [];
 
   // Filter options based on search term
   const filteredOptions = useMemo(() => {
@@ -71,8 +74,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     return selected ? selected.label : "";
   }, [value, options]);
 
+  // PERBAIKAN: Hapus loadMoreOptions karena tidak diperlukan untuk kasus ini
   // Load more options for lazy loading
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreOptions = async (resetOptions = false) => {
     if (!field.lazyLoad || !field.onLoadMore || loading) return;
 
@@ -81,7 +84,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       const currentPage = resetOptions ? 1 : page;
       const newOptions = await field.onLoadMore(searchTerm, currentPage);
 
-      setOptions(prev => resetOptions ? newOptions : [...prev, ...newOptions]);
+      // Update options di parent component, bukan di sini
       setPage(currentPage + 1);
       setHasMore(newOptions.length > 0);
     } catch (error) {
@@ -182,9 +185,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const handleInputFocus = () => {
     if (!disabled) {
       setIsOpen(true);
-      if (field.lazyLoad && options.length === 0) {
-        loadMoreOptions(true);
-      }
+      // PERBAIKAN: Hapus lazy loading untuk kasus ini
     }
   };
 
@@ -226,12 +227,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [isOpen]);
 
-  // Initialize lazy loading
-  useEffect(() => {
-    if (field.lazyLoad && options.length === 0 && !loading) {
-      loadMoreOptions(true);
-    }
-  }, [field.lazyLoad, loadMoreOptions, loading, options.length]);
+  // PERBAIKAN: Hapus useEffect untuk lazy loading initialization
 
   // Scroll highlighted option into view
   useEffect(() => {
@@ -246,6 +242,16 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [highlightedIndex]);
 
+  // PERBAIKAN: Tambahkan debug log
+  console.log(`SearchableSelect Debug - Field: ${field.id}`, {
+    fieldOptions: field.options,
+    optionsLength: options.length,
+    filteredOptionsLength: filteredOptions.length,
+    searchTerm,
+    value,
+    disabled
+  });
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Search Input */}
@@ -258,9 +264,9 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}
           placeholder={field.placeholder}
-          className={`w-full p-3 pr-20 border rounded-md text-sm ${disabled
-              ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-              : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+          className={`w-full p-3 pr-20 border rounded-md text-sm cursor-pointer ${disabled
+            ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+            : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
             } dark:border-gray-600 ${isOpen ? "border-blue-500 dark:border-blue-400" : ""
             } text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400`}
           disabled={disabled}
@@ -308,9 +314,10 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
             className="overflow-y-auto max-h-48"
             onScroll={handleScroll}
           >
-            {filteredOptions.length === 0 && !loading ? (
+            {filteredOptions.length === 0 ? (
               <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                {searchTerm ? "Tidak ada opsi yang cocok" : "Tidak ada opsi tersedia"}
+                {searchTerm ? "Tidak ada opsi yang cocok" :
+                  disabled ? field.placeholder : "Tidak ada opsi tersedia"}
               </div>
             ) : (
               filteredOptions.map((option, index) => (
@@ -319,10 +326,10 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   type="button"
                   onClick={() => handleOptionSelect(option.value)}
                   className={`w-full text-left p-3 text-sm transition-colors ${value === option.value
-                      ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                      : highlightedIndex === index
-                        ? "bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
-                        : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                    : highlightedIndex === index
+                      ? "bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
+                      : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
                     }`}
                 >
                   {option.label}
