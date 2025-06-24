@@ -350,19 +350,19 @@ function LocationDetailContent() {
                         <span className="font-medium">Gate tertutup (Closed)</span>
                         <span className="text-gray-500 dark:text-gray-400">- Akses kendaraan ditutup</span>
                       </div>
-                      <div className="flex items-start gap-2">
-                        <span className="inline-block w-4 h-4 mt-1">
-                          <GreenDownArrow className="w-4 h-4 text-green-500" />
+                      <div className="text-gray-700 dark:text-gray-200 text-xs sm:text-sm">
+                        <span className="font-bold">LED Arrow</span> menunjukkan status gate parkir:
+                        <br />
+                        <span>
+                          Jika <GreenDownArrow className="inline w-4 h-4 text-green-500 align-middle mx-1" /> 
+                          <span className="font-semibold text-green-600">panah hijau</span>, gate <b>dapat digunakan</b> untuk keluar/masuk kendaraan.
+                          Jika <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" /> 
+                          <span className="font-semibold text-red-500">silang merah</span>, gate sedang <b>trouble</b> (misal: ada masalah pembayaran atau kendaraan tidak bisa keluar/masuk).
+                          {/* <br />
+                          <span className="ml-0 sm:ml-5">
+                            Saat gate bermasalah, <b>kendaraan diarahkan ke gate lain</b> agar tidak terjadi antrian panjang.
+                          </span> */}
                         </span>
-                        <div className="flex-1 text-gray-700 dark:text-gray-200 text-xs sm:text-sm">
-                          <span className="font-bold">LED Arrow</span> adalah tombol untuk <b>mengubah arah LED</b> di atas gate parkir.<br />
-                          <span>
-                            Jika terjadi kendala pada gate, ubah menjadi
-                            <RedCross className="inline w-4 h-4 text-red-500 align-middle mx-1" />
-                            <span className="font-semibold text-red-500">merah </span>
-                            agar antrian kendaraan beralih ke gate lainnya.
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -446,7 +446,7 @@ function LocationDetailContent() {
               : "Nyalakan LED Arrow"
           }
           message={`Apakah Anda yakin ingin ${(ledArrowStatus[selectedLedGate.id] ?? true) ? "mematikan" : "menyalakan"
-            } LED Arrow pada gate "${selectedLedGate.gate}"?`}
+            } LED Arrow pada gate "${selectedLedArrowGate.gate}"?`}
           confirmText="Ya, Lanjutkan"
           cancelText="Batal"
           isLoading={false}
