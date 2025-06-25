@@ -24,7 +24,6 @@ const CallQuantityTable: React.FC = () => {
   const [selectedSemester, setSelectedSemester] = useState<1 | 2 | 'all'>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [viewType, setViewType] = useState<'compact' | 'detailed'>('detailed');
 
   // Extended data with full year (adding Jul-Dec with sample data)
   const carData: CallData[] = [
