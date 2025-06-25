@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import React from 'react';
 import { fetchIssuesMonthly } from "@/hooks/useIssues";
+import { ComplaintModal } from "@/components/tables/ComplaintModal";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -55,6 +56,9 @@ export default function Dashboard() {
   const [totalResolved] = useState(0);
   const [filterStatus] = useState<"all" | "open" | "in_progress" | "resolved">("all");
   const [searchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
 
   // State for managing active table
   const [activeTable, setActiveTable] = useState<TableType>("call-quantity");
@@ -89,11 +93,53 @@ export default function Dashboard() {
     return matchesStatus && matchesSearch;
   });
 
+  // const dummyComplaintData: Record<string, ComplaintDetail[]> = {
+  //   "Informasi": [
+  //     { nomor: "1", date: "2025-06-01", location: "Lokasi A1", gate: "Gate PM 1", description: "Kurang informasi jam operasional" },
+  //     { nomor: "2", date: "2025-06-01", location: "Lokasi B2", gate: "Gate PM 2", description: "Papan informasi tidak jelas" },
+  //     { nomor: "3", date: "2025-06-01", location: "Lokasi C3", gate: "Gate PK 3", description: "Tidak ada petunjuk arah yang memadai" },
+  //     { nomor: "4", date: "2025-06-01", location: "Lokasi D1", gate: "Gate PM 4", description: "Informasi tarif tidak update" },
+  //     { nomor: "5", date: "2025-06-01", location: "Lokasi E2", gate: "Gate PK 5", description: "Kurang sosialisasi aturan baru" },
+  //   ],
+  //   "Teknikal": [
+  //     { nomor: "1", date: "2025-06-01", location: "Lokasi A2", gate: "Gate PK 1", description: "Sistem pembayaran error" },
+  //     { nomor: "2", date: "2025-06-01", location: "Lokasi B1", gate: "Gate PM 2", description: "Palang pintu tidak berfungsi" },
+  //     { nomor: "3", date: "2025-06-01", location: "Lokasi C2", gate: "Gate PM 3", description: "Scanner kartu rusak" },
+  //     { nomor: "4", date: "2025-06-01", location: "Lokasi D3", gate: "Gate PK 4", description: "Lampu traffic light mati" },
+  //     { nomor: "5", date: "2025-06-01", location: "Lokasi E1", gate: "Gate PM 5", description: "CCTV tidak berfungsi" },
+  //   ],
+  //   "Fasilitas": [
+  //     { nomor: "1", date: "2025-06-01", location: "Lokasi A", gate: "Gate PK 1", description: "Toilet kotor dan bau" },
+  //     { nomor: "2", date: "2025-06-01", location: "Lokasi B", gate: "Gate PM 2", description: "Penerangan kurang terang" },
+  //     { nomor: "3", date: "2025-06-01", location: "Lokasi C", gate: "Gate PM 3", description: "Tempat sampah penuh" },
+  //     { nomor: "4", date: "2025-06-01", location: "Lokasi D", gate: "Gate PK 4", description: "Jalur pejalan kaki rusak" },
+  //     { nomor: "5", date: "2025-06-01", location: "Lokasi E", gate: "Gate PM 5", description: "Kantin tidak bersih" },
+  //   ],
+  //   "Layanan": [
+  //     { nomor: "1", date: "2025-06-01", location: "Lokasi a", gate: "Gate PK 1", description: "Pelayanan petugas lambat" },
+  //     { nomor: "2", date: "2025-06-01", location: "lokasi b", gate: "Gate PM 2", description: "Petugas keamanan tidak responsif" },
+  //     { nomor: "3", date: "2025-06-01", location: "lokasi c", gate: "Gate PM 3", description: "Respon perbaikan terlalu lama" },
+  //     { nomor: "4", date: "2025-06-01", location: "lokasi d", gate: "Gate PM 4", description: "Antrian terlalu panjang" },
+  //     { nomor: "5", date: "2025-06-01", location: "lokasi w", gate: "Gate PK 5", description: "Petugas kurang ramah" },
+  //   ],
+  // };
+
+  // 4. Function untuk handle klik pada pie chart
+  const handlePieChartClick = (event: any, chartContext: any, config: any) => {
+    const category = categoryComplaintOptions.labels?.[config.dataPointIndex] as string;
+    setSelectedCategory(category);
+    setIsModalOpen(true);
+  };
+
+  // 5. Update categoryComplaintOptions untuk menambahkan event handler
   const categoryComplaintOptions: ApexOptions = {
     chart: {
       type: "pie" as ApexChart["type"],
       background: "transparent",
       foreColor: "inherit",
+      events: {
+        dataPointSelection: handlePieChartClick
+      }
     },
     labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],
     colors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"],
@@ -113,7 +159,15 @@ export default function Dashboard() {
         colors: ["#ffffff"],
       },
     },
+    plotOptions: {
+      pie: {
+        // cursor: 'pointer' // Removed because not supported by ApexCharts
+      }
+    }
   };
+
+
+
 
   const monthlyComplaintOptions: ApexOptions = {
     chart: {
@@ -559,6 +613,12 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <ComplaintModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedCategory={selectedCategory}
+      // fetchComplainCategory={() => {}} // jika ada
+      />
     </div>
   );
 }
