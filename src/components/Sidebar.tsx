@@ -93,7 +93,7 @@ export default function Sidebar() {
             <button
               onClick={toggleSidebar}
               className={`
-                absolute -right-12 top-4 w-10 h-10 flex items-center justify-center
+                absolute -right-12 top-3 w-10 h-10 flex items-center justify-center
                 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700
                 rounded-md shadow-md transition-all duration-300
                 hover:bg-gray-100 dark:hover:bg-gray-700
