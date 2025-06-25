@@ -327,7 +327,7 @@ export default function LocationPage() {
                     parkir yang tersedia. Setiap lokasi mencakup detail seperti nama
                     lokasi, alamat, dan informasi terkait lainnya. Anda dapat
                     melihat detail lengkap setiap lokasi dengan mengklik tombol
-                    lihat detail pada tabel. Gunakan tombol "Aktifkan Lokasi" untuk
+                    lihat detail pada tabel. Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk
                     mengaktifkan lokasi yang belum aktif.
                   </p>
                 </div>
@@ -368,7 +368,7 @@ export default function LocationPage() {
                         Tidak ada lokasi ditemukan
                       </p>
                       <p className="mt-2 text-xs text-gray-400">
-                        Gunakan tombol "Aktifkan Lokasi" untuk mengaktifkan lokasi baru
+                        Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan lokasi baru
                       </p>
                     </div>
                   ) : (

@@ -86,7 +86,7 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
         }
     };
 
-    const handleSelectLocation = (locationId: number, locationName: string) => {
+    const handleSelectLocation = (locationId: number) => {
         setSelectedLocationId(locationId);
         setIsDropdownOpen(false);
     };
@@ -164,7 +164,7 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
                                                     <button
                                                         key={location.id}
                                                         type="button"
-                                                        onClick={() => handleSelectLocation(location.id, location.Name)}
+                                                        onClick={() => handleSelectLocation(location.id)}
                                                         className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 ${selectedLocationId === location.id
                                                                 ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-200'
                                                                 : 'text-gray-900 dark:text-white'
