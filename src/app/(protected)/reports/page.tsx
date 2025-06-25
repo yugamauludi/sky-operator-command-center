@@ -300,6 +300,7 @@ export default function ReportsPage() {
         setDescriptions([]); // Clear if no data
       }
     } catch (error) {
+      console.error("Error fetching descriptions:", error);
       setDescriptions([]); // Clear descriptions on error
     } finally {
       setIsDescriptionsLoading(false);
