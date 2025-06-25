@@ -156,9 +156,9 @@ export const updateLocation = async (location: any) => {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                name: location?.name, idDescription: location?.idDescription
-            })
+            // body: JSON.stringify({
+            //     name: location?.name, idDescription: location?.idDescription
+            // })
         });
 
         if (!response.ok) {

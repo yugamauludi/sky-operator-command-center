@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 const ConfirmationModal = lazy(() => import("@/components/ConfirmationModal"));
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
 const DynamicInputModal = lazy(() => import("@/components/DynamicInputModal"));
+const ActivateLocationModal = lazy(() => import("@/components/ActivateLocationModal"));
 
 // Import only the functions we need
 import {
@@ -88,6 +89,8 @@ export default function LocationPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  // State untuk modal aktivasi lokasi
+  const [isActivateLocationModalOpen, setIsActivateLocationModalOpen] = useState(false);
 
   // Memoized fields to prevent unnecessary re-renders
   const fields = useMemo(() => [
@@ -114,6 +117,18 @@ export default function LocationPage() {
     }
   }, [router]);
 
+  // Handler untuk membuka modal aktivasi lokasi
+  const handleOpenActivateLocationModal = useCallback(() => {
+    setIsActivateLocationModalOpen(true);
+  }, []);
+
+  // Handler ketika berhasil mengaktifkan lokasi
+  const handleActivateLocationSuccess = useCallback(() => {
+    // Refresh data setelah berhasil mengaktifkan lokasi
+    fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
+    toast.success("Data lokasi aktif telah diperbarui");
+  }, []);
+
   // const handleConfirmDelete = useCallback(() => {
   //   console.log("Deleting location:", selectedLocation);
   //   setIsDeleteModalOpen(false);
@@ -123,6 +138,7 @@ export default function LocationPage() {
   //   console.log("Editing location:", selectedLocation);
   //   setIsEditModalOpen(false);
   // }, [selectedLocation]);
+
   const fetchLocationActiveData = useCallback(async (page = 1, limit = 5) => {
     try {
       setIsDataLoading(true);
@@ -191,7 +207,6 @@ export default function LocationPage() {
   //     setIsDataLoading(false);
   //   }
   // }, []);
-
 
   // Optimized page change handler
   const handleLocationPageChange = useCallback((page: number) => {
@@ -273,11 +288,31 @@ export default function LocationPage() {
       <div className="flex flex-col w-full">
         <div className="flex-1 flex flex-col">
           <main className="flex-1 overflow-hidden">
-            <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
+            <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
+              {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
                 <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
                 <div className="flex space-x-3">
-                  {/* Button actions if needed */}
+                  {/* Button untuk aktivasi lokasi */}
+                  <button
+                    onClick={handleOpenActivateLocationModal}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                    Aktifkan Lokasi
+                  </button>
                 </div>
               </div>
 
@@ -292,7 +327,8 @@ export default function LocationPage() {
                     parkir yang tersedia. Setiap lokasi mencakup detail seperti nama
                     lokasi, alamat, dan informasi terkait lainnya. Anda dapat
                     melihat detail lengkap setiap lokasi dengan mengklik tombol
-                    lihat detail pada tabel.
+                    lihat detail pada tabel. Gunakan tombol "Aktifkan Lokasi" untuk
+                    mengaktifkan lokasi yang belum aktif.
                   </p>
                 </div>
               </div>
@@ -330,6 +366,9 @@ export default function LocationPage() {
                       </svg>
                       <p className="mt-2 text-sm text-gray-500">
                         Tidak ada lokasi ditemukan
+                      </p>
+                      <p className="mt-2 text-xs text-gray-400">
+                        Gunakan tombol "Aktifkan Lokasi" untuk mengaktifkan lokasi baru
                       </p>
                     </div>
                   ) : (
@@ -409,6 +448,17 @@ export default function LocationPage() {
               fields={fields}
               confirmText="Simpan"
               cancelText="Batal"
+            />
+          </Suspense>
+        )}
+
+        {/* Modal Aktivasi Lokasi */}
+        {isActivateLocationModalOpen && (
+          <Suspense fallback={<ModalSkeleton />}>
+            <ActivateLocationModal
+              isOpen={isActivateLocationModalOpen}
+              onClose={() => setIsActivateLocationModalOpen(false)}
+              onSuccess={handleActivateLocationSuccess}
             />
           </Suspense>
         )}

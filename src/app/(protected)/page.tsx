@@ -531,7 +531,7 @@ export default function Dashboard() {
         </div>
 
         {/* Table Section with Horizontal Tab Bar */}
-        <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6 mb-6">
+        <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6">
           {/* Horizontal Tab Bar (desktop/tablet) */}
           <div className="hidden md:flex flex-wrap gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
             {tableOptions.map((option) => (
