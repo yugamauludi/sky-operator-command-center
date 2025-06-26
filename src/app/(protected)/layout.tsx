@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import {
   GlobalCallPopup,
   SocketProvider,
-  UserNumberSetup,
 } from "@/contexts/SocketContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -38,7 +37,6 @@ export default async function ProtectedLayout({
     <SocketProvider>
       <LayoutWrapper>
         <GlobalCallPopup />
-        <UserNumberSetup />
         {children}
         <ToastContainer
           position="top-right"

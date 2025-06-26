@@ -66,6 +66,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const setUserNumber = (num: number) => {
     setUserNumberState(num);
     localStorage.setItem("admin_user_number", num.toString());
+    
     if (socket) {
       socket.emit("register", num);
     }
@@ -110,6 +111,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket.on("connect", () => {
       setConnectionStatus("Connected");
       // Auto-register if user number exists
+      // console.log(userNumber, "<<<< userNumber in socket provider");
+      
       if (userNumber) {
         socket.emit("register", userNumber);
       }
@@ -193,12 +196,11 @@ export function GlobalCallPopup() {
     photoCapture: false,
   });
   const tryDate = "Thu Jun 26 2025 13:35:25 GMT+0700"
-  console.log(tryDate, "<<<< tryDate");
-  console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
-  
+  // console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
 
-  console.log(callInTime, "callInTime in GlobalCallPopup");
-  
+
+  // console.log(callInTime, "callInTime in GlobalCallPopup");
+
   // Add mute state
   const [isMuted, setIsMuted] = useState(false);
 
@@ -823,86 +825,86 @@ export function GlobalCallPopup() {
   );
 }
 
-export function UserNumberSetup() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { userNumber, setUserNumber } = useGlobalSocket();
-  const [inputValue, setInputValue] = useState("");
-  const [showModal, setShowModal] = useState(false);
+// export function UserNumberSetup() {
+//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+//   const { userNumber, setUserNumber } = useGlobalSocket();
+//   const [inputValue, setInputValue] = useState("");
+//   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    setShowModal(userNumber === null);
-  }, [userNumber]);
+//   useEffect(() => {
+//     setShowModal(userNumber === null);
+//   }, [userNumber]);
 
-  const handleSubmit = () => {
-    const num = parseInt(inputValue);
-    if (![1, 2, 3].includes(num)) {
-      alert("User number harus 1, 2, atau 3");
-      return;
-    }
-    setUserNumber(num);
-    setShowModal(false);
-  };
+//   const handleSubmit = () => {
+//     const num = parseInt(inputValue);
+//     if (![1, 2, 3].includes(num)) {
+//       alert("User number harus 1, 2, atau 3");
+//       return;
+//     }
+//     setUserNumber(num);
+//     setShowModal(false);
+//   };
 
-  const checkLoginStatus = () => {
-    const token = localStorage.getItem("id");
-    setIsLoggedIn(!!token);
-  };
+//   const checkLoginStatus = () => {
+//     const token = localStorage.getItem("id");
+//     setIsLoggedIn(!!token);
+//   };
 
-  useEffect(() => {
-    checkLoginStatus();
+//   useEffect(() => {
+//     checkLoginStatus();
 
-    const handleLoginSuccess = () => {
-      checkLoginStatus();
-    };
+//     const handleLoginSuccess = () => {
+//       checkLoginStatus();
+//     };
 
-    window.addEventListener("loginSuccess", handleLoginSuccess);
+//     window.addEventListener("loginSuccess", handleLoginSuccess);
 
-    return () => {
-      window.removeEventListener("loginSuccess", handleLoginSuccess);
-    };
-  }, []);
+//     return () => {
+//       window.removeEventListener("loginSuccess", handleLoginSuccess);
+//     };
+//   }, []);
 
-  if (!isLoggedIn) {
-    return null;
-  }
+//   if (!isLoggedIn) {
+//     return null;
+//   }
 
-  if (showModal) {
-    return (
-      <div className="fixed inset-0 backdrop-blur-md bg-opacity-200 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96">
-          <h2 className="text-xl font-semibold mb-4">Setup Agent Number</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
-              User Number (1-3):
-            </label>
-            <input
-              type="number"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Enter number between 1-3"
-              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-              min="1"
-              max="3"
-            />
-          </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={handleSubmit}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
-            >
-              Simpan
-            </button>
-            {userNumber !== null && (
-              <button
-                onClick={() => setShowModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors"
-              >
-                Batal
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+//   if (showModal) {
+//     return (
+//       <div className="fixed inset-0 backdrop-blur-md bg-opacity-200 flex items-center justify-center z-50">
+//         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-96">
+//           <h2 className="text-xl font-semibold mb-4">Setup Agent Number</h2>
+//           <div className="mb-4">
+//             <label className="block text-sm font-medium mb-2">
+//               User Number (1-3):
+//             </label>
+//             <input
+//               type="number"
+//               value={inputValue}
+//               onChange={(e) => setInputValue(e.target.value)}
+//               placeholder="Enter number between 1-3"
+//               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+//               min="1"
+//               max="3"
+//             />
+//           </div>
+//           <div className="flex space-x-3">
+//             <button
+//               onClick={handleSubmit}
+//               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+//             >
+//               Simpan
+//             </button>
+//             {userNumber !== null && (
+//               <button
+//                 onClick={() => setShowModal(false)}
+//                 className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors"
+//               >
+//                 Batal
+//               </button>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+// }

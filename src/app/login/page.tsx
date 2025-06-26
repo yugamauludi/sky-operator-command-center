@@ -23,29 +23,18 @@ export default function Login() {
         password: formData.password,
         remember: true,
       });
+      console.log(response, "<<< response login");
+      
       // Simpan di cookies
       // document.cookie = `id=${response.user.id}; path=/;`
       // Simpan juga di localStorage jika diperlukan
       localStorage.setItem("id", response.user.id);
-      if (response.user.agent_number) {
+      if (response.user.id) {
         localStorage.setItem(
           "admin_user_number",
-          response.user.agent_number.toString()
+          response.user.id.toString()
         );
-      } else if (response.user.user_number) {
-        localStorage.setItem(
-          "admin_user_number",
-          response.user.user_number.toString()
-        );
-      } else if (response.user.role_id) {
-        // If you use role_id to determine agent number
-        // Example mapping: role_id 1 = agent 1, role_id 2 = agent 2, etc.
-        const agentNumber = response.user.role_id;
-        if ([1, 2, 3].includes(agentNumber)) {
-          localStorage.setItem("admin_user_number", agentNumber.toString());
-        }
       }
-
       if (response.token) {
         localStorage.setItem("token", response.token);
       }
