@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface GateData {
     humanError: number;
@@ -11,19 +12,26 @@ interface LocationData {
     bike: GateData;
 }
 
-interface GateRowData {
-    gate: string;
-    hpmLku: LocationData;
-    lmp: LocationData;
-    pv: LocationData;
+interface LocationRowData {
+    location: string;
+    region: string;
+    data: LocationData;
 }
 
-interface MonthlyGateData {
-    [key: string]: GateRowData[];
+interface MonthlyLocationData {
+    [key: string]: LocationRowData[];
+}
+
+interface YearlyData {
+    [year: string]: MonthlyLocationData;
 }
 
 const CallByGateTable: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<string>('january');
+    const [selectedYear, setSelectedYear] = useState<string>('2024');
+    const [selectedRegion, setSelectedRegion] = useState<string>('all');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
     const months = [
         { value: 'january', label: 'January' },
@@ -40,77 +48,85 @@ const CallByGateTable: React.FC = () => {
         { value: 'december', label: 'December' }
     ];
 
-    // Sample monthly gate data - replace with your actual data
-    const monthlyGateData: MonthlyGateData = {
-        january: [
-            {
-                gate: "Pintu Masuk 1",
-                hpmLku: {
-                    car: { humanError: 35, customerBehaviour: 0, assetSystem: 1 },
-                    bike: { humanError: 7, customerBehaviour: 0, assetSystem: 0 }
-                },
-                lmp: {
-                    car: { humanError: 22, customerBehaviour: 0, assetSystem: 1 },
-                    bike: { humanError: 0, customerBehaviour: 0, assetSystem: 0 }
-                },
-                pv: {
-                    car: { humanError: 10, customerBehaviour: 3, assetSystem: 0 },
-                    bike: { humanError: 14, customerBehaviour: 2, assetSystem: 0 }
+    const years = ['2022', '2023', '2024', '2025'];
+    const regions = [
+        { value: 'all', label: 'All Regions' },
+        { value: 'Region 1', label: 'Region 1' },
+        { value: 'Region 2', label: 'Region 2' },
+        { value: 'Region 3', label: 'Region 3' },
+        { value: 'Region 4', label: 'Region 4' }
+    ];
+
+    const viewSets = [5, 10, 20, 50, 100];
+
+    // Generate sample locations (this would be hundreds in real scenario)
+    const generateLocations = (): LocationRowData[] => {
+        const locations = [];
+        const locationTypes = ['HPM LKU', 'LMP', 'PV', 'Mall A', 'Mall B', 'Mall C', 'Plaza X', 'Plaza Y', 'Supermarket 1', 'Supermarket 2'];
+        const regionsList = ['Region 1', 'Region 2', 'Region 3', 'Region 4'];
+
+        // Generate sample data for demonstration
+        for (let i = 0; i < 100; i++) {
+            const locationType = locationTypes[i % locationTypes.length];
+            const locationNumber = Math.floor(i / locationTypes.length) + 1;
+            const region = regionsList[i % regionsList.length];
+
+            locations.push({
+                location: `${locationType} ${locationNumber}`,
+                region: region,
+                data: {
+                    car: {
+                        humanError: Math.floor(Math.random() * 50),
+                        customerBehaviour: Math.floor(Math.random() * 20),
+                        assetSystem: Math.floor(Math.random() * 15)
+                    },
+                    bike: {
+                        humanError: Math.floor(Math.random() * 30),
+                        customerBehaviour: Math.floor(Math.random() * 10),
+                        assetSystem: Math.floor(Math.random() * 10)
+                    }
                 }
-            },
-            {
-                gate: "Pintu Masuk 2",
-                hpmLku: {
-                    car: { humanError: 35, customerBehaviour: 0, assetSystem: 4 },
-                    bike: { humanError: 0, customerBehaviour: 0, assetSystem: 0 }
+            });
+        }
+
+        // Add totals
+        locations.push({
+            location: 'TOTAL',
+            region: 'all',
+            data: {
+                car: {
+                    humanError: Math.floor(Math.random() * 500),
+                    customerBehaviour: Math.floor(Math.random() * 200),
+                    assetSystem: Math.floor(Math.random() * 150)
                 },
-                lmp: {
-                    car: { humanError: 1, customerBehaviour: 0, assetSystem: 0 },
-                    bike: { humanError: 0, customerBehaviour: 0, assetSystem: 0 }
-                },
-                pv: {
-                    car: { humanError: 12, customerBehaviour: 0, assetSystem: 0 },
-                    bike: { humanError: 17, customerBehaviour: 2, assetSystem: 0 }
+                bike: {
+                    humanError: Math.floor(Math.random() * 300),
+                    customerBehaviour: Math.floor(Math.random() * 100),
+                    assetSystem: Math.floor(Math.random() * 100)
                 }
-            },
-            // Add more gates...
-        ],
-        february: [
-            // February data with different values
-        ],
-        march: [
-            // March data
-        ],
-        april: [
-            // April data
-        ],
-        may: [
-            // May data
-        ],
-        june: [
-            // June data
-        ],
-        july: [
-            // July data
-        ],
-        august: [
-            // August data
-        ],
-        september: [
-            // September data
-        ],
-        october: [
-            // October data
-        ],
-        november: [
-            // November data
-        ],
-        december: [
-            // December data
-        ]
+            }
+        });
+
+        return locations;
     };
 
-    // Generate gate names
+    // Sample yearly data structure
+    const yearlyData: YearlyData = {
+        '2024': {
+            january: generateLocations()
+        },
+        '2023': {
+            january: generateLocations()
+        },
+        '2022': {
+            january: generateLocations()
+        },
+        '2025': {
+            january: generateLocations()
+        }
+    };
+
+    // Generate gate names (fixed columns)
     const generateGateNames = (): string[] => {
         const gates = [];
         // Pintu Masuk 1-16
@@ -129,214 +145,352 @@ const CallByGateTable: React.FC = () => {
         return gates;
     };
 
-    const getCurrentMonthData = (): GateRowData[] => {
-        return monthlyGateData[selectedMonth] || [];
+    const getCurrentData = (): LocationRowData[] => {
+        const currentYearData = yearlyData[selectedYear];
+        if (!currentYearData) return [];
+        const monthData = currentYearData[selectedMonth] || [];
+
+        // Filter by region if not 'all'
+        if (selectedRegion === 'all') {
+            return monthData;
+        }
+        return monthData.filter(location => location.region === selectedRegion || location.location === 'TOTAL');
     };
 
     const gateNames = generateGateNames();
-    const currentMonthData = getCurrentMonthData();
+    const allLocations = getCurrentData();
 
-    // Get data for specific gate, with fallback to random/zero data
-    const getDataForGate = (gateName: string): GateRowData => {
-        const gateData = currentMonthData.find(data => data.gate === gateName);
-        if (gateData) {
-            return gateData;
-        }
+    // Pagination logic for locations
+    const totalPages = Math.ceil(allLocations.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedLocations = allLocations.slice(startIndex, endIndex);
 
-        // Generate fallback data based on gate type
-        const isTotal = gateName.includes('Total') || gateName === 'TOTAL';
-        const multiplier = isTotal ? 10 : 1;
-
-        return {
-            gate: gateName,
-            hpmLku: {
-                car: {
-                    humanError: Math.floor(Math.random() * 50 * multiplier),
-                    customerBehaviour: Math.floor(Math.random() * 20 * multiplier),
-                    assetSystem: Math.floor(Math.random() * 15 * multiplier)
-                },
-                bike: {
-                    humanError: Math.floor(Math.random() * 30 * multiplier),
-                    customerBehaviour: Math.floor(Math.random() * 10 * multiplier),
-                    assetSystem: Math.floor(Math.random() * 10 * multiplier)
-                }
-            },
-            lmp: {
-                car: {
-                    humanError: Math.floor(Math.random() * 40 * multiplier),
-                    customerBehaviour: Math.floor(Math.random() * 15 * multiplier),
-                    assetSystem: Math.floor(Math.random() * 12 * multiplier)
-                },
-                bike: {
-                    humanError: Math.floor(Math.random() * 25 * multiplier),
-                    customerBehaviour: Math.floor(Math.random() * 8 * multiplier),
-                    assetSystem: Math.floor(Math.random() * 8 * multiplier)
-                }
-            },
-            pv: {
-                car: {
-                    humanError: Math.floor(Math.random() * 35 * multiplier),
-                    customerBehaviour: Math.floor(Math.random() * 12 * multiplier),
-                    assetSystem: Math.floor(Math.random() * 10 * multiplier)
-                },
-                bike: {
-                    humanError: Math.floor(Math.random() * 20 * multiplier),
-                    customerBehaviour: Math.floor(Math.random() * 6 * multiplier),
-                    assetSystem: Math.floor(Math.random() * 6 * multiplier)
-                }
-            }
-        };
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
     };
 
-    const getRowClassName = (gateName: string): string => {
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
+
+    // Get cell value for gate data (random for demo)
+    const getCellValue = (location: LocationRowData, gateName: string, vehicleType: 'car' | 'bike', errorType: keyof GateData): number => {
+        // In real implementation, this would fetch actual gate-specific data
+        // For demo, we'll use the location data with some variation based on gate
+        const baseValue = location.data[vehicleType][errorType];
+        const gateMultiplier = gateName.includes('Total') || gateName === 'TOTAL' ? 5 : Math.random() * 2;
+        return Math.floor(baseValue * gateMultiplier);
+    };
+
+    const getHeaderClassName = (gateName: string): string => {
         if (gateName === 'TOTAL') {
-            return 'bg-blue-900 dark:bg-blue-950 text-white font-bold';
+            return 'bg-red-600 dark:bg-red-700 text-white font-bold';
         }
         if (gateName.includes('Total')) {
-            return 'bg-blue-800 dark:bg-blue-900 text-white font-bold';
+            return 'bg-orange-500 dark:bg-orange-600 text-white font-bold';
         }
-        return 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700';
+        if (gateName.includes('Pintu Masuk')) {
+            return 'bg-green-500 dark:bg-green-600 text-white';
+        }
+        if (gateName.includes('Pintu Keluar')) {
+            return 'bg-blue-500 dark:bg-blue-600 text-white';
+        }
+        return 'bg-gray-500 dark:bg-gray-600 text-white';
+    };
+
+    const getLocationRowClassName = (location: string): string => {
+        if (location === 'TOTAL') {
+            return 'bg-orange-100 dark:bg-orange-900/30 font-bold';
+        }
+        return 'hover:bg-gray-50 dark:hover:bg-gray-700';
     };
 
     return (
         <div className="bg-white dark:bg-[#222B36] rounded-lg p-4 md:p-6">
-            <div>
-                <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900 dark:text-white">Call by Gate</h3>
-            </div>
-            {/* Month Selector */}
-            <div className="mb-4 rounded-lg">
-                <label htmlFor="month-select" className="block text-sm text-gray-600 dark:text-gray-300 mb-2">
-                    Select Month:
-                </label>
-                <select
-                    id="month-select"
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="block w-full max-w-xs px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                    {months.map((month) => (
-                        <option key={month.value} value={month.value}>
-                            {month.label}
-                        </option>
-                    ))}
-                </select>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                    Currently showing data for: <span className="font-semibold capitalize text-gray-900 dark:text-white">{selectedMonth}</span>
+            <div className="mb-6">
+                <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 dark:text-white">Call by Gate</h3>
+
+                {/* Filters */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Month:</label>
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => {
+                                setSelectedMonth(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                            {months.map((month) => (
+                                <option key={month.value} value={month.value}>{month.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Year:</label>
+                        <select
+                            value={selectedYear}
+                            onChange={(e) => {
+                                setSelectedYear(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                            {years.map((year) => (
+                                <option key={year} value={year}>{year}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Region:</label>
+                        <select
+                            value={selectedRegion}
+                            onChange={(e) => {
+                                setSelectedRegion(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                            {regions.map((region) => (
+                                <option key={region.value} value={region.value}>{region.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Items per page:</label>
+                        <select
+                            value={itemsPerPage}
+                            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                            {viewSets.map((size) => (
+                                <option key={size} value={size}>{size}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Showing data for: <span className="font-semibold text-gray-900 dark:text-white">{selectedMonth} {selectedYear}</span> |
+                    Region: <span className="font-semibold text-gray-900 dark:text-white">{regions.find(r => r.value === selectedRegion)?.label}</span>
                 </p>
             </div>
 
             <div className="w-full overflow-x-auto thin-scrollbar">
-                <table className="w-full border-collapse border border-gray-400 dark:border-gray-600 text-xs">
-                    <thead>
-                        {/* First header row - Location names */}
-                        <tr>
-                            <th
-                                rowSpan={3}
-                                className="sticky left-0 z-10 border border-gray-400 dark:border-gray-600 bg-blue-900 dark:bg-blue-950 text-white p-2 min-w-[120px] font-bold"
-                            >
-                                GATE
-                            </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
-                                HPM LKU
-                            </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
-                                LMP
-                            </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
-                                PV
-                            </th>
-                            <th colSpan={6} className="border border-gray-400 dark:border-gray-600 bg-orange-200 dark:bg-orange-800 text-gray-900 dark:text-white p-1 text-center font-semibold">
-                                TOTAL
-                            </th>
-                        </tr>
-
-                        {/* Second header row - Car/Bike */}
-                        <tr>
-                            {Array.from({ length: 4 }).map((_, i) => (
-                                <React.Fragment key={i}>
-                                    <th colSpan={3} className={`border border-gray-400 dark:border-gray-600 ${i === 3 ? 'bg-orange-100 dark:bg-orange-700' : 'bg-blue-200 dark:bg-blue-700'} text-gray-900 dark:text-white p-1 text-center font-medium`}>
-                                        Car
-                                    </th>
-                                    <th colSpan={3} className={`border border-gray-400 dark:border-gray-600 ${i === 3 ? 'bg-orange-100 dark:bg-orange-700' : 'bg-blue-200 dark:bg-blue-700'} text-gray-900 dark:text-white p-1 text-center font-medium`}>
-                                        Bike
-                                    </th>
-                                </React.Fragment>
-                            ))}
-                        </tr>
-
-                        {/* Third header row - Error types */}
-                        <tr>
-                            {Array.from({ length: 8 }).map((_, i) => (
-                                <React.Fragment key={i}>
-                                    <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
-                                        Human Error
-                                    </th>
-                                    <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
-                                        Customer Behaviour
-                                    </th>
-                                    <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
-                                        Asset / System
-                                    </th>
-                                </React.Fragment>
-                            ))}
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {gateNames.map((gateName) => {
-                            const gateData = getDataForGate(gateName);
-
-                            const totalCarHumanError = gateData.hpmLku.car.humanError + gateData.lmp.car.humanError + gateData.pv.car.humanError;
-                            const totalCarCustomerBehaviour = gateData.hpmLku.car.customerBehaviour + gateData.lmp.car.customerBehaviour + gateData.pv.car.customerBehaviour;
-                            const totalCarAssetSystem = gateData.hpmLku.car.assetSystem + gateData.lmp.car.assetSystem + gateData.pv.car.assetSystem;
-
-                            const totalBikeHumanError = gateData.hpmLku.bike.humanError + gateData.lmp.bike.humanError + gateData.pv.bike.humanError;
-                            const totalBikeCustomerBehaviour = gateData.hpmLku.bike.customerBehaviour + gateData.lmp.bike.customerBehaviour + gateData.pv.bike.customerBehaviour;
-                            const totalBikeAssetSystem = gateData.hpmLku.bike.assetSystem + gateData.lmp.bike.assetSystem + gateData.pv.bike.assetSystem;
-
-                            return (
-                                <tr
-                                    key={gateName}
-                                    className={`${getRowClassName(gateName)} transition-colors duration-150`}
+                <div className="max-h-[600px] overflow-y-auto"> {/* Tambahkan wrapper ini */}
+                    <table className="w-full border-collapse border border-gray-400 dark:border-gray-600 text-xs">
+                        <thead className="sticky top-0 z-30 bg-white dark:bg-gray-800">
+                            {/* Gates header row */}
+                            <tr>
+                                <th
+                                    rowSpan={3}
+                                    className="sticky left-0 z-20 border border-gray-400 dark:border-gray-600 bg-gray-800 dark:bg-gray-900 text-white p-2 min-w-[120px] font-bold"
                                 >
-                                    <td className={`sticky left-0 z-10 border border-gray-400 dark:border-gray-600 ${gateName.includes('Total') || gateName === 'TOTAL'
-                                        ? 'bg-blue-900 dark:bg-blue-950 text-white font-bold'
-                                        : 'bg-blue-900 dark:bg-blue-950 text-white'} p-2 font-medium`}>
+                                    LOCATION
+                                </th>
+                                {gateNames.map((gateName) => (
+                                    <th
+                                        key={gateName}
+                                        colSpan={6}
+                                        className={`border border-gray-400 dark:border-gray-600 ${getHeaderClassName(gateName)} p-1 text-center font-semibold min-w-[180px]`}
+                                    >
                                         {gateName}
+                                    </th>
+                                ))}
+                            </tr>
+
+                            {/* Vehicle type header row */}
+                            <tr>
+                                {gateNames.map((gateName) => (
+                                    <React.Fragment key={gateName}>
+                                        <th colSpan={3} className="border border-gray-400 dark:border-gray-600 bg-blue-200 dark:bg-blue-700 text-gray-900 dark:text-white p-1 text-center font-medium">
+                                            CAR
+                                        </th>
+                                        <th colSpan={3} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-700 text-gray-900 dark:text-white p-1 text-center font-medium">
+                                            BIKE
+                                        </th>
+                                    </React.Fragment>
+                                ))}
+                            </tr>
+
+                            {/* Error types header row */}
+                            <tr>
+                                {gateNames.map((gateName) => (
+                                    <React.Fragment key={gateName}>
+                                        {/* Car error types */}
+                                        <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
+                                            Human Error
+                                        </th>
+                                        <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
+                                            Customer Behaviour
+                                        </th>
+                                        <th className="border border-gray-400 dark:border-gray-600 bg-blue-100 dark:bg-blue-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
+                                            Asset / System
+                                        </th>
+                                        {/* Bike error types */}
+                                        <th className="border border-gray-400 dark:border-gray-600 bg-green-100 dark:bg-green-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
+                                            Human Error
+                                        </th>
+                                        <th className="border border-gray-400 dark:border-gray-600 bg-green-100 dark:bg-green-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
+                                            Customer Behaviour
+                                        </th>
+                                        <th className="border border-gray-400 dark:border-gray-600 bg-green-100 dark:bg-green-600 text-gray-900 dark:text-white p-1 text-center min-w-[60px] font-medium text-[10px]">
+                                            Asset / System
+                                        </th>
+                                    </React.Fragment>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedLocations.map((location) => (
+                                <tr
+                                    key={location.location}
+                                    className={`${getLocationRowClassName(location.location)} transition-colors duration-150`}
+                                >
+                                    <td className={`sticky left-0 z-10 border border-gray-400 dark:border-gray-600 bg-gray-700 dark:bg-gray-800 text-white p-2 font-medium`}>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-sm">{location.location}</span>
+                                            {location.region !== 'all' && (
+                                                <span className="text-xs text-gray-300 capitalize">{location.region}</span>
+                                            )}
+                                        </div>
                                     </td>
-                                    {/* Render all 24 data cells */}
-                                    {[
-                                        gateData.hpmLku.car, gateData.hpmLku.bike,
-                                        gateData.lmp.car, gateData.lmp.bike,
-                                        gateData.pv.car, gateData.pv.bike,
-                                        { humanError: totalCarHumanError, customerBehaviour: totalCarCustomerBehaviour, assetSystem: totalCarAssetSystem },
-                                        { humanError: totalBikeHumanError, customerBehaviour: totalBikeCustomerBehaviour, assetSystem: totalBikeAssetSystem }
-                                    ].flatMap((item, i) => (
-                                        [
-                                            item.humanError,
-                                            item.customerBehaviour,
-                                            item.assetSystem
-                                        ].map((value, j) => (
-                                            <td
-                                                key={`${i}-${j}`}
-                                                className={`border border-gray-400 dark:border-gray-600 p-1 text-center font-medium transition-colors duration-150 ${gateName.includes('Total') || gateName === 'TOTAL'
-                                                        ? i >= 6
-                                                            ? 'bg-orange-200 dark:bg-orange-800 text-white font-bold'
-                                                            : 'bg-blue-900 dark:bg-blue-950 text-white font-bold'
-                                                        : i >= 6
-                                                            ? 'bg-orange-50 dark:bg-orange-900/50 text-gray-900 dark:text-orange-100'
-                                                            : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                                                    }`}
-                                            >
-                                                {value || '-'}
+
+                                    {gateNames.map((gateName) => (
+                                        <React.Fragment key={`${location.location}-${gateName}`}>
+                                            {/* Car data */}
+                                            <td className="border border-gray-400 dark:border-gray-600 p-1 text-center bg-blue-50 dark:bg-blue-900/20 text-gray-900 dark:text-gray-100">
+                                                {getCellValue(location, gateName, 'car', 'humanError') || '-'}
                                             </td>
-                                        ))
+                                            <td className="border border-gray-400 dark:border-gray-600 p-1 text-center bg-blue-50 dark:bg-blue-900/20 text-gray-900 dark:text-gray-100">
+                                                {getCellValue(location, gateName, 'car', 'customerBehaviour') || '-'}
+                                            </td>
+                                            <td className="border border-gray-400 dark:border-gray-600 p-1 text-center bg-blue-50 dark:bg-blue-900/20 text-gray-900 dark:text-gray-100">
+                                                {getCellValue(location, gateName, 'car', 'assetSystem') || '-'}
+                                            </td>
+                                            {/* Bike data */}
+                                            <td className="border border-gray-400 dark:border-gray-600 p-1 text-center bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-gray-100">
+                                                {getCellValue(location, gateName, 'bike', 'humanError') || '-'}
+                                            </td>
+                                            <td className="border border-gray-400 dark:border-gray-600 p-1 text-center bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-gray-100">
+                                                {getCellValue(location, gateName, 'bike', 'customerBehaviour') || '-'}
+                                            </td>
+                                            <td className="border border-gray-400 dark:border-gray-600 p-1 text-center bg-green-50 dark:bg-green-900/20 text-gray-900 dark:text-gray-100">
+                                                {getCellValue(location, gateName, 'bike', 'assetSystem') || '-'}
+                                            </td>
+                                        </React.Fragment>
                                     ))}
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                    Showing {startIndex + 1} to {Math.min(endIndex, allLocations.length)} of {allLocations.length} locations
+                </div>
+
+                {/* Location Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex items-center bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg p-1 gap-1">
+                        {/* First Page Button */}
+                        <button
+                            onClick={() => handlePageChange(1)}
+                            disabled={currentPage === 1}
+                            className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            &laquo;
+                        </button>
+
+                        {/* Previous Page Button */}
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            &lsaquo;
+                        </button>
+
+                        {/* Page Numbers */}
+                        {(() => {
+                            const getVisiblePages = () => {
+                                const delta = 2;
+                                const range = [];
+                                const rangeWithDots = [];
+
+                                for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+                                    range.push(i);
+                                }
+
+                                if (currentPage - delta > 2) {
+                                    rangeWithDots.push(1, '...');
+                                } else {
+                                    rangeWithDots.push(1);
+                                }
+
+                                rangeWithDots.push(...range);
+
+                                if (currentPage + delta < totalPages - 1) {
+                                    rangeWithDots.push('...', totalPages);
+                                } else if (totalPages > 1) {
+                                    rangeWithDots.push(totalPages);
+                                }
+
+                                return rangeWithDots;
+                            };
+
+                            return getVisiblePages().map((page, index) => {
+                                if (page === '...') {
+                                    return (
+                                        <span key={`dots-${index}`} className="w-8 h-8 flex items-center justify-center text-xs text-gray-400">
+                                            ...
+                                        </span>
+                                    );
+                                }
+
+                                return (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page as number)}
+                                        className={`w-8 h-8 flex items-center justify-center text-xs rounded border ${currentPage === page
+                                            ? 'bg-blue-500 text-white border-blue-500'
+                                            : 'bg-white dark:bg-[#232B36] text-gray-500 dark:text-gray-300 border-transparent hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
+                                            } transition-colors`}
+                                    >
+                                        {page}
+                                    </button>
+                                );
+                            });
+                        })()}
+
+                        {/* Next Page Button */}
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            &rsaquo;
+                        </button>
+
+                        {/* Last Page Button */}
+                        <button
+                            onClick={() => handlePageChange(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            &raquo;
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
