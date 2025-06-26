@@ -405,7 +405,7 @@ export function GlobalCallPopup() {
   const detailGate = activeCall?.detailGate || {};
   const locationName = activeCall?.location?.Name || "Unknown Location";
   const gateName = activeCall?.gate || detailGate.gate || "-";
-  const gateId = activeCall?.gateId || detailGate.id || "-";
+  // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate.ticket || "-";
   const numberPlate = detailGate.number_plate.toUpperCase() || "-";
 
