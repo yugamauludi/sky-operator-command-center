@@ -1,36 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+import { TransactionResponse } from '@/hooks/useTransaction';
+import formatTanggalUTC from '@/utils/formatDate';
 import { useEffect } from 'react';
-
-export interface TicketData {
-    transactionNo: string;
-    transactionStatus: string;
-    inTime: string;
-    duration: string;
-    tariffParking: number;
-    vehicleType: string;
-    codeGate: string;
-    plateNumber: string;
-    outTime: string;
-    gateOut: string;
-    gracePeriod: string;
-    location: string;
-    paymentStatus: string;
-    paymentTime: string;
-    paymentMethod: string;
-    issueName: string;
-    issuerCode: string;
-}
 
 interface TicketModalProps {
     isOpen: boolean;
     onClose: () => void;
-    ticketData: TicketData | null;
+    ticketData: TransactionResponse | null;
     error?: string | null;
 }
 
 export default function TicketModal({ isOpen, onClose, ticketData }: TicketModalProps) {
-    // Close modal when pressing Escape key
+    const dataTicket = ticketData?.data || null;
+
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -40,7 +23,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
 
         if (isOpen) {
             document.addEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            document.body.style.overflow = 'hidden';
         }
 
         return () => {
@@ -51,16 +34,6 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
 
     if (!isOpen) return null;
 
-    const formatDateTime = (dateString: string) => {
-        return new Date(dateString).toLocaleString('id-ID', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -70,6 +43,8 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
 
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
+            case 'FREE':
+                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
             case 'COMPLETED':
                 return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
             case 'PENDING':
@@ -81,23 +56,31 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
         }
     };
 
+    const formatDuration = (minutes: number) => {
+        if (minutes < 60) return `${minutes} menit`;
+        const jam = Math.floor(minutes / 60);
+        const menit = minutes % 60;
+        if (menit === 0) return `${jam} jam`;
+        return `${jam} jam ${menit} menit`;
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 backdrop-blur-sm"
+                className="absolute inset-0 backdrop-blur-sm bg-black/50"
                 onClick={onClose}
             />
 
-            {/* Modal */}
-            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            {/* Modal - Optimized for no scroll */}
+            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col">
+                {/* Header - Fixed */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                             Detail Tiket Parkir
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                             Informasi lengkap transaksi parkir
                         </p>
                     </div>
@@ -105,220 +88,258 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                         onClick={onClose}
                         className="p-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                     >
-                        <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                {/* Content */}
-                {ticketData ? (
-                    <div className="p-6 space-y-6">
-                        {/* Transaction Info */}
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                Informasi Transaksi
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Nomor Transaksi
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white font-mono">
-                                        {ticketData.transactionNo}
-                                    </p>
+                {/* Content - Scrollable if needed */}
+                <div className="flex-1 overflow-y-auto">
+                    {dataTicket ? (
+                        <div className="p-4">
+                            {/* Main Grid - 3 columns layout */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
+
+                                {/* Left Column - Transaction & Vehicle Info */}
+                                <div className="space-y-4">
+                                    {/* Transaction Info */}
+                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Transaksi
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Nomor Transaksi
+                                                </label>
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded mt-1">
+                                                    {dataTicket?.TransactionNo}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Status
+                                                </label>
+                                                <div className="mt-1">
+                                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dataTicket.PaymentStatus)}`}>
+                                                        {dataTicket.PaymentStatus}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Vehicle Info */}
+                                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                            </svg>
+                                            Kendaraan
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Jenis Kendaraan
+                                                </label>
+                                                <p className="text-sm text-gray-900 dark:text-white font-semibold">
+                                                    {dataTicket.VehicleType}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Plat Masuk
+                                                </label>
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                    {dataTicket.LicensePlateIn}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Plat Keluar
+                                                </label>
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                    {dataTicket.LicensePlateOut}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Status Transaksi
-                                    </label>
-                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(ticketData.transactionStatus)}`}>
-                                        {ticketData.transactionStatus}
-                                    </span>
+
+                                {/* Middle Column - Location & Time */}
+                                <div className="space-y-4">
+                                    {/* Location Info */}
+                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            Lokasi
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Nama Lokasi
+                                                </label>
+                                                <p className="text-sm text-gray-900 dark:text-white font-semibold">
+                                                    {dataTicket.locationInfo.Name}
+                                                </p>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Gate Masuk
+                                                    </label>
+                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded text-center">
+                                                        {dataTicket.GateInCode}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Gate Keluar
+                                                    </label>
+                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded text-center">
+                                                        {dataTicket.GateOutCode}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Grace Period
+                                                </label>
+                                                <p className="text-sm text-gray-900 dark:text-white">
+                                                    {dataTicket?.gracePeriod ? `${dataTicket.gracePeriod} menit` : 'Tidak ada'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Time Info */}
+                                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Waktu
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Waktu Masuk
+                                                </label>
+                                                <p className="text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                    {formatTanggalUTC(dataTicket.InTime)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Waktu Keluar
+                                                </label>
+                                                <p className="text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                    {formatTanggalUTC(dataTicket.OutTime)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Durasi Parkir
+                                                </label>
+                                                <p className="text-lg text-orange-700 dark:text-orange-300 font-bold text-center bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                    {formatDuration(dataTicket.Duration)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Nomor Polisi
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white font-semibold">
-                                        {ticketData.plateNumber}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Jenis Kendaraan
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.vehicleType}
-                                    </p>
+
+                                {/* Right Column - Payment Info */}
+                                <div className="space-y-4">
+                                    {/* Payment Amount */}
+                                    <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-800/20 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                            </svg>
+                                            Tarif
+                                        </h3>
+                                        <div className="text-center">
+                                            <p className="text-2xl font-bold text-green-600 dark:text-green-400 bg-white dark:bg-gray-800 px-4 py-3 rounded-lg">
+                                                {formatCurrency(Number(dataTicket?.TariffAmount))}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Payment Details */}
+                                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-lg p-4">
+                                        <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                            Pembayaran
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                    Status Pembayaran
+                                                </label>
+                                                <div className="mt-1">
+                                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(dataTicket.PaymentStatus)}`}>
+                                                        {dataTicket.PaymentStatus}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {dataTicket.PaymentStatus === 'PAID' && (
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Metode Pembayaran
+                                                    </label>
+                                                    <p className="text-sm text-gray-900 dark:text-white font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                        {dataTicket.paymentMethod}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Parking Details */}
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                Detail Parkir
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Lokasi
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.location}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Gate Masuk
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.codeGate}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Gate Keluar
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.gateOut}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Grace Period
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.gracePeriod}
-                                    </p>
-                                </div>
+                    ) : (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="text-center">
+                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p className="mt-2 text-gray-500 dark:text-gray-400">
+                                    Data tiket tidak ditemukan
+                                </p>
                             </div>
                         </div>
+                    )}
+                </div>
 
-                        {/* Time & Duration */}
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                Waktu & Durasi
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Waktu Masuk
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {formatDateTime(ticketData.inTime)}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Waktu Keluar
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {formatDateTime(ticketData.outTime)}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Durasi Parkir
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white font-semibold">
-                                        {ticketData.duration}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Tarif Parkir
-                                    </label>
-                                    <p className="text-lg text-green-600 dark:text-green-400 font-bold">
-                                        {formatCurrency(ticketData.tariffParking)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Payment Info */}
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                Informasi Pembayaran
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Status Pembayaran
-                                    </label>
-                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(ticketData.paymentStatus)}`}>
-                                        {ticketData.paymentStatus}
-                                    </span>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Metode Pembayaran
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.paymentMethod}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Waktu Pembayaran
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {formatDateTime(ticketData.paymentTime)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Issuer Info */}
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                Penerbit Tiket
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Nama Penerbit
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white">
-                                        {ticketData.issueName}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                        Kode Penerbit
-                                    </label>
-                                    <p className="text-sm text-gray-900 dark:text-white font-mono">
-                                        {ticketData.issuerCode}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="p-6 text-center">
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Data tiket tidak ditemukan
-                        </p>
-                    </div>
-                )}
-
-                {/* Footer */}
-                <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
+                {/* Footer - Fixed */}
+                <div className="flex justify-end space-x-3 p-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
                     <button
                         onClick={onClose}
-                        className="cursor-pointer px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="cursor-pointer px-4 py-2 text-white bg-red-500 rounded-lg transition-colors"
                     >
                         Tutup
                     </button>
-                    {ticketData && (
+                    {/* {ticketData && (
                         <button
                             onClick={() => window.print()}
-                            className="cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                            className="cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
                         >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
                             Print Tiket
                         </button>
-                    )}
+                    )} */}
                 </div>
             </div>
         </div>

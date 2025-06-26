@@ -2,27 +2,34 @@
 import { useState } from "react";
 
 interface TicketData {
-  transactionNo: string;
-  transactionStatus: string;
-  inTime: string;
-  duration: string;
-  tariffParking: number;
-  vehicleType: string;
-  codeGate: string;
-  plateNumber: string;
-  outTime: string;
-  gateOut: string;
-  gracePeriod: string;
-  location: string;
-  paymentStatus: string;
-  paymentTime: string;
-  paymentMethod: string;
-  issueName: string;
-  issuerCode: string;
+  id: number;
+  TransactionNo: string;
+  InTime: string;
+  OutTime: string;
+  VehicleType: string;
+  TariffAmount: string;
+  PaymentStatus: string;
+  GateInCode: string;
+  GateOutCode: string;
+  Duration: number;
+  QRTicket: string;
+  LicensePlateIn: string;
+  LicensePlateOut: string;
+  LocationCode: string;
+  IssuerID: string;
+  issuerInfo: null;
+  locationInfo: {
+    Code: string;
+    Name: string;
+  };
 }
 
 interface UseCheckTicketReturn {
-  checkTicket: (query: string) => Promise<TicketData | null>;
+  checkTicket: (
+    keyword: string,
+    locationCode: string,
+    date: string
+  ) => Promise<TicketData | null>;
   loading: boolean;
   error: string | null;
 }
@@ -33,33 +40,48 @@ export function useCheckTicket(): UseCheckTicketReturn {
 
   // Dummy data for fallback
   const dummyTicketData: TicketData = {
-    transactionNo: "TRX-2024-001234",
-    transactionStatus: "COMPLETED",
-    inTime: "2024-06-25T08:30:00Z",
-    duration: "2h 30m",
-    tariffParking: 5000,
-    vehicleType: "MOTOR",
-    codeGate: "GATE-A1",
-    plateNumber: "B 1234 ABC",
-    outTime: "2024-06-25T11:00:00Z",
-    gateOut: "GATE-A2",
-    gracePeriod: "15 minutes",
-    location: "Mall Central Park",
-    paymentStatus: "PAID",
-    paymentTime: "2024-06-25T10:55:00Z",
-    paymentMethod: "QRIS",
-    issueName: "PT. Parking Solutions",
-    issuerCode: "PK001",
+    id: 538327,
+    TransactionNo: "6032982869966018",
+    InTime: "2025-06-24T09:09:07.000Z",
+    OutTime: "2025-06-24T09:14:56.000Z",
+    VehicleType: "MOBIL",
+    TariffAmount: "0",
+    PaymentStatus: "FREE",
+    GateInCode: "PM2",
+    GateOutCode: "PK1",
+    Duration: 5,
+    QRTicket:
+      "https://billing.skyparking.online/Ebilling?p1=ID2019000411726&p2=6032982869966018",
+    LicensePlateIn: "A1060VR",
+    LicensePlateOut: "A1060VR",
+    LocationCode: "007SK",
+    IssuerID: "",
+    issuerInfo: null,
+    locationInfo: {
+      Code: "007SK",
+      Name: "Siloam Hospital Lippo Village",
+    },
   };
 
-  const checkTicket = async (query: string): Promise<TicketData | null> => {
+  const checkTicket = async (
+    keyword: string,
+    locationCode: string,
+    date: string
+  ): Promise<TicketData | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      // Attempt to call the real API
+      // Build query parameters
+      const params = new URLSearchParams({
+        keyword: keyword,
+        locationCode: locationCode,
+        date: date,
+      });
+
+      // Attempt to call the real API with new parameters
       const response = await fetch(
-        `/api/check-ticket?query=${encodeURIComponent(query)}`,
+        `/api/transaction/find-transaction?${params.toString()}`,
         {
           method: "GET",
           headers: {
@@ -83,20 +105,35 @@ export function useCheckTicket(): UseCheckTicketReturn {
       console.warn("API call failed, using dummy data:", apiError);
       setError("Menggunakan data contoh (API tidak tersedia)");
 
-      // Return dummy data with modified plate number to match search query
-      // if query looks like a plate number
+      // Return dummy data with modified fields to match search parameters
       const modifiedDummyData = { ...dummyTicketData };
 
-      // Simple check if query looks like a plate number (contains letters and numbers)
+      // Simple check if keyword looks like a plate number (contains letters and numbers)
       const plateNumberPattern = /^[A-Za-z]\s*\d+\s*[A-Za-z]+$/;
       const transactionPattern = /^TRX-/i;
 
-      if (plateNumberPattern.test(query.replace(/\s+/g, " ").trim())) {
-        modifiedDummyData.plateNumber = query.toUpperCase();
-      } else if (transactionPattern.test(query)) {
-        modifiedDummyData.transactionNo = query.toUpperCase();
+      if (plateNumberPattern.test(keyword.replace(/\s+/g, " ").trim())) {
+        modifiedDummyData.LicensePlateIn = keyword.toUpperCase();
+      } else if (transactionPattern.test(keyword)) {
+        modifiedDummyData.TransactionNo = keyword.toUpperCase();
       }
 
+      // Update location based on locationCode (you can expand this mapping)
+      const locationMapping: { [key: string]: string } = {
+        LOC001: "Mall Central Park",
+        LOC002: "Mall Taman Anggrek",
+        LOC003: "Mall Kelapa Gading",
+        LOC004: "Mall PIK Avenue",
+        LOC005: "Mall Senayan City",
+      };
+
+      if (locationMapping[locationCode]) {
+        modifiedDummyData.locationInfo.Name = locationMapping[locationCode];
+      }
+
+      // Update date-related fields
+      modifiedDummyData.InTime = `${date}T08:30:00Z`;
+      modifiedDummyData.OutTime = `${date}T11:00:00Z`;
       return modifiedDummyData;
     } finally {
       setLoading(false);

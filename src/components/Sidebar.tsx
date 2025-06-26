@@ -93,7 +93,7 @@ export default function Sidebar() {
             <button
               onClick={toggleSidebar}
               className={`
-                absolute -right-12 top-3 w-10 h-10 flex items-center justify-center
+                cursor-pointer absolute -right-12 top-3 w-10 h-10 flex items-center justify-center
                 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700
                 rounded-md shadow-md transition-all duration-300
                 hover:bg-gray-100 dark:hover:bg-gray-700
@@ -182,7 +182,7 @@ export default function Sidebar() {
             <button
               onClick={handleLogout}
               className={`
-              flex items-center w-full px-3 py-3 rounded-lg text-gray-600 dark:text-gray-300
+              cursor-pointer flex items-center w-full px-3 py-3 rounded-lg text-gray-600 dark:text-gray-300
               hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400
               transition-all duration-200 font-medium
               ${!isOpen ? "justify-center" : ""}

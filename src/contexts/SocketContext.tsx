@@ -15,7 +15,7 @@ import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
 import { addIssue } from "@/hooks/useIssues";
-import formatTanggalUTC from "@/utils/formatDate";
+import formatTanggalUTC, { formatTanggalLocal } from "@/utils/formatDate";
 
 interface SocketContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -192,6 +192,13 @@ export function GlobalCallPopup() {
     photoOut: false,
     photoCapture: false,
   });
+  const tryDate = "Thu Jun 26 2025 13:35:25 GMT+0700"
+  console.log(tryDate, "<<<< tryDate");
+  console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
+  
+
+  console.log(callInTime, "callInTime in GlobalCallPopup");
+  
   // Add mute state
   const [isMuted, setIsMuted] = useState(false);
 
@@ -523,7 +530,7 @@ export function GlobalCallPopup() {
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                   {callInTime
-                    ? formatTanggalUTC(callInTime.toString()) : "-"}
+                    ? formatTanggalLocal(callInTime.toString()) : "-"}
                 </span>
               </div>
 
@@ -550,7 +557,7 @@ export function GlobalCallPopup() {
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                           {detailGate.payment_time
-                            ? formatTanggalUTC(detailGate.payment_time)
+                            ? formatTanggalLocal(detailGate.payment_time)
                             : "-"}
                         </span>
                       </div>

@@ -2,35 +2,32 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
-import TicketModal, { TicketData } from './TicketModal';
+import TicketModal from './TicketModal';
+import CheckTicketModal from './CheckTicketModal';
 import { useCheckTicket } from '../hooks/useCheckTicket';
+import { fetchTransaction } from '@/hooks/useTransaction';
+import type { TransactionResponse } from '@/hooks/useTransaction'; // Import tipe response
 
 interface HeaderProps {
   notifications: any[];
 }
 
 export default function Header({
-  //  notifications
+  // notifications
 }: HeaderProps) {
-  const [searchValue, setSearchValue] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ticketData, setTicketData] = useState<TicketData | null>(null);
+  const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [ticketData, setTicketData] = useState<TransactionResponse | null>(null); // Gunakan tipe TransactionResponse
   const { checkTicket, loading, error } = useCheckTicket();
 
-  const handleCheckTicket = async () => {
-    if (!searchValue.trim()) {
-      alert('Silakan masukkan nomor polisi atau nomor transaksi');
-      return;
-    }
-
-    const data = await checkTicket(searchValue);
-    setTicketData(data);
-    setIsModalOpen(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleCheckTicket();
+  const handleCheckTicket = async (keyword: string, locationCode: string, date: string) => {
+    try {
+      const data = await fetchTransaction(keyword, locationCode, date);
+      setTicketData(data);
+      setIsCheckModalOpen(false);
+      setIsResultModalOpen(true);
+    } catch (error) {
+      console.error('Error checking ticket:', error);
     }
   };
 
@@ -41,20 +38,11 @@ export default function Header({
           {/* Left side - Ticket Check */}
           <div className="flex items-center space-x-3">
             <div className="flex items-center w-full md:w-auto space-x-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 shadow-sm ml-0 md:ml-8">
-              <input
-                type="text"
-                placeholder="Masukkan nopol atau nomor transaksi"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="bg-transparent border-none outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 w-full md:w-80"
-              />
               <button
-                onClick={handleCheckTicket}
-                disabled={loading}
-                className="bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-1 rounded-md text-sm font-medium transition-colors shadow whitespace-nowrap"
+                onClick={() => setIsCheckModalOpen(true)}
+                className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow whitespace-nowrap"
               >
-                {loading ? 'Mencari...' : 'Cek Tiket'}
+                Cek Tiket
               </button>
             </div>
           </div>
@@ -83,10 +71,18 @@ export default function Header({
         </div>
       </header>
 
-      {/* Ticket Modal */}
+      {/* Check Ticket Modal */}
+      <CheckTicketModal 
+        isOpen={isCheckModalOpen}
+        onClose={() => setIsCheckModalOpen(false)}
+        onSubmit={handleCheckTicket}
+        loading={loading}
+      />
+
+      {/* Ticket Result Modal - This displays the API response */}
       <TicketModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isResultModalOpen}
+        onClose={() => setIsResultModalOpen(false)}
         ticketData={ticketData}
         error={error}
       />
