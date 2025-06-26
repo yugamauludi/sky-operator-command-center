@@ -15,7 +15,7 @@ import Image from "next/image";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
 import { addIssue } from "@/hooks/useIssues";
-import formatTanggalUTC, { formatTanggalLocal } from "@/utils/formatDate";
+import { formatTanggalLocal } from "@/utils/formatDate";
 
 interface SocketContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
