@@ -507,198 +507,203 @@ export default function ReportsPage() {
 
   return (
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Laporan</h1>
-      </div>
+      <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
+        <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
 
-      {/* Wrap DatePicker with Suspense */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
-        {/* Filter Section */}
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center w-full sm:w-auto">
-          <div className="relative z-40 w-full sm:w-auto">
-            <DatePicker
-              selected={searchDate}
-              onChange={(date) => setSearchDate(date)}
-              className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
-              placeholderText="Cari Tanggal"
-              dateFormat="yyyy-MM-dd"
-              isClearable
-              maxDate={new Date()}
-              renderCustomHeader={({
-                date,
-                changeYear,
-                changeMonth,
-                decreaseMonth,
-                increaseMonth,
-                prevMonthButtonDisabled,
-                nextMonthButtonDisabled,
-              }) => (
-                <div className="flex items-center justify-between px-2 py-2">
-                  <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>
-                    <IoIosArrowBack />
-                  </button>
-                  <select
-                    value={date.getMonth()}
-                    onChange={({ target: { value } }) => changeMonth(Number(value))}
-                    className="mx-1 px-2 py-1 border rounded"
-                  >
-                    {[
-                      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-                    ].map((month, index) => (
-                      <option key={month} value={index}>{month}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={date.getFullYear()}
-                    onChange={({ target: { value } }) => changeYear(Number(value))}
-                    className="mx-1 px-2 py-1 border rounded"
-                  >
-                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                  <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>
-                    <IoIosArrowForward />
-                  </button>
-                </div>
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Laporan</h1>
+          </div>
+
+          {/* Wrap DatePicker with Suspense */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
+            {/* Filter Section */}
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center w-full sm:w-auto">
+              <div className="relative z-40 w-full sm:w-auto">
+                <DatePicker
+                  selected={searchDate}
+                  onChange={(date) => setSearchDate(date)}
+                  className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
+                  placeholderText="Cari Tanggal"
+                  dateFormat="yyyy-MM-dd"
+                  isClearable
+                  maxDate={new Date()}
+                  renderCustomHeader={({
+                    date,
+                    changeYear,
+                    changeMonth,
+                    decreaseMonth,
+                    increaseMonth,
+                    prevMonthButtonDisabled,
+                    nextMonthButtonDisabled,
+                  }) => (
+                    <div className="flex items-center justify-between px-2 py-2">
+                      <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>
+                        <IoIosArrowBack />
+                      </button>
+                      <select
+                        value={date.getMonth()}
+                        onChange={({ target: { value } }) => changeMonth(Number(value))}
+                        className="mx-1 px-2 py-1 border rounded"
+                      >
+                        {[
+                          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                        ].map((month, index) => (
+                          <option key={month} value={index}>{month}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={date.getFullYear()}
+                        onChange={({ target: { value } }) => changeYear(Number(value))}
+                        className="mx-1 px-2 py-1 border rounded"
+                      >
+                        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>
+                        <IoIosArrowForward />
+                      </button>
+                    </div>
+                  )}
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  📅
+                </span>
+              </div>
+              <div className="relative w-full sm:w-auto">
+                <input
+                  type="text"
+                  placeholder="Cari Lokasi"
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  📍
+                </span>
+              </div>
+              <div className="relative w-full sm:w-auto">
+                <input
+                  type="text"
+                  placeholder="Cari Kategori"
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  🔍
+                </span>
+              </div>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm w-full sm:w-auto whitespace-nowrap"
+                  title="Clear all filters"
+                >
+                  ✕ Clear
+                </button>
               )}
-            />
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              📅
-            </span>
-          </div>
-          <div className="relative w-full sm:w-auto">
-            <input
-              type="text"
-              placeholder="Cari Lokasi"
-              value={searchLocation}
-              onChange={(e) => setSearchLocation(e.target.value)}
-              className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
-            />
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              📍
-            </span>
-          </div>
-          <div className="relative w-full sm:w-auto">
-            <input
-              type="text"
-              placeholder="Cari Kategori"
-              value={searchCategory}
-              onChange={(e) => setSearchCategory(e.target.value)}
-              className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
-            />
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              🔍
-            </span>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+              <button
+                onClick={handleModalOpen}
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2"
+              >
+                <span>➕</span>
+                <span>Tambah Laporan</span>
+              </button>
+            </div>
           </div>
 
-          {/* Clear Filters Button */}
+          {/* Filter Results Info */}
           {hasActiveFilters && (
-            <button
-              onClick={handleClearFilters}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm w-full sm:w-auto whitespace-nowrap"
-              title="Clear all filters"
-            >
-              ✕ Clear
-            </button>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-          <button
-            onClick={handleModalOpen}
-            className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2"
-          >
-            <span>➕</span>
-            <span>Tambah Laporan</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Results Info */}
-      {hasActiveFilters && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-blue-800 dark:text-blue-200">
-              <span className="font-medium">Filter aktif:</span>
-              {searchDate && (
-                <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                  Tanggal: {searchDate.toLocaleDateString("id-ID")}
-                </span>
-              )}
-              {searchLocation && (
-                <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                  Lokasi: {searchLocation}
-                </span>
-              )}
-              {searchCategory && (
-                <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                  Kategori: {searchCategory}
-                </span>
-              )}
-            </div>
-            <div className="text-sm text-blue-600 dark:text-blue-300">
-              Menampilkan {filteredReports.length} dari {reports.length} data
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Wrap Table with Suspense */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg p-6">
-          {isDataLoading ? (
-            <div className="text-center py-4">
-              <div className="three-body">
-                <div className="three-body__dot"></div>
-                <div className="three-body__dot"></div>
-                <div className="three-body__dot"></div>
-              </div>{" "}
-              <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                Memuat data laporan...
-              </p>
-            </div>
-          ) : filteredReports.length === 0 && hasActiveFilters ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500 dark:text-gray-400">
-                <div className="text-4xl mb-4">🔍</div>
-                <h3 className="text-lg font-medium mb-2">
-                  Tidak ada data ditemukan
-                </h3>
-                <p className="text-sm">Coba ubah filter pencarian Anda</p>
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-blue-800 dark:text-blue-200">
+                  <span className="font-medium">Filter aktif:</span>
+                  {searchDate && (
+                    <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                      Tanggal: {searchDate.toLocaleDateString("id-ID")}
+                    </span>
+                  )}
+                  {searchLocation && (
+                    <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                      Lokasi: {searchLocation}
+                    </span>
+                  )}
+                  {searchCategory && (
+                    <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                      Kategori: {searchCategory}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-blue-600 dark:text-blue-300">
+                  Menampilkan {filteredReports.length} dari {reports.length} data
+                </div>
               </div>
             </div>
-          ) : (
-            <CommonTable
-              data={paginatedFilteredReports}
-              columns={columns as any}
-              showPagination={true}
-              currentPage={filteredPagination.currentPage}
-              totalPages={filteredPagination.totalPages}
-              onPageChange={handleIssuesPageChange}
-              itemsPerPage={filteredPagination.itemsPerPage}
-              totalItems={filteredPagination.totalItems}
-              onItemsPerPageChange={handleItemsReportPerPageChange}
-            />
           )}
-        </div>
-      </Suspense>
 
-      {/* Wrap Modal with Suspense */}
-      <Suspense fallback={null}>
-        <IsseFormInputModal
-          isOpen={isNewReportModalOpen}
-          onClose={handleModalClose}
-          onSubmit={handleNewReportSubmit}
-          title="Tambah Laporan Baru"
-          fields={newReportFields}
-          confirmText="Submit"
-          cancelText="Cancel"
-        />
-      </Suspense>
+          {/* Wrap Table with Suspense */}
+          <Suspense fallback={<LoadingSpinner />}>
+            <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
+              {isDataLoading ? (
+                <div className="text-center py-4">
+                  <div className="three-body">
+                    <div className="three-body__dot"></div>
+                    <div className="three-body__dot"></div>
+                    <div className="three-body__dot"></div>
+                  </div>{" "}
+                  <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                    Memuat data laporan...
+                  </p>
+                </div>
+              ) : filteredReports.length === 0 && hasActiveFilters ? (
+                <div className="text-center py-8">
+                  <div className="text-gray-500 dark:text-gray-400">
+                    <div className="text-4xl mb-4">🔍</div>
+                    <h3 className="text-lg font-medium mb-2">
+                      Tidak ada data ditemukan
+                    </h3>
+                    <p className="text-sm">Coba ubah filter pencarian Anda</p>
+                  </div>
+                </div>
+              ) : (
+                <CommonTable
+                  data={paginatedFilteredReports}
+                  columns={columns as any}
+                  showPagination={true}
+                  currentPage={filteredPagination.currentPage}
+                  totalPages={filteredPagination.totalPages}
+                  onPageChange={handleIssuesPageChange}
+                  itemsPerPage={filteredPagination.itemsPerPage}
+                  totalItems={filteredPagination.totalItems}
+                  onItemsPerPageChange={handleItemsReportPerPageChange}
+                />
+              )}
+            </div>
+          </Suspense>
+
+          {/* Wrap Modal with Suspense */}
+          <Suspense fallback={null}>
+            <IsseFormInputModal
+              isOpen={isNewReportModalOpen}
+              onClose={handleModalClose}
+              onSubmit={handleNewReportSubmit}
+              title="Tambah Laporan Baru"
+              fields={newReportFields}
+              confirmText="Submit"
+              cancelText="Cancel"
+            />
+          </Suspense>
+        </div>
+      </main>
     </div>
   );
 }

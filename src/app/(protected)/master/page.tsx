@@ -531,270 +531,275 @@ export default function MasterPage() {
 
 
   return (
-    <div className="w-full px-4 sm:px-6 py-4 sm:py-8">              {/* Header */}
-      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-        Master Data
-      </h1>
+    <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
+      <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
+        <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
 
-      {/* Tab Navigation */}
-      <ul className="flex border-b border-gray-200 dark:border-gray-900 mb-6">
-        <li className="w-full mr-2">
-          <button
-            onClick={() => handleTabChange("category")}
-            className={`w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
-              ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-gray-500"
-              : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-              }`}
-          >
-            Kategori
-          </button>
-        </li>
-        <li className="w-full">
-          <button
-            onClick={() => handleTabChange("description")}
-            className={`w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
-              ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
-              : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-              }`}
-          >
-            Deskripsi
-          </button>
-        </li>
-      </ul>
+          <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+            Master Data
+          </h1>
 
-      {/* Description Text */}
-      <div className="mb-6">
-        {activeTab === "category" ? (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded">
-            <h2 className="text-lg font-medium text-blue-700 dark:text-blue-400 mb-2">
-              Manajemen Kategori
-            </h2>
-            <p className="text-blue-600/80 dark:text-blue-300/80">
-              Halaman ini digunakan untuk mengelola kategori permasalahan yang dapat terjadi di gerbang.
-              Setiap kategori akan menjadi pengelompokan utama untuk berbagai jenis permasalahan yang mungkin dihadapi.
-            </p>
-          </div>
-        ) : (
-          <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
-            <h2 className="text-lg font-medium text-green-700 dark:text-green-400 mb-2">
-              Manajemen Deskripsi Permasalahan
-            </h2>
-            <p className="text-green-600/80 dark:text-green-300/80">
-              Halaman ini memungkinkan Anda mengelola deskripsi detail dari setiap permasalahan.
-              Setiap deskripsi terhubung dengan kategori tertentu dan memberikan penjelasan spesifik tentang jenis masalah yang dapat terjadi.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Content Container */}
-      <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
-        {/* Add Button */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
-          >
-            + Tambah {activeTab === "category" ? "Kategori" : "Deskripsi"}
-          </button>
-        </div>
-
-        {/* Tables with Lazy Loading */}
-        <div className="overflow-x-auto">
-          {activeTab === "category" ? (
-            <>
-              {!isTabLoaded("category") || isDataLoading ? (
-                <TabContentLoader />
-              ) : categories.length === 0 ? (
-                <NoData message="Belum ada data kategori yang tersedia. Silakan refresh halaman untuk mencoba lagi." />
-              ) : (
-                <Suspense fallback={<TableSkeleton />}>
-                  <CommonTable
-                    data={categories}
-                    columns={getCategoryColumns() as any}
-                    showPagination={true}
-                    currentPage={categoryPagination.currentPage}
-                    totalPages={categoryPagination.totalPages}
-                    onPageChange={handleCategoryPageChange}
-                    itemsPerPage={categoryPagination.itemsPerPage}
-                    totalItems={categoryPagination.totalItems}
-                    onItemsPerPageChange={handleItemsCategoryPerPageChange}
-                    className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
-                  />
-                </Suspense>
-              )}
-            </>
-          ) : (
-            <>
-              {!isTabLoaded("description") || isDataLoading ? (
-                <TabContentLoader />
-              ) : descriptions.length === 0 ? (
-                <NoData message="Belum ada data deskripsi yang tersedia. Silakan refresh halaman untuk mencoba lagi." />
-              ) : (
-                <Suspense fallback={<TableSkeleton />}>
-                  <CommonTable
-                    columns={getDescriptionColumns() as any}
-                    data={descriptions}
-                    showPagination={true}
-                    currentPage={descriptionPagination.currentPage}
-                    totalPages={descriptionPagination.totalPages}
-                    onPageChange={handleDescriptionPageChange}
-                    itemsPerPage={descriptionPagination.itemsPerPage}
-                    totalItems={descriptionPagination.totalItems}
-                    onItemsPerPageChange={handleItemsDescriptionPerPageChange}
-                    className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
-                  />
-                </Suspense>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Modal Add Category/Description */}
-      {showAddModal && (
-        <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-1050">
-          <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                {isEditing ? "Ubah" : "Tambah"}{" "}
-                {activeTab === "category" ? "Kategori" : "Deskripsi"}{" "}
-                {isEditing ? "" : "Baru"}
-              </h3>
+          {/* Tab Navigation */}
+          <ul className="flex border-b border-gray-200 dark:border-gray-900 mb-6">
+            <li className="w-full mr-2">
               <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  resetFormState();
-                }}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                onClick={() => handleTabChange("category")}
+                className={`shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
+                  ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+                  : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+                  }`}
               >
-                <FiX size={24} />
+                Kategori
               </button>
-            </div>
+            </li>
+            <li className="w-full">
+              <button
+                onClick={() => handleTabChange("description")}
+                className={`shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
+                  ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+                  : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+                  }`}
+              >
+                Deskripsi
+              </button>
+            </li>
+          </ul>
 
+          {/* Description Text */}
+          <div className="mb-6">
             {activeTab === "category" ? (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Nama Kategori
-                </label>
-                <input
-                  type="text"
-                  value={newCategoryName.categoryName}
-                  onChange={(e) => {
-                    const { id } = newCategoryName;
-                    setNewCategoryName({
-                      id: id,
-                      categoryName: e.target.value,
-                    });
-                  }}
-                  className="w-full bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Masukkan nama kategori"
-                />
+              <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded">
+                <h2 className="text-lg font-medium text-blue-700 dark:text-blue-400 mb-2">
+                  Manajemen Kategori
+                </h2>
+                <p className="text-blue-600/80 dark:text-blue-300/80">
+                  Halaman ini digunakan untuk mengelola kategori permasalahan yang dapat terjadi di gerbang.
+                  Setiap kategori akan menjadi pengelompokan utama untuk berbagai jenis permasalahan yang mungkin dihadapi.
+                </p>
               </div>
             ) : (
-              <>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Kategori
-                  </label>
-                  <CustomSelect
-                    options={categoryName}
-                    value={newDescription.category}
-                    onChange={(value) =>
-                      setNewDescription((prev) => ({
-                        ...prev,
-                        category: value,
-                      }))
-                    }
-                    isDisabled={isEditing}
-                    placeholder="Pilih kategori"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Deskripsi
-                  </label>
-                  <textarea
-                    value={newDescription.desc}
-                    onChange={(e) =>
-                      setNewDescription((prev) => ({
-                        ...prev,
-                        desc: e.target.value,
-                      }))
-                    }
-                    className="w-full min-h-[150px] bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Masukkan deskripsi"
-                  />
-                </div>
-              </>
+              <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
+                <h2 className="text-lg font-medium text-green-700 dark:text-green-400 mb-2">
+                  Manajemen Deskripsi Permasalahan
+                </h2>
+                <p className="text-green-600/80 dark:text-green-300/80">
+                  Halaman ini memungkinkan Anda mengelola deskripsi detail dari setiap permasalahan.
+                  Setiap deskripsi terhubung dengan kategori tertentu dan memberikan penjelasan spesifik tentang jenis masalah yang dapat terjadi.
+                </p>
+              </div>
             )}
+          </div>
 
-            <div className="flex justify-end space-x-3">
+          {/* Content Container */}
+          <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
+            {/* Add Button */}
+            <div className="flex justify-end mb-4">
               <button
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
-              >
-                Batal
-              </button>
-              <button
-                onClick={
-                  activeTab === "category"
-                    ? handleAddCategory
-                    : handleAddDescription
-                }
+                onClick={() => setShowAddModal(true)}
                 className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
               >
-                Simpan
+                + Tambah {activeTab === "category" ? "Kategori" : "Deskripsi"}
               </button>
+            </div>
+
+            {/* Tables with Lazy Loading */}
+            <div className="overflow-x-auto">
+              {activeTab === "category" ? (
+                <>
+                  {!isTabLoaded("category") || isDataLoading ? (
+                    <TabContentLoader />
+                  ) : categories.length === 0 ? (
+                    <NoData message="Belum ada data kategori yang tersedia. Silakan refresh halaman untuk mencoba lagi." />
+                  ) : (
+                    <Suspense fallback={<TableSkeleton />}>
+                      <CommonTable
+                        data={categories}
+                        columns={getCategoryColumns() as any}
+                        showPagination={true}
+                        currentPage={categoryPagination.currentPage}
+                        totalPages={categoryPagination.totalPages}
+                        onPageChange={handleCategoryPageChange}
+                        itemsPerPage={categoryPagination.itemsPerPage}
+                        totalItems={categoryPagination.totalItems}
+                        onItemsPerPageChange={handleItemsCategoryPerPageChange}
+                        className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                      />
+                    </Suspense>
+                  )}
+                </>
+              ) : (
+                <>
+                  {!isTabLoaded("description") || isDataLoading ? (
+                    <TabContentLoader />
+                  ) : descriptions.length === 0 ? (
+                    <NoData message="Belum ada data deskripsi yang tersedia. Silakan refresh halaman untuk mencoba lagi." />
+                  ) : (
+                    <Suspense fallback={<TableSkeleton />}>
+                      <CommonTable
+                        columns={getDescriptionColumns() as any}
+                        data={descriptions}
+                        showPagination={true}
+                        currentPage={descriptionPagination.currentPage}
+                        totalPages={descriptionPagination.totalPages}
+                        onPageChange={handleDescriptionPageChange}
+                        itemsPerPage={descriptionPagination.itemsPerPage}
+                        totalItems={descriptionPagination.totalItems}
+                        onItemsPerPageChange={handleItemsDescriptionPerPageChange}
+                        className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                      />
+                    </Suspense>
+                  )}
+                </>
+              )}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Modal Delete Category/Description */}
-      {isConfirmationOpen && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center">
-          <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                Hapus {activeTab === "category" ? "Kategori" : "Deskripsi"}
-              </h3>
-              <button
-                onClick={() => setIsConfirmationOpen(false)}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
-              >
-                <FiX size={24} />
-              </button>
+          {/* Modal Add Category/Description */}
+          {showAddModal && (
+            <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-1050">
+              <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    {isEditing ? "Ubah" : "Tambah"}{" "}
+                    {activeTab === "category" ? "Kategori" : "Deskripsi"}{" "}
+                    {isEditing ? "" : "Baru"}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowAddModal(false);
+                      resetFormState();
+                    }}
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                  >
+                    <FiX size={24} />
+                  </button>
+                </div>
+
+                {activeTab === "category" ? (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Nama Kategori
+                    </label>
+                    <input
+                      type="text"
+                      value={newCategoryName.categoryName}
+                      onChange={(e) => {
+                        const { id } = newCategoryName;
+                        setNewCategoryName({
+                          id: id,
+                          categoryName: e.target.value,
+                        });
+                      }}
+                      className="w-full bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Masukkan nama kategori"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Kategori
+                      </label>
+                      <CustomSelect
+                        options={categoryName}
+                        value={newDescription.category}
+                        onChange={(value) =>
+                          setNewDescription((prev) => ({
+                            ...prev,
+                            category: value,
+                          }))
+                        }
+                        isDisabled={isEditing}
+                        placeholder="Pilih kategori"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Deskripsi
+                      </label>
+                      <textarea
+                        value={newDescription.desc}
+                        onChange={(e) =>
+                          setNewDescription((prev) => ({
+                            ...prev,
+                            desc: e.target.value,
+                          }))
+                        }
+                        className="w-full min-h-[150px] bg-gray-50 dark:bg-[#2A3441] text-gray-900 dark:text-white px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Masukkan deskripsi"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowAddModal(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={
+                      activeTab === "category"
+                        ? handleAddCategory
+                        : handleAddDescription
+                    }
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </div>
             </div>
+          )}
 
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              Apakah Anda yakin ingin menghapus{" "}
-              {activeTab === "category" ? "kategori" : "deskripsi"} ini?
-            </p>
+          {/* Modal Delete Category/Description */}
+          {isConfirmationOpen && (
+            <div className="fixed inset-0 backdrop-blur-sm bg-opacity-500 flex items-center justify-center">
+              <div className="bg-white dark:bg-[#222B36] rounded-lg p-6 w-96 shadow-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    Hapus {activeTab === "category" ? "Kategori" : "Deskripsi"}
+                  </h3>
+                  <button
+                    onClick={() => setIsConfirmationOpen(false)}
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                  >
+                    <FiX size={24} />
+                  </button>
+                </div>
 
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setIsConfirmationOpen(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
-              >
-                Batal
-              </button>
-              <button
-                onClick={() => {
-                  if (activeTab === "category" && deleteId) {
-                    actionDeleteCategory(deleteId);
-                  } else if (activeTab === "description" && deleteId) {
-                    actionDeleteDescription(deleteId);
-                  }
-                }}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
-              >
-                Hapus
-              </button>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  Apakah Anda yakin ingin menghapus{" "}
+                  {activeTab === "category" ? "kategori" : "deskripsi"} ini?
+                </p>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => setIsConfirmationOpen(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (activeTab === "category" && deleteId) {
+                        actionDeleteCategory(deleteId);
+                      } else if (activeTab === "description" && deleteId) {
+                        actionDeleteDescription(deleteId);
+                      }
+                    }}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 }

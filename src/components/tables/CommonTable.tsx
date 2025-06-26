@@ -112,7 +112,7 @@ export default function CommonTable<T>({
     };
 
     return (
-      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-md">
         {/* Mobile Layout */}
         <div className="sm:hidden">
           {/* Results Info - Mobile */}

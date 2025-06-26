@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from 'lucide-react';
 
 interface GateData {
     humanError: number;
@@ -90,22 +90,22 @@ const CallByGateTable: React.FC = () => {
         }
 
         // Add totals
-        locations.push({
-            location: 'TOTAL',
-            region: 'all',
-            data: {
-                car: {
-                    humanError: Math.floor(Math.random() * 500),
-                    customerBehaviour: Math.floor(Math.random() * 200),
-                    assetSystem: Math.floor(Math.random() * 150)
-                },
-                bike: {
-                    humanError: Math.floor(Math.random() * 300),
-                    customerBehaviour: Math.floor(Math.random() * 100),
-                    assetSystem: Math.floor(Math.random() * 100)
-                }
-            }
-        });
+        // locations.push({
+        //     location: 'TOTAL',
+        //     region: 'all',
+        //     data: {
+        //         car: {
+        //             humanError: Math.floor(Math.random() * 500),
+        //             customerBehaviour: Math.floor(Math.random() * 200),
+        //             assetSystem: Math.floor(Math.random() * 150)
+        //         },
+        //         bike: {
+        //             humanError: Math.floor(Math.random() * 300),
+        //             customerBehaviour: Math.floor(Math.random() * 100),
+        //             assetSystem: Math.floor(Math.random() * 100)
+        //         }
+        //     }
+        // });
 
         return locations;
     };
@@ -356,9 +356,9 @@ const CallByGateTable: React.FC = () => {
                                     <td className={`sticky left-0 z-10 border border-gray-400 dark:border-gray-600 bg-gray-700 dark:bg-gray-800 text-white p-2 font-medium`}>
                                         <div className="flex flex-col">
                                             <span className="font-bold text-sm">{location.location}</span>
-                                            {location.region !== 'all' && (
+                                            {/* {location.region !== 'all' && (
                                                 <span className="text-xs text-gray-300 capitalize">{location.region}</span>
-                                            )}
+                                            )} */}
                                         </div>
                                     </td>
 
@@ -408,7 +408,7 @@ const CallByGateTable: React.FC = () => {
                             disabled={currentPage === 1}
                             className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
-                            &laquo;
+                            <ChevronsLeft className="w-4 h-4" />
                         </button>
 
                         {/* Previous Page Button */}
@@ -417,7 +417,7 @@ const CallByGateTable: React.FC = () => {
                             disabled={currentPage === 1}
                             className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
-                            &lsaquo;
+                            <ChevronLeft className="w-4 h-4" />
                         </button>
 
                         {/* Page Numbers */}
@@ -478,7 +478,7 @@ const CallByGateTable: React.FC = () => {
                             disabled={currentPage === totalPages}
                             className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
-                            &rsaquo;
+                            <ChevronRight className="w-4 h-4" />
                         </button>
 
                         {/* Last Page Button */}
@@ -487,7 +487,7 @@ const CallByGateTable: React.FC = () => {
                             disabled={currentPage === totalPages}
                             className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
-                            &raquo;
+                            <ChevronsRight className="w-4 h-4" />
                         </button>
                     </div>
                 )}

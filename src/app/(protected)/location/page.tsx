@@ -278,81 +278,28 @@ export default function LocationPage() {
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=yes"
         />
-      </Head>
-
-      <div className="flex flex-col w-full">
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 overflow-hidden">
-            <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
-                <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
-                <div className="flex space-x-3">
-                  {/* Button untuk aktivasi lokasi */}
-                  <button
-                    onClick={handleOpenActivateLocationModal}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                  >
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+      </Head> */}
+      <div className="w-full max-w-8xl mx-auto px-2 sm:px-4 py-6">
+        <div className="flex flex-col w-full">
+          <div className="flex-1 flex flex-col">
+            <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
+              <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+                  <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
+                  <div className="flex space-x-3">
+                    {/* Button untuk aktivasi lokasi */}
+                    <button
+                      onClick={handleOpenActivateLocationModal}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                    Aktifkan Lokasi
-                  </button>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-4 rounded">
-                  <h2 className="text-lg font-medium text-indigo-700 dark:text-indigo-400 mb-2">
-                    Manajemen Lokasi
-                  </h2>
-                  <p className="text-indigo-600/80 dark:text-indigo-300/80">
-                    Halaman ini digunakan untuk mengelola informasi lokasi gerbang
-                    parkir yang tersedia. Setiap lokasi mencakup detail seperti nama
-                    lokasi, alamat, dan informasi terkait lainnya. Anda dapat
-                    melihat detail lengkap setiap lokasi dengan mengklik tombol
-                    lihat detail pada tabel. Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk
-                    mengaktifkan lokasi yang belum aktif.
-                  </p>
-                </div>
-              </div>
-
-              {/* Table Section with Lazy Loading */}
-              {isInitialLoad ? (
-                <TableSkeleton />
-              ) : (
-                <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
-                  {isDataLoading ? (
-                    <div className="text-center py-4 p-6">
-                      <div className="three-body">
-                        <div className="three-body__dot"></div>
-                        <div className="three-body__dot"></div>
-                        <div className="three-body__dot"></div>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300 blink-smooth">
-                        Memuat data location...
-                      </p>
-                    </div>
-                  ) : locations.length === 0 ? (
-                    <div className="text-center py-8 p-6">
                       <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
+                        className="w-4 h-4 mr-2"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -361,39 +308,92 @@ export default function LocationPage() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                         />
                       </svg>
-                      <p className="mt-2 text-sm text-gray-500">
-                        Tidak ada lokasi ditemukan
-                      </p>
-                      <p className="mt-2 text-xs text-gray-400">
-                        Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan lokasi baru
-                      </p>
-                    </div>
-                  ) : (
-                    <Suspense fallback={<TableSkeleton />}>
-                      <CommonTable
-                        data={locations}
-                        columns={columns as any}
-                        showPagination={true}
-                        currentPage={locationPagination.currentPage}
-                        totalPages={locationPagination.totalPages}
-                        onPageChange={handleLocationPageChange}
-                        itemsPerPage={locationPagination.itemsPerPage}
-                        totalItems={locationPagination.totalItems}
-                        onItemsPerPageChange={handleItemsPerPageChange}
-                      />
-                    </Suspense>
-                  )}
+                      Aktifkan Lokasi
+                    </button>
+                  </div>
                 </div>
-              )}
-            </div>
-          </main>
-        </div>
 
-        {/* Lazy Loaded Modals */}
-        {/* {isDeleteModalOpen && (
+                {/* Description */}
+                <div className="mb-6">
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-4 rounded">
+                    <h2 className="text-lg font-medium text-indigo-700 dark:text-indigo-400 mb-2">
+                      Manajemen Lokasi
+                    </h2>
+                    <p className="text-indigo-600/80 dark:text-indigo-300/80">
+                      Halaman ini digunakan untuk mengelola informasi lokasi gerbang
+                      parkir yang tersedia. Setiap lokasi mencakup detail seperti nama
+                      lokasi, alamat, dan informasi terkait lainnya. Anda dapat
+                      melihat detail lengkap setiap lokasi dengan mengklik tombol
+                      lihat detail pada tabel. Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk
+                      mengaktifkan lokasi yang belum aktif.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Table Section with Lazy Loading */}
+                {isInitialLoad ? (
+                  <TableSkeleton />
+                ) : (
+                  <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full">
+                    {isDataLoading ? (
+                      <div className="text-center py-4 p-6">
+                        <div className="three-body">
+                          <div className="three-body__dot"></div>
+                          <div className="three-body__dot"></div>
+                          <div className="three-body__dot"></div>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                          Memuat data location...
+                        </p>
+                      </div>
+                    ) : locations.length === 0 ? (
+                      <div className="text-center py-8 p-6">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8V4a1 1 0 00-1-1H7a1 1 0 00-1 1v1m8 0V4.5M9 5v-.5"
+                          />
+                        </svg>
+                        <p className="mt-2 text-sm text-gray-500">
+                          Tidak ada lokasi ditemukan
+                        </p>
+                        <p className="mt-2 text-xs text-gray-400">
+                          Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan lokasi baru
+                        </p>
+                      </div>
+                    ) : (
+                      <Suspense fallback={<TableSkeleton />}>
+                        <CommonTable
+                          data={locations}
+                          columns={columns as any}
+                          showPagination={true}
+                          currentPage={locationPagination.currentPage}
+                          totalPages={locationPagination.totalPages}
+                          onPageChange={handleLocationPageChange}
+                          itemsPerPage={locationPagination.itemsPerPage}
+                          totalItems={locationPagination.totalItems}
+                          onItemsPerPageChange={handleItemsPerPageChange}
+                        />
+                      </Suspense>
+                    )}
+                  </div>
+                )}
+              </div>
+            </main>
+          </div>
+
+          {/* Lazy Loaded Modals */}
+          {/* {isDeleteModalOpen && (
           <Suspense fallback={<ModalSkeleton />}>
             <ConfirmationModal
               isOpen={isDeleteModalOpen}
@@ -408,7 +408,7 @@ export default function LocationPage() {
           </Suspense>
         )} */}
 
-        {/* {isEditModalOpen && (
+          {/* {isEditModalOpen && (
           <Suspense fallback={<ModalSkeleton />}>
             <ConfirmationModal
               isOpen={isEditModalOpen}
@@ -423,45 +423,46 @@ export default function LocationPage() {
           </Suspense>
         )} */}
 
-        {isConfirmationModalOpen && (
-          <Suspense fallback={<ModalSkeleton />}>
-            <ConfirmationModal
-              isOpen={isConfirmationModalOpen}
-              onClose={() => setIsConfirmationModalOpen(false)}
-              onConfirm={handleConfirmAdd}
-              title="Tambah Lokasi"
-              message="Apakah Anda yakin ingin menambah lokasi baru?"
-              confirmText="Tambah"
-              cancelText="Batal"
-              type="edit"
-            />
-          </Suspense>
-        )}
+          {isConfirmationModalOpen && (
+            <Suspense fallback={<ModalSkeleton />}>
+              <ConfirmationModal
+                isOpen={isConfirmationModalOpen}
+                onClose={() => setIsConfirmationModalOpen(false)}
+                onConfirm={handleConfirmAdd}
+                title="Tambah Lokasi"
+                message="Apakah Anda yakin ingin menambah lokasi baru?"
+                confirmText="Tambah"
+                cancelText="Batal"
+                type="edit"
+              />
+            </Suspense>
+          )}
 
-        {isAddModalOpen && (
-          <Suspense fallback={<ModalSkeleton />}>
-            <DynamicInputModal
-              isOpen={isAddModalOpen}
-              onClose={() => setIsAddModalOpen(false)}
-              onSubmit={handleSubmit}
-              title="Form Input"
-              fields={fields}
-              confirmText="Simpan"
-              cancelText="Batal"
-            />
-          </Suspense>
-        )}
+          {isAddModalOpen && (
+            <Suspense fallback={<ModalSkeleton />}>
+              <DynamicInputModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onSubmit={handleSubmit}
+                title="Form Input"
+                fields={fields}
+                confirmText="Simpan"
+                cancelText="Batal"
+              />
+            </Suspense>
+          )}
 
-        {/* Modal Aktivasi Lokasi */}
-        {isActivateLocationModalOpen && (
-          <Suspense fallback={<ModalSkeleton />}>
-            <ActivateLocationModal
-              isOpen={isActivateLocationModalOpen}
-              onClose={() => setIsActivateLocationModalOpen(false)}
-              onSuccess={handleActivateLocationSuccess}
-            />
-          </Suspense>
-        )}
+          {/* Modal Aktivasi Lokasi */}
+          {isActivateLocationModalOpen && (
+            <Suspense fallback={<ModalSkeleton />}>
+              <ActivateLocationModal
+                isOpen={isActivateLocationModalOpen}
+                onClose={() => setIsActivateLocationModalOpen(false)}
+                onSuccess={handleActivateLocationSuccess}
+              />
+            </Suspense>
+          )}
+        </div>
       </div>
     </>
   );

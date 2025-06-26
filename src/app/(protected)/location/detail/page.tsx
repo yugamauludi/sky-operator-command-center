@@ -6,6 +6,7 @@ import CommonTable, { Column } from "@/components/tables/CommonTable";
 import {
   fetchGateByLocation,
   GateByLocation,
+  createGate,
 } from "@/hooks/useLocation";
 import { toast } from "react-toastify";
 import { changeStatusGate } from "@/hooks/useIOT";
@@ -48,6 +49,11 @@ function LocationDetailContent() {
   const [ledArrowStatus, setLedArrowStatus] = useState<Record<number, boolean>>({});
   const [showLedArrowModal, setShowLedArrowModal] = useState(false);
   const [selectedLedGate, setSelectedLedGate] = useState<GateByLocation | null>(null);
+
+  // Add Gate Modal state
+  const [showAddGateModal, setShowAddGateModal] = useState(false);
+  const [gateName, setGateName] = useState("");
+  const [isAddingGate, setIsAddingGate] = useState(false);
 
   const handleLedArrowClick = (gate: GateByLocation) => {
     setSelectedLedGate(gate);
@@ -138,6 +144,55 @@ function LocationDetailContent() {
     if (!isActionLoading) {
       setShowConfirmModal(false);
       setSelectedGate(null);
+    }
+  };
+
+  // Add Gate handlers
+  const handleAddGateClick = () => {
+    setShowAddGateModal(true);
+    setGateName("");
+  };
+
+  const handleAddGateConfirm = async () => {
+    if (!gateName.trim()) {
+      toast.error("Nama gate tidak boleh kosong");
+      return;
+    }
+
+    if (!locationId) {
+      toast.error("ID lokasi tidak ditemukan");
+      return;
+    }
+
+    try {
+      setIsAddingGate(true);
+
+      const gateData = {
+        id: parseInt(locationId),
+        name: gateName.trim()
+      };
+
+      await createGate(gateData);
+      toast.success("Gate berhasil ditambahkan");
+
+      // Refresh data after adding new gate
+      await fetchGatesData();
+
+      // Close modal and reset form
+      setShowAddGateModal(false);
+      setGateName("");
+    } catch (error) {
+      console.error("Error adding gate:", error);
+      toast.error(error instanceof Error ? error.message : "Gagal menambahkan gate");
+    } finally {
+      setIsAddingGate(false);
+    }
+  };
+
+  const handleAddGateCancel = () => {
+    if (!isAddingGate) {
+      setShowAddGateModal(false);
+      setGateName("");
     }
   };
 
@@ -236,8 +291,6 @@ function LocationDetailContent() {
     );
   };
 
-
-
   const columns: Column<GateByLocation>[] = [
     {
       header: "No",
@@ -308,9 +361,9 @@ function LocationDetailContent() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="w-full max-w-8xl mx-auto px-2 sm:px-4 py-6">
         <div className="w-full">
-          <main className="w-full">
+          <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
             <div className="w-full px-4 sm:px-6 py-4 sm:py-8 max-w-none">
               {/* Header Section - Improved for mobile */}
               <div className="flex items-start mb-4 sm:mb-6">
@@ -370,6 +423,31 @@ function LocationDetailContent() {
                 </div>
               </div>
 
+              {/* Add Gate Button Section */}
+              <div className="mb-4 sm:mb-6 flex justify-end">
+                <button
+                  onClick={handleAddGateClick}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+                  disabled={isDataLoading}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span>Tambah Gate Baru</span>
+                </button>
+              </div>
+
+
               {/* Content Section */}
               <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg overflow-x-auto">
                 {isDataLoading ? (
@@ -406,7 +484,7 @@ function LocationDetailContent() {
         </div>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal for Gate Actions */}
       <ConfirmationModal
         isOpen={showConfirmModal}
         onClose={handleCancelAction}
@@ -419,6 +497,7 @@ function LocationDetailContent() {
         type={actionType}
       />
 
+      {/* LED Arrow Modal */}
       {showLedArrowModal && selectedLedGate && (
         <ConfirmationModal
           isOpen={showLedArrowModal}
@@ -436,6 +515,61 @@ function LocationDetailContent() {
           isLoading={false}
           type={arrowType}
         />
+      )}
+
+      {/* Add Gate Modal */}
+      {showAddGateModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/20 dark:bg-black/20 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Tambah Gate Baru
+              </h3>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="gateName"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Nama Gate
+                </label>
+                <input
+                  type="text"
+                  id="gateName"
+                  value={gateName}
+                  onChange={(e) => setGateName(e.target.value)}
+                  placeholder="Masukkan nama gate..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  disabled={isAddingGate}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={handleAddGateCancel}
+                  disabled={isAddingGate}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleAddGateConfirm}
+                  disabled={isAddingGate || !gateName.trim()}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isAddingGate ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Menambahkan...</span>
+                    </>
+                  ) : (
+                    <span>Tambah Gate</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

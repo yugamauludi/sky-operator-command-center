@@ -96,7 +96,7 @@ export default function Dashboard() {
 
   const categoryComplaintOptions: ApexOptions = {
     chart: {
-      type: "pie" as ApexChart["type"],
+      type: "pie",
       background: "transparent",
       foreColor: "inherit",
       events: {
@@ -107,25 +107,66 @@ export default function Dashboard() {
     colors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"],
     title: {
       text: "Komplain per Kategori",
+      align: 'center',
       style: {
         color: "currentColor",
+        fontSize: '16px',
+        fontWeight: '600',
       },
     },
     legend: {
+      position: 'bottom',
+      horizontalAlign: 'center',
       labels: {
         colors: "currentColor",
+        useSeriesColors: false,
       },
+      itemMargin: {
+        horizontal: 5,
+        vertical: 5
+      },
+      formatter: function (seriesName, opts) {
+        return seriesName + ": " + opts.w.globals.series[opts.seriesIndex];
+      }
     },
     dataLabels: {
+      enabled: true,
       style: {
         colors: ["#ffffff"],
+        fontSize: '12px',
+        fontWeight: 'bold',
       },
+      dropShadow: {
+        enabled: false
+      },
+      formatter: function (val: any) {
+        return val.toFixed(1) + '%';
+      },
+      textAnchor: 'middle'
     },
     plotOptions: {
       pie: {
-        // cursor: 'pointer' // Removed because not supported by ApexCharts
+        customScale: 0.9,
+        dataLabels: {
+          minAngleToShowLabel: 5,
+        }
       }
-    }
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          height: 300
+        },
+        legend: {
+          position: 'bottom',
+          fontSize: '10px'
+        },
+        dataLabels: {
+          enabled: false
+        }
+      }
+    }]
   };
 
   const monthlyComplaintOptions: ApexOptions = {
@@ -301,8 +342,7 @@ export default function Dashboard() {
         </div>
 
         {/* Status Summary */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-3 md:gap-6 mb-3 md:mb-6">
-          {/* Need Help Card - Better mobile scaling */}
+        {/* <div className="grid grid-cols-1 xl:grid-cols-4 gap-3 md:gap-6 mb-3 md:mb-6">
           <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6 border-l-4 border-red-500">
             <div className="flex items-center justify-between">
               <div>
@@ -313,15 +353,11 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Request List - Improved scrolling for mobile */}
           <div className="xl:col-span-3 bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4 lg:p-6">
             <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-6">Daftar Permintaan Bantuan</h2>
 
-            {/* Make columns stack better on mobile */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 max-h-[600px] overflow-y-auto">
-              {/* Column headers with better mobile spacing */}
               <div className="space-y-3 md:space-y-4">
-                {/* Open Status Column */}
                 <div className="flex flex-row items-center gap-2 mb-4">
                   <span className="flex items-center">
                     <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
@@ -359,7 +395,6 @@ export default function Dashboard() {
                   ))}
               </div>
 
-              {/* In Progress Column */}
               <div className="space-y-4">
                 <div className="flex flex-row items-center gap-2 mb-4">
                   <span className="flex items-center">
@@ -398,7 +433,6 @@ export default function Dashboard() {
                   ))}
               </div>
 
-              {/* Resolved Column */}
               <div className="space-y-4">
                 <div className="flex flex-row items-center gap-2 mb-4">
                   <span className="flex items-center">
@@ -430,7 +464,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Charts and Summary */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-6 mb-3 md:mb-6">
@@ -482,33 +516,22 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="space-y-3 md:space-y-6">
-            <div className="bg-white dark:bg-[#222B36] p-3 md:p-4 rounded-lg">
-              <div className="w-full h-[200px] md:h-[250px]">
-                <ReactApexChart
-                  options={{
-                    ...categoryComplaintOptions,
-                    chart: {
-                      ...categoryComplaintOptions.chart,
-                      background: "transparent",
-                    },
-                    responsive: [{
-                      breakpoint: 480,
-                      options: {
-                        legend: { position: "bottom" },
-                        chart: { height: 200 }
-                      }
-                    }]
-                  }}
-                  series={categoryComplaintSeries}
-                  type="pie"
-                  height="100%"
-                  width="100%"
-                />
+          <div className="bg-white dark:bg-[#222B36] p-3 md:p-4 rounded-lg">
+            <div className="w-full h-[200px] md:h-[250px]">
+              <div className="bg-white dark:bg-[#222B36] p-3 md:p-4 rounded-lg h-full flex flex-col">
+                <div className="flex-grow min-h-[250px] md:min-h-[300px] w-full">
+                  <ReactApexChart
+                    options={categoryComplaintOptions}
+                    series={categoryComplaintSeries}
+                    type="pie"
+                    height="100%"
+                    width="100%"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4">
+            {/* <div className="bg-white dark:bg-[#222B36] rounded-lg p-3 md:p-4">
               <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Informasi Admin</h3>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                 <h4 className="text-base md:text-lg font-medium">{activeAdmins.name}</h4>
@@ -526,7 +549,7 @@ export default function Dashboard() {
                 <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-1">Nomor Agent</p>
                 <p className="text-base md:text-lg font-medium">{activeAdmins.agentNumber}</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
