@@ -48,12 +48,12 @@ const tableOptions = [
 
 export default function Dashboard() {
   const { connectionStatus, userNumber } = useGlobalSocket();
-  const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
-  const [totalOpen] = useState(0);
-  const [totalInProgress] = useState(0);
-  const [totalResolved] = useState(0);
-  const [filterStatus] = useState<"all" | "open" | "in_progress" | "resolved">("all");
-  const [searchQuery] = useState("");
+  // const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
+  // const [totalOpen] = useState(0);
+  // const [totalInProgress] = useState(0);
+  // const [totalResolved] = useState(0);
+  // const [filterStatus] = useState<"all" | "open" | "in_progress" | "resolved">("all");
+  // const [searchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [activeTable, setActiveTable] = useState<TableType>("call-quantity");
@@ -69,24 +69,24 @@ export default function Dashboard() {
     }
   }, [searchParams]);
 
-  const updateRequestStatus = (
-    requestId: string,
-    newStatus: HelpRequest["status"]
-  ) => {
-    setHelpRequests((prev) =>
-      prev.map((request) =>
-        request.id === requestId ? { ...request, status: newStatus } : request
-      )
-    );
-  };
+  // const updateRequestStatus = (
+  //   requestId: string,
+  //   newStatus: HelpRequest["status"]
+  // ) => {
+  //   setHelpRequests((prev) =>
+  //     prev.map((request) =>
+  //       request.id === requestId ? { ...request, status: newStatus } : request
+  //     )
+  //   );
+  // };
 
-  const filteredRequests = helpRequests.filter((request) => {
-    const matchesStatus = filterStatus === "all" || request.status === filterStatus;
-    const matchesSearch = request.gateId
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  // const filteredRequests = helpRequests.filter((request) => {
+  //   const matchesStatus = filterStatus === "all" || request.status === filterStatus;
+  //   const matchesSearch = request.gateId
+  //     .toLowerCase()
+  //     .includes(searchQuery.toLowerCase());
+  //   return matchesStatus && matchesSearch;
+  // });
 
   const handlePieChartClick = (event: any, chartContext: any, config: any) => {
     const category = categoryComplaintOptions.labels?.[config.dataPointIndex] as string;

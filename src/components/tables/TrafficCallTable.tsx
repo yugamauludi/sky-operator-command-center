@@ -46,11 +46,10 @@ interface LocationData {
     };
 }
 
-const MONTH_KEYS = [
-    'jan', 'feb', 'mar', 'apr', 'mei', 'juni',
-    'juli', 'agu', 'sept', 'okt', 'nov', 'des', 'total'
-] as const;
-type MonthKey = typeof MONTH_KEYS[number];
+type MonthKey =
+    | 'jan' | 'feb' | 'mar' | 'apr' | 'mei' | 'juni'
+    | 'juli' | 'agu' | 'sept' | 'okt' | 'nov' | 'des' | 'total';
+// type MonthKey = typeof MONTH_KEYS[number];
 
 const TrafficCallTable: React.FC = () => {
     const [selectedPeriod, setSelectedPeriod] = useState<string>('semester1');
