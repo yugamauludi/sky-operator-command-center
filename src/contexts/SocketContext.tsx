@@ -195,7 +195,6 @@ export function GlobalCallPopup() {
     photoOut: false,
     photoCapture: false,
   });
-  const tryDate = "Thu Jun 26 2025 13:35:25 GMT+0700"
   // console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
 
 
