@@ -3,7 +3,6 @@
 
 import { useEffect, useState, lazy, Suspense, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Head from "next/head";
 import { toast } from "react-toastify";
 
 // Lazy load heavy components

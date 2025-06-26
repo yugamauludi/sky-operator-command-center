@@ -23,13 +23,13 @@ const CallByGateTable = lazy(() => import("@/components/tables/CallByGateTable")
 const CallByIncidentTable = lazy(() => import("@/components/tables/CallByIncidentTable"));
 const TrafficCallTable = lazy(() => import("@/components/tables/TrafficCallTable"));
 
-interface HelpRequest {
-  id: string;
-  gateId: string;
-  type: "help" | "idle";
-  status: "open" | "in_progress" | "resolved";
-  createdAt: string;
-}
+// interface HelpRequest {
+//   id: string;
+//   gateId: string;
+//   type: "help" | "idle";
+//   status: "open" | "in_progress" | "resolved";
+//   createdAt: string;
+// }
 
 interface MonthlyComplaintData {
   month: string;
@@ -287,12 +287,12 @@ export default function Dashboard() {
     },
   ];
 
-  const [activeAdmins] = useState<any>({
-    id: "1",
-    name: "John Doe",
-    agentNumber: "AGT001",
-    status: "active",
-  });
+  // const [activeAdmins] = useState<any>({
+  //   id: "1",
+  //   name: "John Doe",
+  //   agentNumber: "AGT001",
+  //   status: "active",
+  // });
 
   const categoryComplaintSeries = [30, 25, 20, 15];
 
