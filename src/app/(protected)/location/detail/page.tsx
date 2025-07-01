@@ -255,8 +255,8 @@ function LocationDetailContent() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="hidden sm:inline">Close</span>
-                <span className="sm:hidden">X</span>
+                <span className="sm:inline">Close</span>
+                {/* <span className="sm:hidden">X</span> */}
               </>
             ) : (
               <>
@@ -271,8 +271,8 @@ function LocationDetailContent() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="hidden sm:inline">Open</span>
-                <span className="sm:hidden">▶</span>
+                <span className="sm:inline">Open</span>
+                {/* <span className="sm:hidden">▶</span> */}
               </>
             )}
           </>

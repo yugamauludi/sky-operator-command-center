@@ -53,6 +53,40 @@ export default function Sidebar() {
     window.location.href = "/login";
   };
 
+  // Perbaikan logika isActive dengan debugging
+  const isActive = (href: string) => {
+    console.log(`Checking isActive for href: ${href}, pathname: ${pathname}`);
+
+    // Untuk homepage, hanya aktif jika pathname persis "/"
+    if (href === "/") {
+      const result = pathname === "/";
+      console.log(`Dashboard active: ${result}`);
+      return result;
+    }
+
+    // Untuk route lainnya, gunakan startsWith tapi pastikan tidak konflik dengan "/"
+    const result = pathname.startsWith(href) && pathname !== "/";
+    console.log(`${href} active: ${result}`);
+    return result;
+  };
+
+  // Alternative: Logika isActive yang lebih strict
+  const isActiveStrict = (href: string) => {
+    if (href === "/") {
+      // Dashboard hanya aktif jika benar-benar di root
+      return pathname === "/";
+    }
+
+    // Untuk route lainnya, cek apakah pathname dimulai dengan href
+    // dan pastikan karakter setelah href adalah "/" atau akhir string
+    if (pathname.startsWith(href)) {
+      const nextChar = pathname[href.length];
+      return nextChar === "/" || nextChar === undefined;
+    }
+
+    return false;
+  };
+
   return (
     <>
       {/* Mobile overlay when sidebar is open */}
@@ -89,7 +123,7 @@ export default function Sidebar() {
               </h1>
             </div>
 
-            {/* Toggle Button - dengan posisi yang lebih baik dan tampilan yang lebih proporsional */}
+            {/* Toggle Button */}
             <button
               onClick={toggleSidebar}
               className={`
@@ -120,52 +154,49 @@ export default function Sidebar() {
 
           {/* Navigation */}
           <nav className="flex-1 px-3">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
-                  flex items-center px-3 py-3 mb-2 rounded-lg text-gray-600 dark:text-gray-300
-                  hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200
-                  hover:scale-[1.02] active:scale-[0.98]
-                  ${item.href === "/"
-                    ? pathname === "/"
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : ""
-                    : pathname.startsWith(item.href)
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : ""
-                  }
-                  ${!isOpen ? "justify-center" : ""}
-                `}
-                title={!isOpen ? item.label : ""}
-                onClick={() => {
-                  // Auto close sidebar on mobile when clicking menu item (only if expanded)
-                  if (isMobile && isOpen) {
-                    setIsOpen(false);
-                  }
-                }}
-              >
-                <span
-                  className={`text-lg flex-shrink-0 transition-all duration-200 ${!isOpen ? "text-xl" : ""
-                    }`}
-                >
-                  {item.icon}
-                </span>
+            {menuItems.map((item) => {
+              const itemIsActive = isActiveStrict(item.href); // Gunakan logika yang lebih strict
 
-                {/* Label dengan animasi slide */}
-                <div
-                  className={`transition-all duration-300 overflow-hidden ${isOpen
-                    ? "opacity-100 max-w-full ml-3"
-                    : "opacity-0 max-w-0 ml-0"
-                    }`}
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`
+                    flex items-center px-3 py-3 mb-2 rounded-lg text-gray-600 dark:text-gray-300
+                    hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200
+                    hover:scale-[1.02] active:scale-[0.98]
+                    ${itemIsActive ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm" : ""}
+                    ${!isOpen ? "justify-center" : ""}
+                  `}
+                  title={!isOpen ? item.label : ""}
+                  onClick={() => {
+                    // Auto close sidebar on mobile when clicking menu item (only if expanded)
+                    if (isMobile && isOpen) {
+                      setIsOpen(false);
+                    }
+                  }}
                 >
-                  <span className="font-medium whitespace-nowrap">
-                    {item.label}
+                  <span
+                    className={`text-lg flex-shrink-0 transition-all duration-200 ${!isOpen ? "text-xl" : ""
+                      }`}
+                  >
+                    {item.icon}
                   </span>
-                </div>
-              </Link>
-            ))}
+
+                  {/* Label dengan animasi slide */}
+                  <div
+                    className={`transition-all duration-300 overflow-hidden ${isOpen
+                      ? "opacity-100 max-w-full ml-3"
+                      : "opacity-0 max-w-0 ml-0"
+                      }`}
+                  >
+                    <span className="font-medium whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Collapsed state indicator */}
@@ -188,7 +219,7 @@ export default function Sidebar() {
               ${!isOpen ? "justify-center" : ""}
             `}
             >
-              <span className="text-lg flex-shrink-0">{/* Icon Logout */}🚪</span>
+              <span className="text-lg flex-shrink-0">🚪</span>
               <span
                 className={`transition-all duration-300 overflow-hidden ${isOpen ? "opacity-100 max-w-full ml-3" : "opacity-0 max-w-0 ml-0"
                   }`}
@@ -199,7 +230,7 @@ export default function Sidebar() {
           </div>
 
           {/* Footer space */}
-          <div className="p-4">{/* Space for footer content if needed */}</div>
+          <div className="p-4"></div>
         </div>
       </div>
 
@@ -219,36 +250,37 @@ export default function Sidebar() {
 
           {/* Mobile navigation icons only */}
           <nav className="flex-1 px-2">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
-                  flex items-center justify-center px-2 py-3 mb-2 rounded-lg text-gray-600 dark:text-gray-300
-                  hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200
-                  hover:scale-[1.02] active:scale-[0.98]
-                  ${pathname.startsWith(item.href)
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : ""
-                  }
-                `}
-                title={item.label}
-              >
-                <span className="text-xl">
-                  {item.icon}
-                </span>
-              </Link>
-            ))}
+            {menuItems.map((item) => {
+              const itemIsActive = isActiveStrict(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`
+                    flex items-center justify-center px-2 py-3 mb-2 rounded-lg text-gray-600 dark:text-gray-300
+                    hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200
+                    hover:scale-[1.02] active:scale-[0.98]
+                    ${itemIsActive
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : ""
+                    }
+                  `}
+                  title={item.label}
+                >
+                  <span className="text-xl">
+                    {item.icon}
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
+
           {/* Logout for collapsed mobile */}
           <div className="px-2 pb-4 mt-auto">
             <button
               onClick={handleLogout}
-              className={`
-              flex items-center justify-center w-full px-2 py-3 rounded-lg text-gray-600 dark:text-gray-300
-              hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400
-              transition-all duration-200 font-medium
-            `}
+              className="flex items-center justify-center w-full px-2 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 font-medium"
               title="Logout"
             >
               <span className="text-xl">🚪</span>

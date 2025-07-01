@@ -589,7 +589,7 @@ export default function MasterPage() {
             </div>
 
             {/* Tables with Lazy Loading */}
-            <div className="overflow-x-auto">
+            <div className="">
               {activeTab === "category" ? (
                 <>
                   {!isTabLoaded("category") || isDataLoading ? (

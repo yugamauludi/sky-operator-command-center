@@ -396,7 +396,7 @@ const CallByGateTable: React.FC = () => {
             {/* Pagination */}
             <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Showing {startIndex + 1} to {Math.min(endIndex, allLocations.length)} of {allLocations.length} locations
+                    Showing {startIndex + 1} to {Math.min(endIndex, allLocations.length)} of {allLocations.length} results
                 </div>
 
                 {/* Location Pagination Controls */}

@@ -375,9 +375,9 @@ export const ComplaintModal: React.FC<ComplaintModalProps> = ({
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                             {/* Pagination Info */}
                             <div className="text-sm text-gray-700 dark:text-gray-300">
-                                Menampilkan <span className="font-medium">{indexOfFirstItem + 1}</span> hingga{' '}
-                                <span className="font-medium">{Math.min(indexOfLastItem, complaintDetails.length)}</span> dari{' '}
-                                <span className="font-medium">{complaintDetails.length}</span> hasil
+                                Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to{' '}
+                                <span className="font-medium">{Math.min(indexOfLastItem, complaintDetails.length)}</span> from{' '}
+                                <span className="font-medium">{complaintDetails.length}</span> results
                             </div>
 
                             {/* Pagination Controls */}

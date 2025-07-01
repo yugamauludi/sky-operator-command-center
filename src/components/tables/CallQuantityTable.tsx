@@ -318,7 +318,7 @@ const CallQuantityTable: React.FC = () => {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, currentData.length)} dari {currentData.length} data
+            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, currentData.length)} of {currentData.length} results
           </div>
 
           <div className="flex items-center rounded-lg p-1 gap-1 bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700">

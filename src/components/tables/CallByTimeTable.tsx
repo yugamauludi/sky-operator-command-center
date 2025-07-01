@@ -384,12 +384,12 @@ const CallByTimeTable: React.FC = () => {
             {totalLocationPages > 1 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
                     <div className="text-sm text-gray-700 dark:text-gray-300">
-                        Showing locations {startLocationIndex + 1} - {Math.min(endLocationIndex, filteredLocations.length)} of {filteredLocations.length}
+                        Showing {startLocationIndex + 1} to {Math.min(endLocationIndex, filteredLocations.length)} of {filteredLocations.length}
                         {selectedRegion !== 'all' && (
                             <span className="ml-2 text-blue-600 dark:text-blue-400">
                                 ({regions.find(r => r.value === selectedRegion)?.label})
                             </span>
-                        )}
+                        )} results
                     </div>
 
                     <div className="flex items-center bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg p-1 gap-1">

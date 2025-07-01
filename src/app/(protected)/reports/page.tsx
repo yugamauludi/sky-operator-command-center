@@ -648,17 +648,19 @@ export default function ReportsPage() {
                   </div>
                 </div>
               ) : (
-                <CommonTable
-                  data={paginatedFilteredReports}
-                  columns={columns as any}
-                  showPagination={true}
-                  currentPage={filteredPagination.currentPage}
-                  totalPages={filteredPagination.totalPages}
-                  onPageChange={handleIssuesPageChange}
-                  itemsPerPage={filteredPagination.itemsPerPage}
-                  totalItems={filteredPagination.totalItems}
-                  onItemsPerPageChange={handleItemsReportPerPageChange}
-                />
+                <div className="">
+                  <CommonTable
+                    data={paginatedFilteredReports}
+                    columns={columns as any}
+                    showPagination={true}
+                    currentPage={filteredPagination.currentPage}
+                    totalPages={filteredPagination.totalPages}
+                    onPageChange={handleIssuesPageChange}
+                    itemsPerPage={filteredPagination.itemsPerPage}
+                    totalItems={filteredPagination.totalItems}
+                    onItemsPerPageChange={handleItemsReportPerPageChange}
+                  />
+                </div>
               )}
             </div>
           </Suspense>
