@@ -41,7 +41,10 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
         }).format(amount);
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string | null | undefined) => {
+        if (!status) {
+            return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+        }
         switch (status.toUpperCase()) {
             case 'FREE':
             case 'COMPLETED':
@@ -56,6 +59,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
     };
 
     const formatDuration = (minutes: number) => {
+        if (!minutes) return null
         if (minutes < 60) return `${minutes} menit`;
         const jam = Math.floor(minutes / 60);
         const menit = minutes % 60;
@@ -124,9 +128,15 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     Status
                                                 </label>
                                                 <div className="mt-1">
-                                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dataTicket.PaymentStatus)}`}>
-                                                        {dataTicket.PaymentStatus}
-                                                    </span>
+                                                    {dataTicket.PaymentStatus ? (
+                                                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dataTicket.PaymentStatus)}`}>
+                                                            {dataTicket.PaymentStatus}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                                            Tidak ada data
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                             {/* Issuer Info */}
@@ -209,23 +219,28 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                         {dataTicket.GateInCode}
                                                     </p>
                                                 </div>
+                                                {dataTicket.GateOutCode && (
+                                                    <div>
+                                                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                            Gate Keluar
+                                                        </label>
+                                                        <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded text-center">
+                                                            {dataTicket.GateOutCode}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                            </div>
+                                            {dataTicket?.gracePeriod && (
                                                 <div>
                                                     <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                                        Gate Keluar
+                                                        Grace Period
                                                     </label>
-                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 py-1 rounded">
-                                                        {dataTicket.GateOutCode}
+                                                    <p className="text-sm text-gray-900 dark:text-white">
+                                                        {dataTicket?.gracePeriod ? `${dataTicket.gracePeriod} menit` : 'Tidak ada'}
                                                     </p>
                                                 </div>
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                                    Grace Period
-                                                </label>
-                                                <p className="text-sm text-gray-900 dark:text-white">
-                                                    {dataTicket?.gracePeriod ? `${dataTicket.gracePeriod} menit` : 'Tidak ada'}
-                                                </p>
-                                            </div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -246,22 +261,28 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     {formatTanggalUTC(dataTicket.InTime)}
                                                 </p>
                                             </div>
-                                            <div>
-                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                                    Waktu Keluar
-                                                </label>
-                                                <p className="text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
-                                                    {formatTanggalUTC(dataTicket.OutTime)}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                                    Durasi Parkir
-                                                </label>
-                                                <p className="text-lg text-gray-700 dark:text-gray-200 font-bold text-center bg-white dark:bg-gray-800 px-2 py-1 rounded">
-                                                    {formatDuration(dataTicket.Duration)}
-                                                </p>
-                                            </div>
+                                            {dataTicket.OutTime && (
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Waktu Keluar
+                                                    </label>
+                                                    <p className="text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                        {formatTanggalUTC(dataTicket.OutTime)}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {dataTicket.Duration != null && typeof dataTicket.Duration === 'number' ? (
+                                                dataTicket.Duration > 0 ? (
+                                                    <div>
+                                                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                            Durasi Parkir
+                                                        </label>
+                                                        <p className="text-lg text-orange-700 dark:text-orange-300 font-bold text-center bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                            {formatDuration(dataTicket.Duration)}
+                                                        </p>
+                                                    </div>
+                                                ) : null
+                                            ) : null}
                                         </div>
                                     </div>
                                 </div>
@@ -297,9 +318,15 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     Status Pembayaran
                                                 </label>
                                                 <div className="mt-1">
-                                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(dataTicket.PaymentStatus)}`}>
-                                                        {dataTicket.PaymentStatus}
-                                                    </span>
+                                                    {dataTicket.PaymentStatus ? (
+                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(dataTicket.PaymentStatus)}`}>
+                                                            {dataTicket.PaymentStatus}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                                            tidak ada data
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                             {dataTicket.PaymentStatus === 'PAID' && (

@@ -405,7 +405,7 @@ export function GlobalCallPopup() {
   const detailGate = activeCall?.detailGate || {};
   const locationName = activeCall?.location?.Name || "Unknown Location";
   const gateName = activeCall?.gate || detailGate.gate || "-";
-  const gateId = activeCall?.gateId || detailGate.id || "-";
+  // const gateId = activeCall?.gateId || detailGate.id || "-";
   const ticketNo = detailGate.ticket || "-";
   const numberPlate = detailGate.number_plate.toUpperCase() || "-";
 
@@ -501,13 +501,13 @@ export function GlobalCallPopup() {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <span className="font-medium">Gate ID</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                   {gateId}
                 </span>
-              </div>
+              </div> */}
               {!isPMGate && (
                 <div className="flex justify-between items-center">
                   <span className="font-medium">No Transaction</span>
