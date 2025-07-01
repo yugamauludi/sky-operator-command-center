@@ -123,7 +123,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     {dataTicket?.TransactionNo}
                                                 </p>
                                             </div>
-                                            <div>
+                                            {/* <div>
                                                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                     Status
                                                 </label>
@@ -138,9 +138,9 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                         </span>
                                                     )}
                                                 </div>
-                                            </div>
+                                            </div> */}
                                             {/* Issuer Info */}
-                                            {dataTicket.PaymentStatus === 'PAID' && (
+                                            {/* {dataTicket.PaymentStatus === 'PAID' && (
                                                 <div>
                                                     <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                         Issuer Name
@@ -149,7 +149,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                         {dataTicket.issuerInfo || '-'}
                                                     </p>
                                                 </div>
-                                            )}
+                                            )} */}
                                         </div>
                                     </div>
 
@@ -336,6 +336,16 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     </label>
                                                     <p className="text-sm text-gray-900 dark:text-white font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded">
                                                         {dataTicket.paymentMethod}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {dataTicket.PaymentStatus === 'PAID' && (
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Issuer Name
+                                                    </label>
+                                                    <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 py-1 rounded mt-1">
+                                                        {dataTicket.issuerInfo || '-'}
                                                     </p>
                                                 </div>
                                             )}
