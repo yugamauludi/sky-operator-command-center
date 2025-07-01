@@ -54,21 +54,21 @@ export default function Sidebar() {
   };
 
   // Perbaikan logika isActive dengan debugging
-  const isActive = (href: string) => {
-    console.log(`Checking isActive for href: ${href}, pathname: ${pathname}`);
+  // const isActive = (href: string) => {
+  //   console.log(`Checking isActive for href: ${href}, pathname: ${pathname}`);
 
-    // Untuk homepage, hanya aktif jika pathname persis "/"
-    if (href === "/") {
-      const result = pathname === "/";
-      console.log(`Dashboard active: ${result}`);
-      return result;
-    }
+  //   // Untuk homepage, hanya aktif jika pathname persis "/"
+  //   if (href === "/") {
+  //     const result = pathname === "/";
+  //     console.log(`Dashboard active: ${result}`);
+  //     return result;
+  //   }
 
-    // Untuk route lainnya, gunakan startsWith tapi pastikan tidak konflik dengan "/"
-    const result = pathname.startsWith(href) && pathname !== "/";
-    console.log(`${href} active: ${result}`);
-    return result;
-  };
+  //   // Untuk route lainnya, gunakan startsWith tapi pastikan tidak konflik dengan "/"
+  //   const result = pathname.startsWith(href) && pathname !== "/";
+  //   console.log(`${href} active: ${result}`);
+  //   return result;
+  // };
 
   // Alternative: Logika isActive yang lebih strict
   const isActiveStrict = (href: string) => {

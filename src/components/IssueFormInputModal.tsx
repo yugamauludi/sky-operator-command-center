@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import SearchableSelect from './SearchableSelect'; // Tambahkan import ini
 
@@ -28,12 +28,12 @@ export interface Field {
   validation?: (value: string) => { isValid: boolean; message: string };
 }
 
-interface SearchableSelectProps {
-  field: Field;
-  value: string;
-  onChange: (value: string) => void;
-  disabled: boolean;
-}
+// interface SearchableSelectProps {
+//   field: Field;
+//   value: string;
+//   onChange: (value: string) => void;
+//   disabled: boolean;
+// }
 
 // const SearchableSelectComponent: React.FC<SearchableSelectProps> = ({
 //   field,
