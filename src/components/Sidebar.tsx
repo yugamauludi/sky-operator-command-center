@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { HiOutlineBars3 } from "react-icons/hi2";
+import { DashboardIcon, LocationIcon, LogoutIcon, MasterIcon, ReportsIcon } from "@/public/icons/Icons";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -11,11 +12,10 @@ export default function Sidebar() {
   const [isMobile, setIsMobile] = useState(false);
 
   const menuItems = [
-    { href: "/", label: "Dashboard", icon: "📊" },
-    { href: "/location", label: "Lokasi", icon: "📌" },
-    { href: "/master", label: "Master", icon: "📁" },
-    { href: "/reports", label: "Laporan", icon: "📝" },
-    // { href: "/tickets", label: "Tiket", icon: "🎫" },
+    { href: "/", label: "Dashboard", icon: DashboardIcon },
+    { href: "/location", label: "Lokasi", icon: LocationIcon },
+    { href: "/master", label: "Master", icon: MasterIcon },
+    { href: "/reports", label: "Laporan", icon: ReportsIcon },
   ];
 
   // Check if device is mobile and set initial sidebar state
@@ -53,23 +53,6 @@ export default function Sidebar() {
     window.location.href = "/login";
   };
 
-  // Perbaikan logika isActive dengan debugging
-  // const isActive = (href: string) => {
-  //   console.log(`Checking isActive for href: ${href}, pathname: ${pathname}`);
-
-  //   // Untuk homepage, hanya aktif jika pathname persis "/"
-  //   if (href === "/") {
-  //     const result = pathname === "/";
-  //     console.log(`Dashboard active: ${result}`);
-  //     return result;
-  //   }
-
-  //   // Untuk route lainnya, gunakan startsWith tapi pastikan tidak konflik dengan "/"
-  //   const result = pathname.startsWith(href) && pathname !== "/";
-  //   console.log(`${href} active: ${result}`);
-  //   return result;
-  // };
-
   // Alternative: Logika isActive yang lebih strict
   const isActiveStrict = (href: string) => {
     if (href === "/") {
@@ -92,7 +75,7 @@ export default function Sidebar() {
       {/* Mobile overlay when sidebar is open */}
       {isMobile && isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+          className="fixed inset-0 backdrop-blur-2xl bg-opacity-50 z-50 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -155,7 +138,8 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 px-3">
             {menuItems.map((item) => {
-              const itemIsActive = isActiveStrict(item.href); // Gunakan logika yang lebih strict
+              const itemIsActive = isActiveStrict(item.href);
+              const IconComponent = item.icon;
 
               return (
                 <Link
@@ -176,12 +160,9 @@ export default function Sidebar() {
                     }
                   }}
                 >
-                  <span
-                    className={`text-lg flex-shrink-0 transition-all duration-200 ${!isOpen ? "text-xl" : ""
-                      }`}
-                  >
-                    {item.icon}
-                  </span>
+                  <IconComponent
+                    className={`w-5 h-5 flex-shrink-0 transition-all duration-200 ${!isOpen ? "w-6 h-6" : ""}`}
+                  />
 
                   {/* Label dengan animasi slide */}
                   <div
@@ -219,7 +200,7 @@ export default function Sidebar() {
               ${!isOpen ? "justify-center" : ""}
             `}
             >
-              <span className="text-lg flex-shrink-0">🚪</span>
+              <LogoutIcon className={`w-5 h-5 flex-shrink-0 ${!isOpen ? "w-6 h-6" : ""}`} />
               <span
                 className={`transition-all duration-300 overflow-hidden ${isOpen ? "opacity-100 max-w-full ml-3" : "opacity-0 max-w-0 ml-0"
                   }`}
@@ -252,6 +233,7 @@ export default function Sidebar() {
           <nav className="flex-1 px-2">
             {menuItems.map((item) => {
               const itemIsActive = isActiveStrict(item.href);
+              const IconComponent = item.icon;
 
               return (
                 <Link
@@ -268,9 +250,7 @@ export default function Sidebar() {
                   `}
                   title={item.label}
                 >
-                  <span className="text-xl">
-                    {item.icon}
-                  </span>
+                  <IconComponent className="w-6 h-6" />
                 </Link>
               );
             })}
@@ -283,7 +263,7 @@ export default function Sidebar() {
               className="flex items-center justify-center w-full px-2 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 font-medium"
               title="Logout"
             >
-              <span className="text-xl">🚪</span>
+              <LogoutIcon className="w-6 h-6" />
             </button>
           </div>
         </div>

@@ -45,6 +45,18 @@ const SocketContext = createContext<SocketContextType & {
 export const useGlobalSocket = () => useContext(SocketContext);
 
 export function SocketProvider({ children }: { children: ReactNode }) {
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
+
+  // Panggil semua hooks di sini, JANGAN return dulu!
   const socket = useSocket();
   const [connectionStatus, setConnectionStatus] = useState("Connecting...");
   const [activeCall, setActiveCall] = useState<GateStatusUpdate | null>(null);
@@ -59,18 +71,24 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       if (savedUserNumber) {
         setUserNumberState(parseInt(savedUserNumber));
       }
-      setAudio(new Audio("/sound/sound-effect-old-phone-191761.mp3"));
+      // Hanya load audio jika desktop
+      if (isDesktop) {
+        setAudio(new Audio("/sound/sound-effect-old-phone-191761.mp3"));
+      }
     }
-  }, []);
+  }, [isDesktop]);
+
 
   const setUserNumber = (num: number) => {
     setUserNumberState(num);
     localStorage.setItem("admin_user_number", num.toString());
-    
-    if (socket) {
-      socket.emit("register",  num);
+
+    // Hanya register socket jika desktop
+    if (socket && isDesktop) {
+      socket.emit("register", num);
     }
   };
+
 
   const muteRingtone = () => {
     if (audio) {
@@ -86,12 +104,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   };
 
   const endCallFunction = async () => {
-    if (!socket || !activeCall) return;
+    if (!socket || !activeCall || !isDesktop) return;
 
     // Stop the ringtone immediately when ending call
     if (audio) {
       audio.pause();
-      audio.currentTime = 0; // Reset audio to beginning
+      audio.currentTime = 0;
     }
 
     try {
@@ -110,10 +128,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
     socket.on("connect", () => {
       setConnectionStatus("Connected");
-      // Auto-register if user number exists
-      // console.log(userNumber, "<<<< userNumber in socket provider");
-      
-      if (userNumber) {
+      // Auto-register hanya jika desktop dan user number exists
+      if (userNumber && isDesktop) {
         socket.emit("register", userNumber);
       }
     });
@@ -129,34 +145,38 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    socket.on("gate-status-update", (data: GateStatusUpdate) => {
-      console.log("📡 Gate Update:", data);
-      setActiveCall(data);
-      setCallInTime(new Date()); // Set call in time when call comes in
+    // Hanya listen gate-status-update jika desktop
+    if (isDesktop) {
+      socket.on("gate-status-update", (data: GateStatusUpdate) => {
+        console.log("📡 Gate Update:", data);
+        setActiveCall(data);
+        setCallInTime(new Date());
 
-      // Play notification
-      if (audio) {
-        audio.currentTime = 0; // Reset to beginning
-        audio.play().catch(console.error);
-      }
-      if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]);
-      }
-    });
+        // Play notification
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(console.error);
+        }
+        if (navigator.vibrate) {
+          navigator.vibrate([200, 100, 200]);
+        }
+      });
+    }
 
     return () => {
       socket.off("connect");
       socket.off("disconnect");
-      socket.off("gate-status-update");
+      if (isDesktop) {
+        socket.off("gate-status-update");
+      }
     };
-  }, [socket, userNumber, audio]);
-
+  }, [socket, userNumber, audio, isDesktop]);
   return (
     <SocketContext.Provider
       value={{
         socket,
-        connectionStatus,
-        activeCall,
+        connectionStatus: isDesktop ? connectionStatus : "Disabled (Mobile)",
+        activeCall: isDesktop ? activeCall : null, // Selalu null jika mobile
         userNumber,
         setUserNumber,
         endCallFunction,
@@ -164,6 +184,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         unmuteRingtone
       }}
     >
+      {/* Tambahkan notification untuk mobile user */}
+      {!isDesktop && (
+        <></>
+      )}
       {children}
     </SocketContext.Provider>
   );
