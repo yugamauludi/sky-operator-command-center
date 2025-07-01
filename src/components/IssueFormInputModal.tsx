@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "react-toastify";
+import SearchableSelect from './SearchableSelect'; // Tambahkan import ini
 
 interface FieldOption {
   value: string;
@@ -34,7 +35,7 @@ interface SearchableSelectProps {
   disabled: boolean;
 }
 
-const SearchableSelect: React.FC<SearchableSelectProps> = ({
+const SearchableSelectComponent: React.FC<SearchableSelectProps> = ({
   field,
   value,
   onChange,
@@ -400,26 +401,25 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     const isReadonly = field.readonly || false;
     const isDisabled = field.disabled || false;
     const hasError = !!validationErrors[field.id];
-    const inputClassName = `w-full p-3 border rounded-md text-sm ${hasError
-      ? "border-red-500 dark:border-red-400"
-      : "dark:border-gray-600"
-      } ${isDisabled || isReadonly
+    const inputClassName = `w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md text-sm
+      ${hasError ? "border-red-500 dark:border-red-400" : ""}
+      ${isDisabled || isReadonly
         ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
         : "bg-white dark:bg-gray-700"
-      }`;
+      } shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`;
 
     switch (field.type) {
       case "select":
-        return (
+        return(
           <div>
             <SearchableSelect
-              field={{
-                ...field,
-                searchable: true
-              }}
+              options={field.options || []}
               value={value}
               onChange={(newValue) => handleInputChange(field.id, newValue)}
+              placeholder={field.placeholder}
               disabled={isDisabled || isReadonly}
+              error={validationErrors[field.id]}
+            // label={field.label} // HAPUS baris ini!
             />
           </div>
         );
@@ -436,6 +436,23 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
             disabled={isDisabled}
             required={field.required}
           />
+        );
+
+      case "text":
+        return (
+          <div>
+            <input
+              type="text"
+              value={value}
+              onChange={e => handleInputChange(field.id, e.target.value)}
+              placeholder={field.placeholder}
+              disabled={isDisabled || isReadonly}
+              className={inputClassName}
+            />
+            {hasError && (
+              <div className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors[field.id]}</div>
+            )}
+          </div>
         );
 
       default:

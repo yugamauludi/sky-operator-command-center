@@ -65,7 +65,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 type="button"
                 disabled={disabled}
                 onClick={() => setIsOpen((open) => !open)}
-                className={`w-full px-3 py-2 text-left border ${error ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white flex items-center justify-between ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full px-3 py-[9.6px] text-left border ${error ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white flex items-center justify-between ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
                 <span className={selectedOption ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
                     {selectedOption ? selectedOption.label : placeholder}

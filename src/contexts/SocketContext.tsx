@@ -68,7 +68,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("admin_user_number", num.toString());
     
     if (socket) {
-      socket.emit("register", num);
+      socket.emit("register",  num);
     }
   };
 

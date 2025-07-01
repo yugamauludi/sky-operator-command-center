@@ -2,10 +2,10 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
-import TicketModal from './TicketModal';
+// import TicketModal from './TicketModal';
 import CheckTicketModal from './CheckTicketModal';
-import { fetchTransaction } from '@/hooks/useTransaction';
-import { toast } from 'react-toastify';
+// import { fetchTransaction } from '@/hooks/useTransaction';
+// import { toast } from 'react-toastify';
 import type { TransactionResponse } from '@/hooks/useTransaction'; // Import tipe response
 import { useUser } from '@/contexts/UserContext';
 
@@ -17,44 +17,9 @@ export default function Header({
   // notifications
 }: HeaderProps) {
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
-  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
-  const [ticketData, setTicketData] = useState<TransactionResponse | null>(null); // Gunakan tipe TransactionResponse
-  const [loading, setLoading] = useState(false);
+  // const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  // const [ticketData, setTicketData] = useState<TransactionResponse | null>(null);
   const { user } = useUser();
-  console.log(user, "<<<<<user nih");
-  
-  const handleCheckTicket = async (keyword: string, locationCode: string, date: string) => {
-    try {
-      setLoading(true);
-      const data = await fetchTransaction(keyword, locationCode, date);
-
-      // Check if data exists and has valid content
-      if (!data || !data.data || (Array.isArray(data.data) && data.data.length === 0)) {
-        toast.error('Data tidak ditemukan');
-        setIsCheckModalOpen(false);
-        return;
-      }
-
-      // Check if data has meaningful content
-      if (data.data && typeof data.data === 'object' && Object.keys(data.data).length === 0) {
-        toast.error('Data tidak ditemukan');
-        setIsCheckModalOpen(false);
-        return;
-      }
-
-      setTicketData(data);
-      setIsCheckModalOpen(false);
-      setIsResultModalOpen(true);
-      toast.success('Data tiket berhasil ditemukan');
-
-    } catch (error) {
-      console.error('Error checking ticket:', error);
-      toast.error('Data tidak ditemukan');
-      setIsCheckModalOpen(false);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -100,16 +65,6 @@ export default function Header({
       <CheckTicketModal
         isOpen={isCheckModalOpen}
         onClose={() => setIsCheckModalOpen(false)}
-        onSubmit={handleCheckTicket}
-        loading={loading}
-      />
-
-      {/* Ticket Result Modal - This displays the API response */}
-      <TicketModal
-        isOpen={isResultModalOpen}
-        onClose={() => setIsResultModalOpen(false)}
-        ticketData={ticketData}
-      // error={error}
       />
     </>
   );

@@ -498,7 +498,7 @@ export default function ReportsPage() {
                   onChange={(date) => setSearchDate(date)}
                   className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
                   placeholderText="Cari Tanggal"
-                  dateFormat="yyyy-MM-dd"
+                  dateFormat="dd MMM yyyy"
                   isClearable
                   maxDate={new Date()}
                   renderCustomHeader={({

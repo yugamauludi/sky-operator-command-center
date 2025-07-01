@@ -32,7 +32,6 @@ export function validateIndonesianLicensePlate(value: string): {
 }
 
 export const validateLicensePlate = (plate: string): boolean => {
-  // Format: 1-4 huruf, 1-4 angka, 1-3 huruf (dengan atau tanpa spasi)
-  const regex = /^[A-Za-z]{1,4}\s?\d{1,4}\s?[A-Za-z]{1,3}$/;
-  return regex.test(plate);
+  const regex = /^[A-Za-z]{1,4}\s?\d{1,4}(\s?[A-Za-z]{1,3})?$/;
+  return regex.test(plate.trim());
 };
