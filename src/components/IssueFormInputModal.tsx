@@ -35,309 +35,309 @@ interface SearchableSelectProps {
   disabled: boolean;
 }
 
-const SearchableSelectComponent: React.FC<SearchableSelectProps> = ({
-  field,
-  value,
-  onChange,
-  disabled,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(field.hasMore ?? true);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+// const SearchableSelectComponent: React.FC<SearchableSelectProps> = ({
+//   field,
+//   value,
+//   onChange,
+//   disabled,
+// }) => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(field.hasMore ?? true);
+//   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+//   const dropdownRef = useRef<HTMLDivElement>(null);
+//   const listRef = useRef<HTMLDivElement>(null);
+//   const searchInputRef = useRef<HTMLInputElement>(null);
+//   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const options = field.options || [];
+//   const options = field.options || [];
 
-  const filteredOptions = useMemo(() => {
-    if (!field.searchable) return options;
-    if (!searchTerm.trim()) return options;
+//   const filteredOptions = useMemo(() => {
+//     if (!field.searchable) return options;
+//     if (!searchTerm.trim()) return options;
 
-    return options.filter(option =>
-      option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      option.value.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [options, searchTerm, field.searchable]);
+//     return options.filter(option =>
+//       option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//       option.value.toLowerCase().includes(searchTerm.toLowerCase())
+//     );
+//   }, [options, searchTerm, field.searchable]);
 
-  const selectedLabel = useMemo(() => {
-    const selected = options.find(opt => opt.value === value);
-    return selected ? selected.label : "";
-  }, [value, options]);
+//   const selectedLabel = useMemo(() => {
+//     const selected = options.find(opt => opt.value === value);
+//     return selected ? selected.label : "";
+//   }, [value, options]);
 
-  const loadMoreOptions = async (resetOptions = false) => {
-    if (!field.lazyLoad || !field.onLoadMore || loading) return;
+//   const loadMoreOptions = async (resetOptions = false) => {
+//     if (!field.lazyLoad || !field.onLoadMore || loading) return;
 
-    setLoading(true);
-    try {
-      const currentPage = resetOptions ? 1 : page;
-      const newOptions = await field.onLoadMore(searchTerm, currentPage);
+//     setLoading(true);
+//     try {
+//       const currentPage = resetOptions ? 1 : page;
+//       const newOptions = await field.onLoadMore(searchTerm, currentPage);
 
-      setPage(currentPage + 1);
-      setHasMore(newOptions.length > 0);
-    } catch (error) {
-      console.error("Error loading options:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       setPage(currentPage + 1);
+//       setHasMore(newOptions.length > 0);
+//     } catch (error) {
+//       console.error("Error loading options:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const debouncedSearch = () => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
+//   const debouncedSearch = () => {
+//     if (debounceTimeoutRef.current) {
+//       clearTimeout(debounceTimeoutRef.current);
+//     }
 
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (field.lazyLoad) {
-        setPage(1);
-        setHasMore(true);
-        loadMoreOptions(true);
-      }
-    }, 300);
-  };
+//     debounceTimeoutRef.current = setTimeout(() => {
+//       if (field.lazyLoad) {
+//         setPage(1);
+//         setHasMore(true);
+//         loadMoreOptions(true);
+//       }
+//     }, 300);
+//   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    setHighlightedIndex(-1);
+//   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const term = e.target.value;
+//     setSearchTerm(term);
+//     setHighlightedIndex(-1);
 
-    if (field.lazyLoad) {
-      debouncedSearch();
-    }
-  };
+//     if (field.lazyLoad) {
+//       debouncedSearch();
+//     }
+//   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) {
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        setIsOpen(true);
-      }
-      return;
-    }
+//   const handleKeyDown = (e: React.KeyboardEvent) => {
+//     if (!isOpen) {
+//       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+//         e.preventDefault();
+//         setIsOpen(true);
+//       }
+//       return;
+//     }
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setHighlightedIndex(prev =>
-          prev < filteredOptions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setHighlightedIndex(prev =>
-          prev > 0 ? prev - 1 : filteredOptions.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
-          handleOptionSelect(filteredOptions[highlightedIndex].value);
-        }
-        break;
-      case 'Escape':
-        e.preventDefault();
-        setIsOpen(false);
-        setSearchTerm("");
-        setHighlightedIndex(-1);
-        break;
-      case 'Tab':
-        setIsOpen(false);
-        setSearchTerm("");
-        setHighlightedIndex(-1);
-        break;
-    }
-  };
+//     switch (e.key) {
+//       case 'ArrowDown':
+//         e.preventDefault();
+//         setHighlightedIndex(prev =>
+//           prev < filteredOptions.length - 1 ? prev + 1 : 0
+//         );
+//         break;
+//       case 'ArrowUp':
+//         e.preventDefault();
+//         setHighlightedIndex(prev =>
+//           prev > 0 ? prev - 1 : filteredOptions.length - 1
+//         );
+//         break;
+//       case 'Enter':
+//         e.preventDefault();
+//         if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
+//           handleOptionSelect(filteredOptions[highlightedIndex].value);
+//         }
+//         break;
+//       case 'Escape':
+//         e.preventDefault();
+//         setIsOpen(false);
+//         setSearchTerm("");
+//         setHighlightedIndex(-1);
+//         break;
+//       case 'Tab':
+//         setIsOpen(false);
+//         setSearchTerm("");
+//         setHighlightedIndex(-1);
+//         break;
+//     }
+//   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (!field.lazyLoad || !hasMore || loading) return;
+//   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+//     if (!field.lazyLoad || !hasMore || loading) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
-      loadMoreOptions();
-    }
-  };
+//     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+//     if (scrollTop + clientHeight >= scrollHeight - 5) {
+//       loadMoreOptions();
+//     }
+//   };
 
-  const handleOptionSelect = (optionValue: string) => {
-    onChange(optionValue);
-    setIsOpen(false);
-    setSearchTerm("");
-    setHighlightedIndex(-1);
-  };
+//   const handleOptionSelect = (optionValue: string) => {
+//     onChange(optionValue);
+//     setIsOpen(false);
+//     setSearchTerm("");
+//     setHighlightedIndex(-1);
+//   };
 
-  const handleInputFocus = () => {
-    if (!disabled) {
-      setIsOpen(true);
-    }
-  };
+//   const handleInputFocus = () => {
+//     if (!disabled) {
+//       setIsOpen(true);
+//     }
+//   };
 
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange("");
-    setSearchTerm("");
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  };
+//   const handleClear = (e: React.MouseEvent) => {
+//     e.stopPropagation();
+//     onChange("");
+//     setSearchTerm("");
+//     if (searchInputRef.current) {
+//       searchInputRef.current.focus();
+//     }
+//   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-        setSearchTerm("");
-        setHighlightedIndex(-1);
-      }
-    };
+//   useEffect(() => {
+//     const handleClickOutside = (event: MouseEvent) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+//         setIsOpen(false);
+//         setSearchTerm("");
+//         setHighlightedIndex(-1);
+//       }
+//     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//       if (debounceTimeoutRef.current) {
+//         clearTimeout(debounceTimeoutRef.current);
+//       }
+//     };
+//   }, []);
 
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 100);
-    }
-  }, [isOpen]);
+//   useEffect(() => {
+//     if (isOpen && searchInputRef.current) {
+//       setTimeout(() => {
+//         searchInputRef.current?.focus();
+//       }, 100);
+//     }
+//   }, [isOpen]);
 
-  useEffect(() => {
-    if (highlightedIndex >= 0 && listRef.current) {
-      const highlightedElement = listRef.current.children[highlightedIndex] as HTMLElement;
-      if (highlightedElement) {
-        highlightedElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
-        });
-      }
-    }
-  }, [highlightedIndex]);
+//   useEffect(() => {
+//     if (highlightedIndex >= 0 && listRef.current) {
+//       const highlightedElement = listRef.current.children[highlightedIndex] as HTMLElement;
+//       if (highlightedElement) {
+//         highlightedElement.scrollIntoView({
+//           behavior: 'smooth',
+//           block: 'nearest'
+//         });
+//       }
+//     }
+//   }, [highlightedIndex]);
 
-  console.log(`SearchableSelect Debug - Field: ${field.id}`, {
-    fieldOptions: field.options,
-    optionsLength: options.length,
-    filteredOptionsLength: filteredOptions.length,
-    searchTerm,
-    value,
-    disabled
-  });
+//   console.log(`SearchableSelect Debug - Field: ${field.id}`, {
+//     fieldOptions: field.options,
+//     optionsLength: options.length,
+//     filteredOptionsLength: filteredOptions.length,
+//     searchTerm,
+//     value,
+//     disabled
+//   });
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-      {/* Search Input */}
-      <div className="relative">
-        <input
-          ref={searchInputRef}
-          type="text"
-          value={isOpen ? searchTerm : selectedLabel}
-          onChange={handleSearchChange}
-          onFocus={handleInputFocus}
-          onKeyDown={handleKeyDown}
-          placeholder={field.placeholder}
-          className={`w-full p-3 pr-20 border rounded-md text-sm cursor-pointer ${disabled
-            ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-            : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-            } dark:border-gray-600 ${isOpen ? "border-blue-500 dark:border-blue-400" : ""
-            } text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400`}
-          disabled={disabled}
-          autoComplete="off"
-        />
+//   return (
+//     <div className="relative" ref={dropdownRef}>
+//       {/* Search Input */}
+//       <div className="relative">
+//         <input
+//           ref={searchInputRef}
+//           type="text"
+//           value={isOpen ? searchTerm : selectedLabel}
+//           onChange={handleSearchChange}
+//           onFocus={handleInputFocus}
+//           onKeyDown={handleKeyDown}
+//           placeholder={field.placeholder}
+//           className={`w-full p-3 pr-20 border rounded-md text-sm cursor-pointer ${disabled
+//             ? "bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+//             : "bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+//             } dark:border-gray-600 ${isOpen ? "border-blue-500 dark:border-blue-400" : ""
+//             } text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400`}
+//           disabled={disabled}
+//           autoComplete="off"
+//         />
 
-        {/* Clear button */}
-        {value && !disabled && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
+//         {/* Clear button */}
+//         {value && !disabled && (
+//           <button
+//             type="button"
+//             onClick={handleClear}
+//             className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+//           >
+//             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+//             </svg>
+//           </button>
+//         )}
 
-        {/* Dropdown arrow */}
-        <button
-          type="button"
-          onClick={() => !disabled && setIsOpen(!isOpen)}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2"
-          disabled={disabled}
-        >
-          <svg
-            className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""
-              }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
+//         {/* Dropdown arrow */}
+//         <button
+//           type="button"
+//           onClick={() => !disabled && setIsOpen(!isOpen)}
+//           className="absolute right-3 top-1/2 transform -translate-y-1/2"
+//           disabled={disabled}
+//         >
+//           <svg
+//             className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""
+//               }`}
+//             fill="none"
+//             stroke="currentColor"
+//             viewBox="0 0 24 24"
+//           >
+//             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+//           </svg>
+//         </button>
+//       </div>
 
-      {/* Dropdown */}
-      {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-hidden">
-          {/* Options list */}
-          <div
-            ref={listRef}
-            className="overflow-y-auto max-h-48"
-            onScroll={handleScroll}
-          >
-            {filteredOptions.length === 0 ? (
-              <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                {searchTerm ? "Tidak ada opsi yang cocok" :
-                  disabled ? field.placeholder : "Tidak ada opsi tersedia"}
-              </div>
-            ) : (
-              filteredOptions.map((option, index) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleOptionSelect(option.value)}
-                  className={`w-full text-left p-3 text-sm transition-colors ${value === option.value
-                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                    : highlightedIndex === index
-                      ? "bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
-                      : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                >
-                  {option.label}
-                </button>
-              ))
-            )}
+//       {/* Dropdown */}
+//       {isOpen && (
+//         <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-hidden">
+//           {/* Options list */}
+//           <div
+//             ref={listRef}
+//             className="overflow-y-auto max-h-48"
+//             onScroll={handleScroll}
+//           >
+//             {filteredOptions.length === 0 ? (
+//               <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+//                 {searchTerm ? "Tidak ada opsi yang cocok" :
+//                   disabled ? field.placeholder : "Tidak ada opsi tersedia"}
+//               </div>
+//             ) : (
+//               filteredOptions.map((option, index) => (
+//                 <button
+//                   key={option.value}
+//                   type="button"
+//                   onClick={() => handleOptionSelect(option.value)}
+//                   className={`w-full text-left p-3 text-sm transition-colors ${value === option.value
+//                     ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+//                     : highlightedIndex === index
+//                       ? "bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
+//                       : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+//                     }`}
+//                 >
+//                   {option.label}
+//                 </button>
+//               ))
+//             )}
 
-            {/* Loading indicator */}
-            {loading && (
-              <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                  <span>Memuat...</span>
-                </div>
-              </div>
-            )}
+//             {/* Loading indicator */}
+//             {loading && (
+//               <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+//                 <div className="flex items-center justify-center space-x-2">
+//                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+//                   <span>Memuat...</span>
+//                 </div>
+//               </div>
+//             )}
 
-            {/* Load more indicator */}
-            {field.lazyLoad && hasMore && !loading && filteredOptions.length > 0 && (
-              <div className="p-2 text-xs text-gray-400 dark:text-gray-500 text-center">
-                Scroll ke bawah untuk memuat lebih banyak...
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+//             {/* Load more indicator */}
+//             {field.lazyLoad && hasMore && !loading && filteredOptions.length > 0 && (
+//               <div className="p-2 text-xs text-gray-400 dark:text-gray-500 text-center">
+//                 Scroll ke bawah untuk memuat lebih banyak...
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 interface IssueInputFormModalProps {
   isOpen: boolean;

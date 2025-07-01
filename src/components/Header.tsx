@@ -6,7 +6,6 @@ import Image from 'next/image';
 import CheckTicketModal from './CheckTicketModal';
 // import { fetchTransaction } from '@/hooks/useTransaction';
 // import { toast } from 'react-toastify';
-import type { TransactionResponse } from '@/hooks/useTransaction'; // Import tipe response
 import { useUser } from '@/contexts/UserContext';
 
 interface HeaderProps {

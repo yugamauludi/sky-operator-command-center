@@ -81,7 +81,7 @@ export default function CheckTicketModal({ isOpen, onClose }: CheckTicketModalPr
             if (locationData && locationData.data) {
                 setLocations(locationData.data);
             }
-        } catch (error) {
+        } catch (_) {
             toast.error('Gagal memuat data lokasi');
         } finally {
             setLoadingLocations(false);
@@ -138,7 +138,7 @@ export default function CheckTicketModal({ isOpen, onClose }: CheckTicketModalPr
 
             setTicketData(data.data);
             setNotFound(false);
-        } catch (error) {
+        } catch (_) {
             toast.error('Data tidak ditemukan');
             setNotFound(true);
             setTicketData(null);
