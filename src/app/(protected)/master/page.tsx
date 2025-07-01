@@ -22,7 +22,7 @@ import {
   editDescription,
   deleteDescription,
 } from "@/hooks/useDescriptions";
-import { CustomSelect } from "@/components/CustomSelect";
+// import { CustomSelect } from "@/components/CustomSelect";
 import formatTanggalUTC from "@/utils/formatDate";
 import NoData from "@/components/NoData";
 import SearchableSelect from "@/components/SearchableSelect";

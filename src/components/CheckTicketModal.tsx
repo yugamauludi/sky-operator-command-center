@@ -24,7 +24,6 @@ export default function CheckTicketModal({ isOpen, onClose, onSubmit, loading }:
     const [date, setDate] = useState('');
     const [locations, setLocations] = useState<Location[]>([]);
     const [loadingLocations, setLoadingLocations] = useState(false);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [plateError, setPlateError] = useState('');
 
     useEffect(() => {
@@ -33,7 +32,6 @@ export default function CheckTicketModal({ isOpen, onClose, onSubmit, loading }:
             setLocationCode('');
             setDate('');
             setPlateError('');
-            setIsDropdownOpen(false);
             fetchAllLocations();
         }
     }, [isOpen]);
@@ -103,22 +101,13 @@ export default function CheckTicketModal({ isOpen, onClose, onSubmit, loading }:
         }
     };
 
-
     const handleClose = () => {
         setKeyword('');
         setLocationCode('');
         setDate('');
         setPlateError('');
-        setIsDropdownOpen(false);
         onClose();
     };
-
-    const handleSelectLocation = (code: string) => {
-        setLocationCode(code);
-        setIsDropdownOpen(false);
-    };
-
-    const selectedLocation = locations.find(loc => loc.Code === locationCode);
 
     if (!isOpen) return null;
 

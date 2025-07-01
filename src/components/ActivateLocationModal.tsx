@@ -26,7 +26,6 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
     const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -78,7 +77,6 @@ const ActivateLocationModal: React.FC<ActivateLocationModalProps> = ({
     const handleClose = () => {
         if (!isSubmitting) {
             setSelectedLocationId(null);
-            setIsDropdownOpen(false);
             onClose();
         }
     };
