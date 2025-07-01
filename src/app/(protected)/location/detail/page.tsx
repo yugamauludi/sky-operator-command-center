@@ -83,7 +83,6 @@ function LocationDetailContent() {
     try {
       setIsDataLoading(true);
       const gatesData = await fetchGateByLocation(reqParams);
-      // const gatesData = {data: [], meta: {page: 1, limit: 5, totalPages: 1, totalItems: 0}};
 
       if (gatesData && gatesData.data && gatesData.meta) {
         setGates(gatesData.data);
@@ -116,19 +115,15 @@ function LocationDetailContent() {
       setActioningGateId(selectedGate.id);
 
       if (selectedGate.statusGate === 0) {
-        // Gate is close, so open it
         await changeStatusGate(selectedGate.id, "OPEN");
         toast.success(`Gate ${selectedGate.gate} berhasil dibuka`);
       } else {
-        // Gate is open, so close it
         await changeStatusGate(selectedGate.id, "CLOSE");
         toast.success(`Gate ${selectedGate.gate} berhasil ditutup`);
       }
 
-      // Refresh data after action
       await fetchGatesData();
 
-      // Close modal
       setShowConfirmModal(false);
       setSelectedGate(null);
     } catch (error) {
@@ -147,7 +142,6 @@ function LocationDetailContent() {
     }
   };
 
-  // Add Gate handlers
   const handleAddGateClick = () => {
     setShowAddGateModal(true);
     setGateName("");
@@ -175,10 +169,8 @@ function LocationDetailContent() {
       await createGate(gateData);
       toast.success("Gate berhasil ditambahkan");
 
-      // Refresh data after adding new gate
       await fetchGatesData();
 
-      // Close modal and reset form
       setShowAddGateModal(false);
       setGateName("");
     } catch (error) {
@@ -198,7 +190,6 @@ function LocationDetailContent() {
 
   const handlePageChange = (page: number) => {
     setGatePagination((prev) => ({ ...prev, currentPage: page }));
-    // fetchGatesData(page, gatePagination.itemsPerPage);
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
@@ -207,7 +198,6 @@ function LocationDetailContent() {
       itemsPerPage: newItemsPerPage,
       currentPage: 1,
     }));
-    // fetchGatesData(1, newItemsPerPage);
   };
 
   const handleBack = () => {
@@ -575,7 +565,6 @@ function LocationDetailContent() {
   );
 }
 
-// Loading fallback component
 function LoadingFallback() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -593,7 +582,6 @@ function LoadingFallback() {
   );
 }
 
-// Main component dengan Suspense wrapper
 export default function LocationDetailPage() {
   return (
     <Suspense fallback={<LoadingFallback />}>

@@ -56,12 +56,10 @@ export default function TicketsPage() {
   ];
 
   const handleExport = () => {
-    // Implementasi logika ekspor data
     console.log("Exporting data...");
   };
 
   const handleAddTicket = () => {
-    // Implementasi logika penambahan tiket
     console.log("Adding new ticket...");
   };
 

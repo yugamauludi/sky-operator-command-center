@@ -4,7 +4,6 @@ import "./globals.css";
 import RouteLoader from "@/components/RouteLoader";
 import { LoaderProvider } from "@/contexts/LoaderContext";
 import { UserProvider } from "@/contexts/UserContext";
-// import GlobalLoader from "@/components/GlobalLoader";
 
 const poppins = Poppins({
   subsets: ["latin"],

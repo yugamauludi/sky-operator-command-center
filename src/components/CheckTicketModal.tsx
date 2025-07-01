@@ -53,7 +53,6 @@ export default function CheckTicketModal({ isOpen, onClose, onSubmit, loading }:
     };
 
     const normalizeLicensePlate = (plate: string): string => {
-        // Menghapus semua spasi dari string
         return plate.replace(/\s/g, '');
     };
 

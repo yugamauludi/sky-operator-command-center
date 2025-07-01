@@ -6,7 +6,6 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Column } from "@/components/tables/CommonTable";
-// Replace regular imports with lazy ones
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
 import IsseFormInputModal from "@/components/IssueFormInputModal"
 import { Field } from "@/components/IssueFormInputModal";
@@ -69,26 +68,21 @@ export default function ReportsPage() {
     itemsPerPage: 5,
   });
 
-  // Add loading state for gate data
   const [isGateDataLoading, setIsGateDataLoading] = useState(false);
   const [isDescriptionsLoading, setIsDescriptionsLoading] = useState(false);
 
-  // Filter states
   const [searchDate, setSearchDate] = useState<Date | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
 
-  // Form field values state to track location changes
   const [formFieldValues, setFormFieldValues] = useState<
     Record<string, string>
   >({});
 
-  // Load ALL data for frontend filtering
   const fetchAllIssuesData = async () => {
     try {
       setIsDataLoading(true);
-      // Fetch a large number to get all data (adjust based on your needs)
-      const issuesData = await fetchIssues(1, 10000); // or use a separate API endpoint that returns all data
+      const issuesData = await fetchIssues(1, 10000);
       if (issuesData && issuesData.data && issuesData.meta) {
         const mappedReports: Report[] = issuesData.data.map((issue, index) => {
           const createdDate = new Date(issue.createdAt);
@@ -107,7 +101,6 @@ export default function ReportsPage() {
           };
         });
         setReports(mappedReports);
-        // Set initial pagination for frontend filtering
         setIssuesPagination({
           totalItems: mappedReports.length,
           totalPages: Math.ceil(mappedReports.length / 5),
@@ -122,22 +115,18 @@ export default function ReportsPage() {
     }
   };
 
-  // Filter logic using useMemo for performance
   const filteredReports = useMemo(() => {
     return reports.filter((report) => {
-      // Date filter
       const dateMatch =
         !searchDate ||
         report?.rawDate?.toDateString() === searchDate?.toDateString();
 
-      // Location filter (case insensitive)
       const locationMatch =
         !searchLocation ||
         report?.location
           ?.toLowerCase()
           ?.includes(searchLocation?.toLowerCase());
 
-      // Category filter (case insensitive)
       const categoryMatch =
         !searchCategory ||
         report?.category
@@ -148,7 +137,6 @@ export default function ReportsPage() {
     });
   }, [reports, searchDate, searchLocation, searchCategory]);
 
-  // Update pagination info based on filtered data
   const filteredPagination = useMemo(() => {
     const totalFilteredItems = filteredReports.length;
     const totalFilteredPages = Math.ceil(
@@ -170,7 +158,6 @@ export default function ReportsPage() {
     issuesPagination,
   ]);
 
-  // Get paginated filtered data
   const paginatedFilteredReports = useMemo(() => {
     const startIndex =
       (filteredPagination.currentPage - 1) * filteredPagination.itemsPerPage;
@@ -178,7 +165,7 @@ export default function ReportsPage() {
 
     return filteredReports.slice(startIndex, endIndex).map((report, index) => ({
       ...report,
-      no: startIndex + index + 1, // Renumber based on current page
+      no: startIndex + index + 1,
     }));
   }, [
     filteredReports,
@@ -217,13 +204,11 @@ export default function ReportsPage() {
     }));
   };
 
-  // PERBAIKAN: Update handleFieldValueChange untuk debugging yang lebih baik
   const handleFieldValueChange = async (fieldId: string, value: string) => {
 
     setFormFieldValues((prev) => {
       const newValues = { ...prev, [fieldId]: value };
 
-      // Clear dependent fields when parent field changes
       if (fieldId === "idLocation") {
         newValues.idGate = "";
       }
@@ -235,9 +220,8 @@ export default function ReportsPage() {
       return newValues;
     });
 
-    // Handle location change - fetch gates
     if (fieldId === "idLocation" && value) {
-      setGateIdData([]); // Clear previous gate data immediately
+      setGateIdData([]);
 
       try {
         await fetchGateData({
@@ -250,10 +234,9 @@ export default function ReportsPage() {
       }
     }
 
-    // Handle category change - fetch descriptions
     if (fieldId === "idCategory" && value) {
       console.log("Fetching descriptions for category:", value);
-      setDescriptions([]); // Clear previous description data immediately
+      setDescriptions([]);
 
       try {
         await fetchDescriptionsDataByCategoryId(parseInt(value));
@@ -270,13 +253,13 @@ export default function ReportsPage() {
       const response = await fetchGateByLocation(data);
 
       if (response && response.data) {
-        setGateIdData(response.data); // Update state with fetched gate data
+        setGateIdData(response.data);
       } else {
-        setGateIdData([]); // Clear if no data
+        setGateIdData([]);
       }
     } catch (error) {
       console.error("Error fetching gates:", error);
-      setGateIdData([]); // Clear gate data on error
+      setGateIdData([]);
     } finally {
       setIsGateDataLoading(false);
     }
@@ -292,16 +275,16 @@ export default function ReportsPage() {
 
       if (response) {
         if (Array.isArray(response)) {
-          setDescriptions(response); // Update state with fetched descriptions
+          setDescriptions(response);
         } else {
           setDescriptions([response]);
         }
       } else {
-        setDescriptions([]); // Clear if no data
+        setDescriptions([]);
       }
     } catch (error) {
       console.error("Error fetching descriptions:", error);
-      setDescriptions([]); // Clear descriptions on error
+      setDescriptions([]);
     } finally {
       setIsDescriptionsLoading(false);
     }
@@ -324,10 +307,8 @@ export default function ReportsPage() {
 
       await addIssue(newReportData);
 
-      // Refresh all data after successful creation
       await fetchAllIssuesData();
       toast.success("Report Created successfully!");
-      // Clear form values and gate data
       setFormFieldValues({});
       setGateIdData([]);
       setDescriptions([]);
@@ -339,7 +320,6 @@ export default function ReportsPage() {
     }
   };
 
-  // Clear all filters
   const handleClearFilters = () => {
     setSearchDate(null);
     setSearchLocation("");
@@ -347,10 +327,8 @@ export default function ReportsPage() {
     setIssuesPagination((prev) => ({ ...prev, currentPage: 1 }));
   };
 
-  // Check if any filter is active
   const hasActiveFilters = searchDate || searchLocation || searchCategory;
 
-  // Handle modal close
   const handleModalClose = () => {
     setIsNewReportModalOpen(false);
     setFormFieldValues({});
@@ -358,9 +336,7 @@ export default function ReportsPage() {
     setDescriptions([]);
   };
 
-  // Handle modal open - SOLUTION: Reset form data when opening modal
   const handleModalOpen = () => {
-    // Reset all form data when opening modal
     setFormFieldValues({});
     setGateIdData([]);
     setDescriptions([]);
@@ -368,7 +344,7 @@ export default function ReportsPage() {
   };
 
   useEffect(() => {
-    fetchAllIssuesData(); // Load all data once
+    fetchAllIssuesData();
     fetchCategoriesData();
     fetchLocationData();
   }, []);
@@ -382,7 +358,6 @@ export default function ReportsPage() {
     { header: "Solusi", accessor: "solution" },
   ];
 
-  // FIXED: Update field configuration untuk Gate ID dan Description
   const newReportFields = useMemo<Field[]>(() => {
 
     return [
@@ -424,7 +399,6 @@ export default function ReportsPage() {
             : gateIdData.length === 0
               ? "No gates available"
               : "-- Pilih Gate --",
-        // PERBAIKAN: Pastikan options selalu array, bahkan jika kosong
         options: Array.isArray(gateIdData) ? gateIdData.map((gate) => ({
           value: gate.id.toString(),
           label: gate.gate,
@@ -445,7 +419,6 @@ export default function ReportsPage() {
             : descriptions.length === 0
               ? "No descriptions available"
               : "-- Pilih Deskripsi --",
-        // PERBAIKAN: Pastikan options selalu array, bahkan jika kosong
         options: Array.isArray(descriptions) ? descriptions.map((desc) => ({
           value: desc.id.toString(),
           label: desc.object,

@@ -22,22 +22,18 @@ import {
   editDescription,
   deleteDescription,
 } from "@/hooks/useDescriptions";
-// import { CustomSelect } from "@/components/CustomSelect";
 import formatTanggalUTC from "@/utils/formatDate";
 import NoData from "@/components/NoData";
 import SearchableSelect from "@/components/SearchableSelect";
 
-// Lazy load komponen yang berat
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
 
-// Define Column interface to match your CommonTable expectations
 interface Column<T> {
   header: string;
   accessor: keyof T;
   render?: (value: any, item: T) => React.ReactNode;
 }
 
-// Komponen loading skeleton
 const TableSkeleton = () => (
   <div className="animate-pulse">
     <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
@@ -47,7 +43,6 @@ const TableSkeleton = () => (
   </div>
 );
 
-// Komponen loading untuk tab content
 const TabContentLoader = () => (
   <div className="text-center py-8">
     <div className="three-body">
@@ -71,7 +66,6 @@ interface PaginationInfo {
   itemsPerPage: number;
 }
 
-// Custom hook untuk lazy loading data
 const useDataLoader = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
@@ -124,18 +118,15 @@ export default function MasterPage() {
     });
 
   const {
-    // isInitialLoad,
     markTabAsLoaded,
     isTabLoaded
   } = useDataLoader();
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch functions dengan lazy loading
   const fetchCategoriesData = async (page = 1, limit = 5, isLazy = false) => {
     try {
       setIsDataLoading(true);
 
-      // Jika lazy loading dan data sudah ada, skip fetch
       if (isLazy && categories.length > 0) {
         setIsDataLoading(false);
         return;
@@ -191,7 +182,6 @@ export default function MasterPage() {
     try {
       setIsDataLoading(true);
 
-      // Jika lazy loading dan data sudah ada, skip fetch
       if (isLazy && descriptions.length > 0) {
         setIsDataLoading(false);
         return;
@@ -232,11 +222,9 @@ export default function MasterPage() {
     }
   };
 
-  // Handle tab change dengan lazy loading
   const handleTabChange = async (tab: string) => {
     setActiveTab(tab);
 
-    // Lazy load data hanya ketika tab diklik dan belum pernah dimuat
     if (!isTabLoaded(tab)) {
       if (tab === "category") {
         await fetchCategoriesData(1, 5, true);
@@ -289,7 +277,6 @@ export default function MasterPage() {
     }
   };
 
-  // Initial load - hanya load tab yang aktif
   useEffect(() => {
     if (activeTab === "category") {
       fetchCategoriesData();
@@ -311,7 +298,6 @@ export default function MasterPage() {
     setIsConfirmationOpen(true);
   };
 
-  // Fixed column definitions with proper typing
   const getCategoryColumns = (): Column<Category>[] => [
     {
       header: "No",
@@ -400,7 +386,6 @@ export default function MasterPage() {
     },
   ];
 
-  // Rest of the handlers remain the same...
   const handleAddCategory = async () => {
     try {
       if (isEditing) {

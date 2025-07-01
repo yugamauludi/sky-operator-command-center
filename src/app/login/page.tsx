@@ -5,7 +5,6 @@ import Image from "next/image";
 import { LoginAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-// import { AuthService } from '@/services/auth.service';
 
 export default function Login() {
   const router = useRouter();
@@ -15,7 +14,7 @@ export default function Login() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { setUser } = useUser(); // Assuming you have a UserContext to manage user state
+  const { setUser } = useUser();
 
   const handleSubmit = async () => {
     try {
@@ -49,7 +48,6 @@ export default function Login() {
       if (error instanceof Error) {
         const message = error.message.toLowerCase();
 
-        // Mapping error berdasarkan message dari API
         if (message.includes("credential")) {
           errorMessage = "Username atau kata sandi salah";
         } else if (message.includes("server")) {

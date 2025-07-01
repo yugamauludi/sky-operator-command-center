@@ -5,19 +5,16 @@ import { useEffect, useState, lazy, Suspense, useCallback, useMemo } from "react
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-// Lazy load heavy components
 const ConfirmationModal = lazy(() => import("@/components/ConfirmationModal"));
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
 const DynamicInputModal = lazy(() => import("@/components/DynamicInputModal"));
 const ActivateLocationModal = lazy(() => import("@/components/ActivateLocationModal"));
 
-// Import only the functions we need
 import {
   createGate,
   fetchLocationActive,
 } from "@/hooks/useLocation";
 
-// Import types
 import type { Column } from "@/components/tables/CommonTable";
 
 interface Location {
@@ -35,7 +32,6 @@ interface PaginationInfo {
   itemsPerPage: number;
 }
 
-// Loading skeleton component
 const TableSkeleton = () => (
   <div className="bg-white dark:bg-[#222B36] rounded-lg shadow-lg w-full p-6">
     <div className="animate-pulse">
@@ -54,7 +50,6 @@ const TableSkeleton = () => (
   </div>
 );
 
-// Modal loading fallback
 const ModalSkeleton = () => (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96">
@@ -88,10 +83,8 @@ export default function LocationPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  // State untuk modal aktivasi lokasi
   const [isActivateLocationModalOpen, setIsActivateLocationModalOpen] = useState(false);
 
-  // Memoized fields to prevent unnecessary re-renders
   const fields = useMemo(() => [
     {
       id: "name",
@@ -102,7 +95,6 @@ export default function LocationPage() {
     },
   ], []);
 
-  // Optimized handlers with useCallback
   const handleViewDetail = useCallback(async (location: Location) => {
     try {
       router.push(
@@ -116,14 +108,11 @@ export default function LocationPage() {
     }
   }, [router]);
 
-  // Handler untuk membuka modal aktivasi lokasi
   const handleOpenActivateLocationModal = useCallback(() => {
     setIsActivateLocationModalOpen(true);
   }, []);
 
-  // Handler ketika berhasil mengaktifkan lokasi
   const handleActivateLocationSuccess = useCallback(() => {
-    // Refresh data setelah berhasil mengaktifkan lokasi
     fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
     toast.success("Data lokasi aktif telah diperbarui");
   }, []);
@@ -174,12 +163,10 @@ export default function LocationPage() {
   }, []);
 
   const handleSubmit = useCallback(async (values: Record<string, string>) => {
-    // console.log("Form values:", values);
     try {
       await createGate(values);
       setIsAddModalOpen(false);
       toast.success("gate baru berhasil ditambahkan!");
-      // Refresh data after successful creation
       fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
     } catch (error) {
       setIsAddModalOpen(false);
@@ -222,7 +209,6 @@ export default function LocationPage() {
     fetchLocationActiveData(1, newItemsPerPage);
   }, [fetchLocationActiveData]);
 
-  // Memoized table columns to prevent re-creation on every render
   const columns: Column<Location>[] = useMemo(() => [
     {
       header: "No",
@@ -264,16 +250,13 @@ export default function LocationPage() {
     },
   ], [locations, handleViewDetail]);
 
-  // Load data only once on mount
   useEffect(() => {
     const initializeData = async () => {
-      // Start with active data first (most important)
       await fetchLocationActiveData();
-      // Then load general location data (less critical)
     };
 
     initializeData();
-  }, [fetchLocationActiveData]); // Empty dependency array for mount only
+  }, [fetchLocationActiveData]);
 
   return (
     <>

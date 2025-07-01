@@ -9,13 +9,11 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Protected layout - ADA auth check di sini
 export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Auth check
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -24,7 +22,6 @@ export default async function ProtectedLayout({
   }
 
   try {
-    // Ganti 'your_jwt_secret' dengan secret yang sama dengan backend Anda
     jwt.verify(token, process.env.JWT_SECRET!);
   } catch (err) {
     console.error("Invalid token:", err);

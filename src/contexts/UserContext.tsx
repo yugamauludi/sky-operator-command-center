@@ -14,7 +14,6 @@ const UserContext = createContext<{
 export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>(null);
 
-    // Ambil username dari localStorage saat pertama kali mount
     useEffect(() => {
         const username = localStorage.getItem("username");
         if (username) {
@@ -22,7 +21,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Setiap user berubah, simpan ke localStorage
     useEffect(() => {
         if (user?.username) {
             localStorage.setItem("username", user.username);

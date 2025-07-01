@@ -23,14 +23,6 @@ const CallByGateTable = lazy(() => import("@/components/tables/CallByGateTable")
 const CallByIncidentTable = lazy(() => import("@/components/tables/CallByIncidentTable"));
 const TrafficCallTable = lazy(() => import("@/components/tables/TrafficCallTable"));
 
-// interface HelpRequest {
-//   id: string;
-//   gateId: string;
-//   type: "help" | "idle";
-//   status: "open" | "in_progress" | "resolved";
-//   createdAt: string;
-// }
-
 interface MonthlyComplaintData {
   month: string;
   date: string;
@@ -48,12 +40,6 @@ const tableOptions = [
 
 export default function Dashboard() {
   const { connectionStatus, userNumber } = useGlobalSocket();
-  // const [helpRequests, setHelpRequests] = useState<HelpRequest[]>([]);
-  // const [totalOpen] = useState(0);
-  // const [totalInProgress] = useState(0);
-  // const [totalResolved] = useState(0);
-  // const [filterStatus] = useState<"all" | "open" | "in_progress" | "resolved">("all");
-  // const [searchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [activeTable, setActiveTable] = useState<TableType>("call-quantity");

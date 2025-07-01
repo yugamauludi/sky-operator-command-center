@@ -19,7 +19,6 @@ export interface Field {
   readonly?: boolean;
   disabled?: boolean;
   onChange?: (value: string) => void;
-  // New properties for search and lazy loading
   searchable?: boolean;
   lazyLoad?: boolean;
   onLoadMore?: (searchTerm: string, page: number) => Promise<FieldOption[]>;
@@ -43,7 +42,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // PERBAIKAN: Gunakan field.options secara langsung, tidak perlu state terpisah
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(field.hasMore ?? true);
@@ -54,10 +52,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // PERBAIKAN: Gunakan field.options langsung
   const options = field.options || [];
 
-  // Filter options based on search term
   const filteredOptions = useMemo(() => {
     if (!field.searchable) return options;
     if (!searchTerm.trim()) return options;
@@ -68,14 +64,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     );
   }, [options, searchTerm, field.searchable]);
 
-  // Get selected option label
   const selectedLabel = useMemo(() => {
     const selected = options.find(opt => opt.value === value);
     return selected ? selected.label : "";
   }, [value, options]);
 
-  // PERBAIKAN: Hapus loadMoreOptions karena tidak diperlukan untuk kasus ini
-  // Load more options for lazy loading
   const loadMoreOptions = async (resetOptions = false) => {
     if (!field.lazyLoad || !field.onLoadMore || loading) return;
 
@@ -84,7 +77,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       const currentPage = resetOptions ? 1 : page;
       const newOptions = await field.onLoadMore(searchTerm, currentPage);
 
-      // Update options di parent component, bukan di sini
       setPage(currentPage + 1);
       setHasMore(newOptions.length > 0);
     } catch (error) {
@@ -94,7 +86,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
-  // Debounced search for lazy loading
   const debouncedSearch = () => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
@@ -109,7 +100,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }, 300);
   };
 
-  // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -120,7 +110,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
@@ -163,7 +152,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
-  // Handle scroll for lazy loading
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (!field.lazyLoad || !hasMore || loading) return;
 
@@ -173,7 +161,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
-  // Handle option select
   const handleOptionSelect = (optionValue: string) => {
     onChange(optionValue);
     setIsOpen(false);
@@ -181,15 +168,12 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     setHighlightedIndex(-1);
   };
 
-  // Handle input click/focus
   const handleInputFocus = () => {
     if (!disabled) {
       setIsOpen(true);
-      // PERBAIKAN: Hapus lazy loading untuk kasus ini
     }
   };
 
-  // Handle clear selection
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange("");
@@ -199,7 +183,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   };
 
-  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -218,7 +201,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     };
   }, []);
 
-  // Focus search input when dropdown opens
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       setTimeout(() => {
@@ -227,9 +209,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [isOpen]);
 
-  // PERBAIKAN: Hapus useEffect untuk lazy loading initialization
-
-  // Scroll highlighted option into view
   useEffect(() => {
     if (highlightedIndex >= 0 && listRef.current) {
       const highlightedElement = listRef.current.children[highlightedIndex] as HTMLElement;
@@ -242,7 +221,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }
   }, [highlightedIndex]);
 
-  // PERBAIKAN: Tambahkan debug log
   console.log(`SearchableSelect Debug - Field: ${field.id}`, {
     fieldOptions: field.options,
     optionsLength: options.length,
@@ -417,7 +395,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     }
   }, [fields, isOpen, formValues]);
 
-  // Update renderField function untuk input plat nomor
   const renderField = (field: Field) => {
     const value = formValues[field.id] || "";
     const isReadonly = field.readonly || false;
@@ -433,13 +410,12 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
     switch (field.type) {
       case "select":
-        // Always use enhanced searchable select for all select fields
         return (
           <div>
             <SearchableSelect
               field={{
                 ...field,
-                searchable: true // Enable search for all select fields
+                searchable: true
               }}
               value={value}
               onChange={(newValue) => handleInputChange(field.id, newValue)}
@@ -469,12 +445,10 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               type={field.type}
               value={value}
               onChange={(e) => {
-                // Khusus untuk plat nomor
                 if (field.id === "number_plate") {
                   const upperValue = e.target.value.toUpperCase();
                   handleInputChange(field.id, upperValue);
 
-                  // Validasi real-time
                   if (field.validation) {
                     const result = field.validation(upperValue);
                     setValidationErrors(prev => ({
@@ -487,7 +461,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
                 }
               }}
               onBlur={() => {
-                // Validasi saat field kehilangan fokus
                 if (field.validation) {
                   const result = field.validation(value);
                   setValidationErrors(prev => ({
@@ -526,7 +499,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
       }));
     }
 
-    // Call field's onChange if exists
     field?.onChange?.(value);
   };
 
@@ -537,7 +509,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     fields.forEach((field) => {
       const value = formValues[field.id] || "";
 
-      // Required field validation
       if (field.required && (!value || value.trim() === "")) {
         newValidationStates[field.id] = {
           isValid: false,
@@ -570,9 +541,7 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all fields
     if (!validateForm()) {
-      // Show error toast or alert
       toast?.error("Harap perbaiki error yang ada sebelum submit");
       return;
     }
@@ -583,7 +552,6 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Arrange fields in left-right layout (2 columns)
   const leftColumnFields: Field[] = [];
   const rightColumnFields: Field[] = [];
 
