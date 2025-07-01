@@ -26,11 +26,9 @@ export default function Login() {
         remember: true,
       });
       console.log(response.user.username, "<<<< username dari response");
-      
+
       setUser({ username: response.user.username });
-      // Simpan di cookies
-      // document.cookie = `id=${response.user.id}; path=/;`
-      // Simpan juga di localStorage jika diperlukan
+      localStorage.setItem("username", response.user.username);
       localStorage.setItem("id", response.user.id);
       if (response.user.id) {
         localStorage.setItem(
