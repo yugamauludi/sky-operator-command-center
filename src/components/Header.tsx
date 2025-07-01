@@ -7,6 +7,7 @@ import CheckTicketModal from './CheckTicketModal';
 import { fetchTransaction } from '@/hooks/useTransaction';
 import { toast } from 'react-toastify';
 import type { TransactionResponse } from '@/hooks/useTransaction'; // Import tipe response
+import { useUser } from '@/contexts/UserContext';
 
 interface HeaderProps {
   notifications: any[];
@@ -19,7 +20,9 @@ export default function Header({
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [ticketData, setTicketData] = useState<TransactionResponse | null>(null); // Gunakan tipe TransactionResponse
   const [loading, setLoading] = useState(false);
-
+  const { user } = useUser();
+  console.log(user, "<<<<<user nih");
+  
   const handleCheckTicket = async (keyword: string, locationCode: string, date: string) => {
     try {
       setLoading(true);
@@ -86,7 +89,7 @@ export default function Header({
                 />
               </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Admin
+                {user?.username || 'Admin'}
               </span>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import RouteLoader from "@/components/RouteLoader";
 import { LoaderProvider } from "@/contexts/LoaderContext";
+import { UserProvider } from "@/contexts/UserContext";
 // import GlobalLoader from "@/components/GlobalLoader";
 
 const poppins = Poppins({
@@ -34,8 +35,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LoaderProvider>
-          <RouteLoader />
-          {children}
+          <UserProvider>
+            <RouteLoader />
+            {children}
+          </UserProvider>
         </LoaderProvider>
       </body>
     </html>

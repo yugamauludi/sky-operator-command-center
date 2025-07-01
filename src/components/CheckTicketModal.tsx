@@ -4,6 +4,7 @@ import { fetchLocation } from '@/hooks/useLocation';
 import { validateLicensePlate } from '@/utils/validationNumberPlat';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import SearchableSelect from './SearchableSelect';
 
 interface Location {
     Code: string;
@@ -169,68 +170,17 @@ export default function CheckTicketModal({ isOpen, onClose, onSubmit, loading }:
 
                     {/* Location Select */}
                     <div>
-                        <label htmlFor="locationCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {/* <label htmlFor="locationCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Lokasi
-                        </label>
-                        {loadingLocations ? (
-                            <div className="flex items-center justify-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                <span className="ml-2 text-gray-600 dark:text-gray-400">Memuat data lokasi...</span>
-                            </div>
-                        ) : (
-                            <div className="relative">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="cursor-pointer w-full px-3 py-2 text-left border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed bg-white flex items-center justify-between"
-                                >
-                                    <span className={selectedLocation ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
-                                        {selectedLocation ? selectedLocation.Name : '-- Pilih Lokasi --'}
-                                    </span>
-                                    <svg
-                                        className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-
-                                {isDropdownOpen && (
-                                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg">
-                                        <div className="py-1 max-h-52 overflow-y-auto">
-                                            {locations.length === 0 ? (
-                                                <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                                                    Tidak ada lokasi tersedia
-                                                </div>
-                                            ) : (
-                                                locations.map((location) => (
-                                                    <button
-                                                        key={location.Code}
-                                                        type="button"
-                                                        onClick={() => handleSelectLocation(location.Code)}
-                                                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 ${locationCode === location.Code
-                                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-200'
-                                                            : 'text-gray-900 dark:text-white'
-                                                            }`}
-                                                    >
-                                                        {location.Name}
-                                                    </button>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {isDropdownOpen && (
-                                    <div
-                                        className="fixed inset-0 z-5"
-                                        onClick={() => setIsDropdownOpen(false)}
-                                    />
-                                )}
-                            </div>
-                        )}
+                        </label> */}
+                        <SearchableSelect
+                            options={locations.map(loc => ({ value: loc.Code, label: loc.Name }))}
+                            value={locationCode}
+                            onChange={setLocationCode}
+                            placeholder="-- Pilih Lokasi --"
+                            label="Lokasi"
+                            disabled={loadingLocations}
+                        />
                     </div>
 
                     {/* Date Input */}

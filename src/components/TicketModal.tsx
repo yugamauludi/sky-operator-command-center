@@ -44,15 +44,14 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
     const getStatusColor = (status: string) => {
         switch (status.toUpperCase()) {
             case 'FREE':
-                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
             case 'COMPLETED':
-                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                return 'bg-green-50 text-green-700 dark:bg-green-900/10 dark:text-green-200';
             case 'PENDING':
-                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+                return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/10 dark:text-yellow-200';
             case 'PAID':
-                return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+                return 'bg-blue-50 text-blue-700 dark:bg-blue-900/10 dark:text-blue-200';
             default:
-                return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+                return 'bg-gray-50 text-gray-700 dark:bg-gray-900/10 dark:text-gray-200';
         }
     };
 
@@ -72,9 +71,9 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                 onClick={onClose}
             />
 
-            {/* Modal - Optimized for no scroll */}
+            {/* Modal - Less colorfull, more neutral */}
             <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col">
-                {/* Header - Fixed */}
+                {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -94,7 +93,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                     </button>
                 </div>
 
-                {/* Content - Scrollable if needed */}
+                {/* Content */}
                 <div className="flex-1 overflow-y-auto">
                     {dataTicket ? (
                         <div className="p-4">
@@ -104,8 +103,8 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                 {/* Left Column - Transaction & Vehicle Info */}
                                 <div className="space-y-4">
                                     {/* Transaction Info */}
-                                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-4">
-                                        <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
@@ -116,7 +115,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                     Nomor Transaksi
                                                 </label>
-                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded mt-1">
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 py-1 rounded mt-1">
                                                     {dataTicket?.TransactionNo}
                                                 </p>
                                             </div>
@@ -130,12 +129,23 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     </span>
                                                 </div>
                                             </div>
+                                            {/* Issuer Info */}
+                                            {dataTicket.PaymentStatus === 'PAID' && (
+                                                <div>
+                                                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                        Issuer Name
+                                                    </label>
+                                                    <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 py-1 rounded mt-1">
+                                                        {dataTicket.issuerInfo || '-'}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
                                     {/* Vehicle Info */}
-                                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-4">
-                                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                             </svg>
@@ -154,7 +164,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                     Plat Masuk
                                                 </label>
-                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 py-1 rounded">
                                                     {dataTicket.LicensePlateIn}
                                                 </p>
                                             </div>
@@ -162,7 +172,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                     Plat Keluar
                                                 </label>
-                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                <p className="text-sm text-gray-900 dark:text-white font-mono bg-white dark:bg-gray-800 py-1 rounded">
                                                     {dataTicket.LicensePlateOut}
                                                 </p>
                                             </div>
@@ -173,8 +183,8 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                 {/* Middle Column - Location & Time */}
                                 <div className="space-y-4">
                                     {/* Location Info */}
-                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4">
-                                        <h3 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -187,7 +197,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     Nama Lokasi
                                                 </label>
                                                 <p className="text-sm text-gray-900 dark:text-white font-semibold">
-                                                    {dataTicket.locationInfo.Name}
+                                                    {dataTicket.locationInfo?.Name || '-'}
                                                 </p>
                                             </div>
                                             <div className="grid grid-cols-2 gap-2">
@@ -195,7 +205,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                         Gate Masuk
                                                     </label>
-                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded text-center">
+                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 py-1 rounded">
                                                         {dataTicket.GateInCode}
                                                     </p>
                                                 </div>
@@ -203,7 +213,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                     <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                         Gate Keluar
                                                     </label>
-                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded text-center">
+                                                    <p className="text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 py-1 rounded">
                                                         {dataTicket.GateOutCode}
                                                     </p>
                                                 </div>
@@ -220,8 +230,8 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                     </div>
 
                                     {/* Time Info */}
-                                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-lg p-4">
-                                        <h3 className="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -248,7 +258,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
                                                     Durasi Parkir
                                                 </label>
-                                                <p className="text-lg text-orange-700 dark:text-orange-300 font-bold text-center bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                                                <p className="text-lg text-gray-700 dark:text-gray-200 font-bold text-center bg-white dark:bg-gray-800 px-2 py-1 rounded">
                                                     {formatDuration(dataTicket.Duration)}
                                                 </p>
                                             </div>
@@ -259,23 +269,23 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                                 {/* Right Column - Payment Info */}
                                 <div className="space-y-4">
                                     {/* Payment Amount */}
-                                    <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-800/20 rounded-lg p-4">
-                                        <h3 className="text-sm font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                             </svg>
                                             Tarif
                                         </h3>
                                         <div className="text-center">
-                                            <p className="text-2xl font-bold text-green-600 dark:text-green-400 bg-white dark:bg-gray-800 px-4 py-3 rounded-lg">
+                                            <p className="text-2xl font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 px-4 py-3 rounded-lg">
                                                 {formatCurrency(Number(dataTicket?.TariffAmount))}
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Payment Details */}
-                                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-lg p-4">
-                                        <h3 className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-3 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 rounded-lg p-4 shadow-sm">
+                                        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                             </svg>
@@ -321,7 +331,7 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                     )}
                 </div>
 
-                {/* Footer - Fixed */}
+                {/* Footer */}
                 <div className="flex justify-end space-x-3 p-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
                     <button
                         onClick={onClose}
@@ -329,17 +339,6 @@ export default function TicketModal({ isOpen, onClose, ticketData }: TicketModal
                     >
                         Tutup
                     </button>
-                    {/* {ticketData && (
-                        <button
-                            onClick={() => window.print()}
-                            className="cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
-                        >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                            </svg>
-                            Print Tiket
-                        </button>
-                    )} */}
                 </div>
             </div>
         </div>

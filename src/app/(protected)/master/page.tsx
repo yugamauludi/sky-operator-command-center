@@ -25,6 +25,7 @@ import {
 import { CustomSelect } from "@/components/CustomSelect";
 import formatTanggalUTC from "@/utils/formatDate";
 import NoData from "@/components/NoData";
+import SearchableSelect from "@/components/SearchableSelect";
 
 // Lazy load komponen yang berat
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
@@ -339,14 +340,14 @@ export default function MasterPage() {
       render: (value: any, item: Category) => (
         <div className="flex space-x-2">
           <button
-            className="p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
+            className="cursor-pointer p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
             onClick={() => handleEditCategory(item.id)}
           >
             <FiEdit2 size={16} />
           </button>
           <button
             onClick={() => handleDelete(item.id)}
-            className="p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
+            className="cursor-pointer  p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
           >
             <FiTrash2 size={16} />
           </button>
@@ -544,7 +545,7 @@ export default function MasterPage() {
             <li className="w-full mr-2">
               <button
                 onClick={() => handleTabChange("category")}
-                className={`shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
+                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
                   ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
                   : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
                   }`}
@@ -555,7 +556,7 @@ export default function MasterPage() {
             <li className="w-full">
               <button
                 onClick={() => handleTabChange("description")}
-                className={`shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
+                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
                   ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
                   : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
                   }`}
@@ -596,7 +597,7 @@ export default function MasterPage() {
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                className=" cursor-pointer px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
               >
                 + Tambah {activeTab === "category" ? "Kategori" : "Deskripsi"}
               </button>
@@ -669,7 +670,7 @@ export default function MasterPage() {
                       setShowAddModal(false);
                       resetFormState();
                     }}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                    className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
                   >
                     <FiX size={24} />
                   </button>
@@ -700,17 +701,17 @@ export default function MasterPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Kategori
                       </label>
-                      <CustomSelect
-                        options={categoryName}
-                        value={newDescription.category}
-                        onChange={(value) =>
-                          setNewDescription((prev) => ({
+                      <SearchableSelect
+                        options={categoryName.map(cat => ({ value: cat.id.toString(), label: cat.name }))}
+                        value={newDescription.category ? newDescription.category.toString() : ""}
+                        onChange={val =>
+                          setNewDescription(prev => ({
                             ...prev,
-                            category: value,
+                            category: Number(val),
                           }))
                         }
-                        isDisabled={isEditing}
                         placeholder="Pilih kategori"
+                        disabled={isEditing}
                       />
                     </div>
                     <div className="mb-4">
@@ -735,7 +736,7 @@ export default function MasterPage() {
                 <div className="flex justify-end space-x-3">
                   <button
                     onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                    className="cursor-pointer px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
                   >
                     Batal
                   </button>
@@ -745,7 +746,7 @@ export default function MasterPage() {
                         ? handleAddCategory
                         : handleAddDescription
                     }
-                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                    className="cursor-pointer px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
                   >
                     Simpan
                   </button>

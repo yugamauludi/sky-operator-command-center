@@ -157,7 +157,7 @@ export default function CommonTable<T>({
                 <button
                   onClick={() => onPageChange(1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="First page"
                 >
                   <ChevronsLeft className="w-4 h-4" />
@@ -167,7 +167,7 @@ export default function CommonTable<T>({
                 <button
                   onClick={() => onPageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function CommonTable<T>({
                       ) : (
                         <button
                           onClick={() => onPageChange(page as number)}
-                          className={`relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
+                          className={`cursor-pointer relative inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-md ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
                             ? "bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                             }`}
@@ -201,7 +201,7 @@ export default function CommonTable<T>({
                 <button
                   onClick={() => onPageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="Next page"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -211,7 +211,7 @@ export default function CommonTable<T>({
                 <button
                   onClick={() => onPageChange(totalPages)}
                   disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                  className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="Last page"
                 >
                   <ChevronsRight className="w-4 h-4" />
@@ -242,7 +242,7 @@ export default function CommonTable<T>({
                   id="itemsPerPage"
                   value={itemsPerPage}
                   onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                  className="block w-20 rounded-md border-0 py-1.5 pl-3 pr-2 text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800"
+                  className="cursor-pointer block w-20 rounded-md border-0 py-1.5 pl-3 pr-2 text-gray-900 dark:text-gray-100 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 bg-white dark:bg-gray-800"
                 >
                   <option value="5">5</option>
                   <option value="10">10</option>
@@ -262,7 +262,7 @@ export default function CommonTable<T>({
               <button
                 onClick={() => onPageChange(1)}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                className="cursor-pointer relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                 title="First page"
               >
                 <span className="sr-only">First</span>
@@ -273,7 +273,7 @@ export default function CommonTable<T>({
               <button
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                className="cursor-pointer relative inline-flex items-center px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                 title="Previous page"
               >
                 <span className="sr-only">Previous</span>
@@ -290,7 +290,7 @@ export default function CommonTable<T>({
                   ) : (
                     <button
                       onClick={() => onPageChange(page as number)}
-                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
+                      className={`cursor-pointer relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:z-20 focus:outline-offset-0 transition-colors duration-200 ${currentPage === page
                         ? "z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                         : "text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                         }`}
@@ -306,7 +306,7 @@ export default function CommonTable<T>({
               <button
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="relative inline-flex items-center px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                className="cursor-pointer relative inline-flex items-center px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                 title="Next page"
               >
                 <span className="sr-only">Next</span>
@@ -317,7 +317,7 @@ export default function CommonTable<T>({
               <button
                 onClick={() => onPageChange(totalPages)}
                 disabled={currentPage === totalPages}
-                className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
+                className="cursor-pointer relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                 title="Last page"
               >
                 <span className="sr-only">Last</span>
