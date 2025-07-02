@@ -10,18 +10,21 @@ export function validateIndonesianLicensePlate(value: string): {
     };
   }
 
-  // Hapus semua spasi dan normalize input ke uppercase
-  const normalizedPlate = value.replace(/\s+/g, "").toUpperCase();
+  const normalizedPlate = value.toUpperCase().trim();
 
-  // Format yang valid:
-  // B1234ABC
-  // AB1234ABC
-  const plateRegex = /^[A-Z]{1,2}\d{1,4}[A-Z]{1,3}$/;
+  // Format valid:
+  // - B1234ABC
+  // - AB1234ABC
+  // - B 1234 ABC
+  // - AB 1234 ABC
+  // - RI 1
+  // - B 1
+  const plateRegex = /^([A-Z]{1,2})\s?(\d{1,4})(\s?[A-Z]{0,3})?$/;
 
   if (!plateRegex.test(normalizedPlate)) {
     return {
       isValid: false,
-      message: "Format tidak valid. Contoh: B1234ABC atau AB1234ABC",
+      message: "Format tidak valid. Contoh: B1234ABC, B 1, RI 1, atau AB 1234 ABC",
     };
   }
 

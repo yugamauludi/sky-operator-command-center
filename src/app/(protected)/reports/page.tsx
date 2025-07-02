@@ -1,17 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useMemo, Suspense, lazy } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  Suspense,
+  lazy,
+  useCallback,
+} from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Column } from "@/components/tables/CommonTable";
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
-import IsseFormInputModal from "@/components/IssueFormInputModal"
+import IsseFormInputModal from "@/components/IssueFormInputModal";
 import { Field } from "@/components/IssueFormInputModal";
 import { addIssue, fetchIssues } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
-import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
+import {
+  addDescription,
+  Description,
+  fetchDescriptionByCategoryId,
+} from "@/hooks/useDescriptions";
 import { toast } from "react-toastify";
 import { formatDateOnly } from "@/utils/formatDate";
 import {
@@ -97,7 +108,7 @@ export default function ReportsPage() {
             category: issue.category,
             description: issue.description,
             solution: issue.action || "No solution provided",
-            rawDate: createdDate, // Store raw date for filtering
+            rawDate: createdDate,
           };
         });
         setReports(mappedReports);
@@ -153,10 +164,7 @@ export default function ReportsPage() {
       totalPages: totalFilteredPages,
       currentPage: currentPage,
     };
-  }, [
-    filteredReports,
-    issuesPagination,
-  ]);
+  }, [filteredReports, issuesPagination]);
 
   const paginatedFilteredReports = useMemo(() => {
     const startIndex =
@@ -191,7 +199,6 @@ export default function ReportsPage() {
     }
   };
 
-
   const handleIssuesPageChange = (page: number) => {
     setIssuesPagination((prev) => ({ ...prev, currentPage: page }));
   };
@@ -204,47 +211,50 @@ export default function ReportsPage() {
     }));
   };
 
-  const handleFieldValueChange = async (fieldId: string, value: string) => {
+  const handleFieldValueChange = useCallback(
+    async (fieldId: string, value: string) => {
+      setFormFieldValues((prev) => {
+        const newValues = { ...prev, [fieldId]: value };
 
-    setFormFieldValues((prev) => {
-      const newValues = { ...prev, [fieldId]: value };
+        if (fieldId === "idLocation") {
+          newValues.idGate = "";
+        }
+        if (fieldId === "idCategory") {
+          newValues.description = "";
+          newValues.customDescription = "";
+        }
 
-      if (fieldId === "idLocation") {
-        newValues.idGate = "";
+        if (fieldId === "description" && value !== "other") {
+          newValues.customDescription = "";
+        }
+
+        return newValues;
+      });
+
+      if (fieldId === "idLocation" && value) {
+        setGateIdData([]);
+        try {
+          await fetchGateData({
+            id: parseInt(value),
+            page: 1,
+            limit: 1000,
+          });
+        } catch (error) {
+          console.error("Error fetching gates:", error);
+        }
       }
 
-      if (fieldId === "idCategory") {
-        newValues.description = "";
+      if (fieldId === "idCategory" && value) {
+        setDescriptions([]);
+        try {
+          await fetchDescriptionsDataByCategoryId(parseInt(value));
+        } catch (error) {
+          console.error("Error fetching descriptions:", error);
+        }
       }
-
-      return newValues;
-    });
-
-    if (fieldId === "idLocation" && value) {
-      setGateIdData([]);
-
-      try {
-        await fetchGateData({
-          id: parseInt(value),
-          page: 1,
-          limit: 1000,
-        });
-      } catch (error) {
-        console.error("Error fetching gates:", error);
-      }
-    }
-
-    if (fieldId === "idCategory" && value) {
-      console.log("Fetching descriptions for category:", value);
-      setDescriptions([]);
-
-      try {
-        await fetchDescriptionsDataByCategoryId(parseInt(value));
-      } catch (error) {
-        console.error("Error fetching descriptions:", error);
-      }
-    }
-  };
+    },
+    []
+  );
 
   const fetchGateData = async (data: any) => {
     try {
@@ -290,15 +300,48 @@ export default function ReportsPage() {
     }
   };
 
+  const handleAddDescription = async (
+    categoryId: number,
+    descriptionName: string
+  ) => {
+    try {
+      await addDescription({
+        name: descriptionName,
+        idDescription: categoryId,
+      });
+      await fetchDescriptionsDataByCategoryId(categoryId);
+    } catch (error) {
+      console.error("Gagal menambahkan deskripsi:", error);
+      throw error;
+    }
+  };
+
   const handleNewReportSubmit = async (values: Record<string, string>) => {
     try {
       setIsDataLoading(true);
+
+      let finalDescription = values.description;
+
+      if (values.description === "other" && values.customDescription) {
+        try {
+          await handleAddDescription(
+            parseInt(values.idCategory), 
+            values.customDescription
+          );
+          finalDescription = values.customDescription;
+        } catch (error) {
+          console.error("Failed to add new description, continuing with custom description", error);
+          finalDescription = values.customDescription;
+        }
+      } else if (values.description !== "other") {
+        finalDescription = values.description;
+      }
 
       const newReportData: NewReportData = {
         idLocation: parseInt(values.idLocation),
         idCategory: parseInt(values.idCategory),
         idGate: parseInt(values.idGate) || 0,
-        description: values.description,
+        description: finalDescription,
         action: values.action,
         foto: values.foto || "-",
         number_plate: values.number_plate || "-",
@@ -359,18 +402,18 @@ export default function ReportsPage() {
   ];
 
   const newReportFields = useMemo<Field[]>(() => {
-
-    return [
+    const baseFields: Field[] = [
       {
         id: "idLocation",
         label: "Location",
         type: "select" as const,
         value: formFieldValues.idLocation || "",
         placeholder: "-- Pilih Location --",
-        options: locationData?.map((loc) => ({
-          value: loc.id.toString(),
-          label: loc.Name,
-        })) || [],
+        options:
+          locationData?.map((loc) => ({
+            value: loc.id.toString(),
+            label: loc.Name,
+          })) || [],
         required: true,
         onChange: (value) => handleFieldValueChange("idLocation", value),
       },
@@ -380,10 +423,11 @@ export default function ReportsPage() {
         type: "select" as const,
         value: formFieldValues.idCategory || "",
         placeholder: "-- Pilih Kategori --",
-        options: categories?.map((cat) => ({
-          value: cat.id.toString(),
-          label: cat.category,
-        })) || [],
+        options:
+          categories?.map((cat) => ({
+            value: cat.id.toString(),
+            label: cat.category,
+          })) || [],
         required: true,
         onChange: (value) => handleFieldValueChange("idCategory", value),
       },
@@ -395,14 +439,16 @@ export default function ReportsPage() {
         placeholder: isGateDataLoading
           ? "Loading gates..."
           : !formFieldValues.idLocation
-            ? "-- Pilih Location dulu --"
-            : gateIdData.length === 0
-              ? "No gates available"
-              : "-- Pilih Gate --",
-        options: Array.isArray(gateIdData) ? gateIdData.map((gate) => ({
-          value: gate.id.toString(),
-          label: gate.gate,
-        })) : [],
+          ? "-- Pilih Location dulu --"
+          : gateIdData.length === 0
+          ? "No gates available"
+          : "-- Pilih Gate --",
+        options: Array.isArray(gateIdData)
+          ? gateIdData.map((gate) => ({
+              value: gate.id.toString(),
+              label: gate.gate,
+            }))
+          : [],
         required: true,
         disabled: !formFieldValues.idLocation || isGateDataLoading,
         onChange: (value) => handleFieldValueChange("idGate", value),
@@ -415,14 +461,22 @@ export default function ReportsPage() {
         placeholder: isDescriptionsLoading
           ? "Loading descriptions..."
           : !formFieldValues.idCategory
-            ? "-- Pilih Kategori dulu --"
-            : descriptions.length === 0
-              ? "No descriptions available"
-              : "-- Pilih Deskripsi --",
-        options: Array.isArray(descriptions) ? descriptions.map((desc) => ({
-          value: desc.id.toString(),
-          label: desc.object,
-        })) : [],
+          ? "-- Pilih Kategori dulu --"
+          : descriptions.length === 0
+          ? "No descriptions available"
+          : "-- Pilih Deskripsi --",
+        options: Array.isArray(descriptions)
+          ? [
+              ...descriptions.map((desc) => ({
+                value: desc.object,
+                label: desc.object,
+              })),
+              {
+                value: "other",
+                label: "Other (Input Manual)",
+              },
+            ]
+          : [],
         required: true,
         disabled: !formFieldValues.idCategory || isDescriptionsLoading,
         onChange: (value) => handleFieldValueChange("description", value),
@@ -436,15 +490,21 @@ export default function ReportsPage() {
         required: true,
         onChange: (value) => handleFieldValueChange("TrxNo", value),
       },
-      {
-        id: "action",
-        label: "Action",
+    ];
+
+    if (formFieldValues.description === "other") {
+      baseFields.push({
+        id: "customDescription",
+        label: "Input Deskripsi Manual",
         type: "text" as const,
-        value: formFieldValues.action || "",
-        placeholder: "Enter action (e.g., OPEN_GATE, CREATE_ISSUE)",
+        value: formFieldValues.customDescription || "",
+        placeholder: "Masukkan deskripsi manual...",
         required: true,
-        onChange: (value) => handleFieldValueChange("action", value),
-      },
+        onChange: (value) => handleFieldValueChange("customDescription", value),
+      });
+    }
+
+    baseFields.push(
       {
         id: "number_plate",
         label: "Number Plate",
@@ -453,21 +513,27 @@ export default function ReportsPage() {
         placeholder: "Contoh: B1234XYZ",
         required: true,
         validation: validateIndonesianLicensePlate,
-        onChange: (value) => {
-          const upperValue = value.toUpperCase();
-          handleFieldValueChange("number_plate", upperValue);
-        }
+        onChange: (value: string) => {
+          const cleanValue = value.toUpperCase().substring(0, 11);
+          handleFieldValueChange("number_plate", cleanValue);
+        },
       },
-      // {
-      //   id: "foto",
-      //   label: "Foto",
-      //   type: "text" as const,
-      //   value: formFieldValues.foto || "-",
-      //   placeholder: "Photo URL or path",
-      //   required: false,
-      //   onChange: (value) => handleFieldValueChange("foto", value),
-      // },
-    ];
+      {
+        id: "action",
+        label: "Action",
+        type: "radio" as const,
+        value: formFieldValues.action,
+        placeholder: "",
+        options: [
+          { value: "OPEN_GATE", label: "Open Gate" },
+          { value: "CREATE_ISSUE", label: "Create Issue" },
+        ],
+        required: true,
+        onChange: (value) => handleFieldValueChange("action", value),
+      }
+    );
+
+    return baseFields;
   }, [
     formFieldValues,
     gateIdData,
@@ -482,7 +548,6 @@ export default function ReportsPage() {
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
         <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
-
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Laporan</h1>
@@ -511,31 +576,58 @@ export default function ReportsPage() {
                     nextMonthButtonDisabled,
                   }) => (
                     <div className="flex items-center justify-between px-2 py-2">
-                      <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>
+                      <button
+                        onClick={decreaseMonth}
+                        disabled={prevMonthButtonDisabled}
+                      >
                         <IoIosArrowBack />
                       </button>
                       <select
                         value={date.getMonth()}
-                        onChange={({ target: { value } }) => changeMonth(Number(value))}
+                        onChange={({ target: { value } }) =>
+                          changeMonth(Number(value))
+                        }
                         className="mx-1 px-2 py-1 border rounded"
                       >
                         {[
-                          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                          "Jan",
+                          "Feb",
+                          "Mar",
+                          "Apr",
+                          "May",
+                          "Jun",
+                          "Jul",
+                          "Aug",
+                          "Sep",
+                          "Oct",
+                          "Nov",
+                          "Dec",
                         ].map((month, index) => (
-                          <option key={month} value={index}>{month}</option>
+                          <option key={month} value={index}>
+                            {month}
+                          </option>
                         ))}
                       </select>
                       <select
                         value={date.getFullYear()}
-                        onChange={({ target: { value } }) => changeYear(Number(value))}
+                        onChange={({ target: { value } }) =>
+                          changeYear(Number(value))
+                        }
                         className="mx-1 px-2 py-1 border rounded"
                       >
-                        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                          <option key={year} value={year}>{year}</option>
+                        {Array.from(
+                          { length: 10 },
+                          (_, i) => new Date().getFullYear() - i
+                        ).map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
                         ))}
                       </select>
-                      <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>
+                      <button
+                        onClick={increaseMonth}
+                        disabled={nextMonthButtonDisabled}
+                      >
                         <IoIosArrowForward />
                       </button>
                     </div>
@@ -617,7 +709,8 @@ export default function ReportsPage() {
                   )}
                 </div>
                 <div className="text-sm text-blue-600 dark:text-blue-300">
-                  Menampilkan {filteredReports.length} dari {reports.length} data
+                  Menampilkan {filteredReports.length} dari {reports.length}{" "}
+                  data
                 </div>
               </div>
             </div>
