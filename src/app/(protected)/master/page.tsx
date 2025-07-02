@@ -1,7 +1,6 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-
 import { useState, useEffect, lazy, Suspense } from "react";
 import { FiEdit2, FiTrash2, FiX } from "react-icons/fi";
 import {
@@ -38,7 +37,10 @@ const TableSkeleton = () => (
   <div className="animate-pulse">
     <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
     {[...Array(5)].map((_, i) => (
-      <div key={i} className="h-16 bg-gray-100 dark:bg-gray-800 rounded mb-2"></div>
+      <div
+        key={i}
+        className="h-16 bg-gray-100 dark:bg-gray-800 rounded mb-2"
+      ></div>
     ))}
   </div>
 );
@@ -71,7 +73,7 @@ const useDataLoader = () => {
   const [loadedTabs, setLoadedTabs] = useState<Set<string>>(new Set());
 
   const markTabAsLoaded = (tab: string) => {
-    setLoadedTabs(prev => new Set(prev).add(tab));
+    setLoadedTabs((prev) => new Set(prev).add(tab));
     setIsInitialLoad(false);
   };
 
@@ -90,9 +92,6 @@ export default function MasterPage() {
     id: null,
     categoryName: "",
   });
-  const [categoryName, setCategoryName] = useState<
-    { id: number; name: string }[]
-  >([]);
   const [newDescription, setNewDescription] = useState<{
     id?: number;
     category: number | null;
@@ -117,11 +116,20 @@ export default function MasterPage() {
       itemsPerPage: 5,
     });
 
-  const {
-    markTabAsLoaded,
-    isTabLoaded
-  } = useDataLoader();
+  const { markTabAsLoaded, isTabLoaded } = useDataLoader();
   const [isEditing, setIsEditing] = useState(false);
+
+  const [categorySelectOptions, setCategorySelectOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [categorySelectPagination, setCategorySelectPagination] = useState({
+    currentPage: 1,
+    hasMore: true,
+    isLoading: false,
+    isSearching: false,
+    searchTerm: "",
+    totalLoaded: 0,
+  });
 
   const fetchCategoriesData = async (page = 1, limit = 5, isLazy = false) => {
     try {
@@ -141,12 +149,6 @@ export default function MasterPage() {
           currentPage: categoriesData.meta.page,
           itemsPerPage: categoriesData.meta.limit,
         });
-
-        const category = categoriesData.data.map((category: Category) => ({
-          id: category.id,
-          name: category.category,
-        }));
-        setCategoryName(category);
       } else {
         const categoriesDataArr = Array.isArray(categoriesData)
           ? categoriesData
@@ -161,12 +163,6 @@ export default function MasterPage() {
           currentPage: page,
           itemsPerPage: limit,
         });
-
-        const category = categoriesDataArr.map((category: Category) => ({
-          id: category.id,
-          name: category.category,
-        }));
-        setCategoryName(category);
       }
 
       markTabAsLoaded("category");
@@ -177,6 +173,86 @@ export default function MasterPage() {
       markTabAsLoaded("category");
     }
   };
+
+  const loadCategoryOptions = async (page = 1, search = "", reset = false) => {
+    if (categorySelectPagination.isLoading) return;
+
+    setCategorySelectPagination((prev) => ({
+      ...prev,
+      isLoading: true,
+      isSearching: search !== prev.searchTerm,
+    }));
+
+    try {
+      // Adjust this API call based on your backend
+      const response = await fetchCategories(page, 5);
+
+      const newOptions = response.data.map((category: Category) => ({
+        value: category.id.toString(),
+        label: category.category,
+      }));
+
+      setCategorySelectOptions((prev) => {
+        if (reset || page === 1) {
+          return newOptions;
+        }
+        // Avoid duplicates when loading more
+        const existingIds = new Set(prev.map((opt) => opt.value));
+        const uniqueNewOptions = newOptions.filter(
+          (opt) => !existingIds.has(opt.value)
+        );
+        return [...prev, ...uniqueNewOptions];
+      });
+
+      setCategorySelectPagination((prev) => ({
+        ...prev,
+        currentPage: page,
+        hasMore: response.meta
+          ? page < response.meta.totalPages
+          : newOptions.length === 10,
+        totalLoaded: reset
+          ? newOptions.length
+          : prev.totalLoaded + newOptions.length,
+        searchTerm: search,
+      }));
+    } catch (error) {
+      console.error("Error loading category options:", error);
+    } finally {
+      setCategorySelectPagination((prev) => ({
+        ...prev,
+        isLoading: false,
+        isSearching: false,
+      }));
+    }
+  };
+
+  // const handleCategorySearch = (searchTerm: string) => {
+  //   setCategorySelectPagination((prev) => ({
+  //     ...prev,
+  //     currentPage: 1,
+  //     searchTerm: searchTerm,
+  //   }));
+  //   loadCategoryOptions(1, searchTerm, true);
+  // };
+
+  const handleLoadMoreCategories = () => {
+    if (
+      categorySelectPagination.hasMore &&
+      !categorySelectPagination.isLoading
+    ) {
+      const nextPage = categorySelectPagination.currentPage + 1;
+      loadCategoryOptions(nextPage, categorySelectPagination.searchTerm);
+    }
+  };
+
+  // Add this useEffect to load initial category options when modal opens
+  useEffect(() => {
+    if (showAddModal && activeTab === "description") {
+      if (categorySelectOptions.length === 0) {
+        loadCategoryOptions(1, "", true);
+      }
+    }
+  }, [showAddModal, activeTab]);
 
   const fetchDescriptionData = async (page = 1, limit = 5, isLazy = false) => {
     try {
@@ -218,7 +294,6 @@ export default function MasterPage() {
     } finally {
       setIsDataLoading(false);
       markTabAsLoaded("description");
-
     }
   };
 
@@ -493,6 +568,17 @@ export default function MasterPage() {
     });
     setDeleteId(null);
     setIsEditing(false);
+
+    // Reset category select options
+    setCategorySelectOptions([]);
+    setCategorySelectPagination({
+      currentPage: 1,
+      hasMore: true,
+      isLoading: false,
+      isSearching: false,
+      searchTerm: "",
+      totalLoaded: 0,
+    });
   };
 
   const handleItemsCategoryPerPageChange = (newItemsPerPage: number) => {
@@ -515,12 +601,10 @@ export default function MasterPage() {
 
   console.log(categories, descriptions);
 
-
   return (
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
         <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
-
           <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
             Master Data
           </h1>
@@ -530,10 +614,11 @@ export default function MasterPage() {
             <li className="w-full mr-2">
               <button
                 onClick={() => handleTabChange("category")}
-                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "category"
-                  ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
-                  : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-                  }`}
+                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${
+                  activeTab === "category"
+                    ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+                    : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+                }`}
               >
                 Kategori
               </button>
@@ -541,10 +626,11 @@ export default function MasterPage() {
             <li className="w-full">
               <button
                 onClick={() => handleTabChange("description")}
-                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${activeTab === "description"
-                  ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
-                  : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-                  }`}
+                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${
+                  activeTab === "description"
+                    ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+                    : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+                }`}
               >
                 Deskripsi
               </button>
@@ -559,8 +645,10 @@ export default function MasterPage() {
                   Manajemen Kategori
                 </h2>
                 <p className="text-blue-600/80 dark:text-blue-300/80">
-                  Halaman ini digunakan untuk mengelola kategori permasalahan yang dapat terjadi di gerbang.
-                  Setiap kategori akan menjadi pengelompokan utama untuk berbagai jenis permasalahan yang mungkin dihadapi.
+                  Halaman ini digunakan untuk mengelola kategori permasalahan
+                  yang dapat terjadi di gerbang. Setiap kategori akan menjadi
+                  pengelompokan utama untuk berbagai jenis permasalahan yang
+                  mungkin dihadapi.
                 </p>
               </div>
             ) : (
@@ -569,8 +657,10 @@ export default function MasterPage() {
                   Manajemen Deskripsi Permasalahan
                 </h2>
                 <p className="text-green-600/80 dark:text-green-300/80">
-                  Halaman ini memungkinkan Anda mengelola deskripsi detail dari setiap permasalahan.
-                  Setiap deskripsi terhubung dengan kategori tertentu dan memberikan penjelasan spesifik tentang jenis masalah yang dapat terjadi.
+                  Halaman ini memungkinkan Anda mengelola deskripsi detail dari
+                  setiap permasalahan. Setiap deskripsi terhubung dengan
+                  kategori tertentu dan memberikan penjelasan spesifik tentang
+                  jenis masalah yang dapat terjadi.
                 </p>
               </div>
             )}
@@ -630,7 +720,9 @@ export default function MasterPage() {
                         onPageChange={handleDescriptionPageChange}
                         itemsPerPage={descriptionPagination.itemsPerPage}
                         totalItems={descriptionPagination.totalItems}
-                        onItemsPerPageChange={handleItemsDescriptionPerPageChange}
+                        onItemsPerPageChange={
+                          handleItemsDescriptionPerPageChange
+                        }
                         className="text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
                       />
                     </Suspense>
@@ -687,16 +779,29 @@ export default function MasterPage() {
                         Kategori
                       </label>
                       <SearchableSelect
-                        options={categoryName.map(cat => ({ value: cat.id.toString(), label: cat.name }))}
-                        value={newDescription.category ? newDescription.category.toString() : ""}
-                        onChange={val =>
-                          setNewDescription(prev => ({
+                        options={categorySelectOptions}
+                        value={
+                          newDescription.category
+                            ? newDescription.category.toString()
+                            : ""
+                        }
+                        onChange={(val) =>
+                          setNewDescription((prev) => ({
                             ...prev,
                             category: Number(val),
                           }))
                         }
                         placeholder="Pilih kategori"
                         disabled={isEditing}
+                        // onSearch={handleCategorySearch}
+                        onLoadMore={handleLoadMoreCategories}
+                        hasMoreData={categorySelectPagination.hasMore}
+                        isLoadingMore={categorySelectPagination.isLoading}
+                        // isSearching={categorySelectPagination.isSearching}
+                        showLoadMoreInfo={true}
+                        loadMoreText="Memuat kategori..."
+                        // searchDebounceMs={300}
+                        loadMoreThreshold={50}
                       />
                     </div>
                     <div className="mb-4">

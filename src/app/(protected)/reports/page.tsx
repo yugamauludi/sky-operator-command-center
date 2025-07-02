@@ -64,6 +64,14 @@ interface NewReportData {
   TrxNo: string;
 }
 
+interface DataPagination {
+  page: number;
+  limit: number;
+  totalItems: number;
+  hasMore: boolean;
+  isLoading: boolean;
+}
+
 export default function ReportsPage() {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
@@ -79,9 +87,6 @@ export default function ReportsPage() {
     itemsPerPage: 5,
   });
 
-  const [isGateDataLoading, setIsGateDataLoading] = useState(false);
-  const [isDescriptionsLoading, setIsDescriptionsLoading] = useState(false);
-
   const [searchDate, setSearchDate] = useState<Date | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
@@ -89,6 +94,38 @@ export default function ReportsPage() {
   const [formFieldValues, setFormFieldValues] = useState<
     Record<string, string>
   >({});
+  const [locationPagination, setLocationPagination] = useState<DataPagination>({
+    page: 1,
+    limit: 10,
+    totalItems: 0,
+    hasMore: true,
+    isLoading: false,
+  });
+  const [categoriesPagination, setCategoriesPagination] =
+    useState<DataPagination>({
+      page: 1,
+      limit: 10,
+      totalItems: 0,
+      hasMore: true,
+      isLoading: false,
+    });
+
+  const [gatesPagination, setGatesPagination] = useState<DataPagination>({
+    page: 1,
+    limit: 5,
+    totalItems: 0,
+    hasMore: true,
+    isLoading: false,
+  });
+
+  const [descriptionsPagination, setDescriptionsPagination] =
+    useState<DataPagination>({
+      page: 1,
+      limit: 5,
+      totalItems: 0,
+      hasMore: true,
+      isLoading: false,
+    });
 
   const fetchAllIssuesData = async () => {
     try {
@@ -181,23 +218,81 @@ export default function ReportsPage() {
     filteredPagination.itemsPerPage,
   ]);
 
-  const fetchLocationData = async () => {
+  const fetchAllLocations = async (
+    limit: number = 5,
+    reset: boolean = true
+  ) => {
     try {
-      const response = await fetchLocationActive(1, 1000);
-      setLocationData(response.data);
+      setLocationPagination((prev) => ({ ...prev, isLoading: true }));
+
+      const response = await fetchLocationActive(1, limit);
+
+      if (reset) {
+        setLocationData(response.data);
+      } else {
+        setLocationData((prev) => [...prev, ...response.data]);
+      }
+
+      setLocationPagination((prev) => ({
+        ...prev,
+        totalItems: response.meta?.totalItems || response.data.length,
+        hasMore: response.data.length === limit,
+        isLoading: false,
+      }));
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching locations:", error);
+      setLocationPagination((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
-  const fetchCategoriesData = async () => {
+  const handleLoadMoreLocations = useCallback(() => {
+    if (!locationPagination.isLoading && locationPagination.hasMore) {
+      const newLimit = locationData.length + 5;
+      fetchAllLocations(newLimit, false);
+    }
+  }, [
+    locationPagination.isLoading,
+    locationPagination.hasMore,
+    locationData.length,
+  ]);
+
+  const fetchAllCategories = async (
+    limit: number = 5,
+    reset: boolean = true
+  ) => {
     try {
-      const response = await fetchCategories(1, 1000);
-      setCategories(response.data);
+      setCategoriesPagination((prev) => ({ ...prev, isLoading: true }));
+
+      const response = await fetchCategories(1, limit);
+
+      if (reset) {
+        setCategories(response.data);
+      } else {
+        setCategories((prev) => [...prev, ...response.data]);
+      }
+
+      setCategoriesPagination((prev) => ({
+        ...prev,
+        totalItems: response.meta?.totalItems || response.data.length,
+        hasMore: response.data.length === limit,
+        isLoading: false,
+      }));
     } catch (error) {
       console.error("Error fetching categories:", error);
+      setCategoriesPagination((prev) => ({ ...prev, isLoading: false }));
     }
   };
+
+  const handleLoadMoreCategories = useCallback(() => {
+    if (!categoriesPagination.isLoading && categoriesPagination.hasMore) {
+      const newLimit = categories.length + 5;
+      fetchAllCategories(newLimit, false);
+    }
+  }, [
+    categoriesPagination.isLoading,
+    categoriesPagination.hasMore,
+    categories.length,
+  ]);
 
   const handleIssuesPageChange = (page: number) => {
     setIssuesPagination((prev) => ({ ...prev, currentPage: page }));
@@ -233,12 +328,13 @@ export default function ReportsPage() {
 
       if (fieldId === "idLocation" && value) {
         setGateIdData([]);
+        setGatesPagination((prev) => ({
+          ...prev,
+          hasMore: true,
+          totalItems: 0,
+        }));
         try {
-          await fetchGateData({
-            id: parseInt(value),
-            page: 1,
-            limit: 1000,
-          });
+          await fetchAllGates(parseInt(value), 10, true);
         } catch (error) {
           console.error("Error fetching gates:", error);
         }
@@ -246,8 +342,13 @@ export default function ReportsPage() {
 
       if (fieldId === "idCategory" && value) {
         setDescriptions([]);
+        setDescriptionsPagination((prev) => ({
+          ...prev,
+          hasMore: true,
+          totalItems: 0,
+        }));
         try {
-          await fetchDescriptionsDataByCategoryId(parseInt(value));
+          await fetchAllDescriptions(parseInt(value), 10, true);
         } catch (error) {
           console.error("Error fetching descriptions:", error);
         }
@@ -256,49 +357,113 @@ export default function ReportsPage() {
     []
   );
 
-  const fetchGateData = async (data: any) => {
+  const fetchAllGates = async (
+    locationId: number,
+    limit: number = 5,
+    reset: boolean = true
+  ) => {
     try {
-      setIsGateDataLoading(true);
+      setGatesPagination((prev) => ({ ...prev, isLoading: true }));
 
-      const response = await fetchGateByLocation(data);
+      const response = await fetchGateByLocation({
+        id: locationId,
+        page: 1,
+        limit: limit,
+      });
 
       if (response && response.data) {
-        setGateIdData(response.data);
+        if (reset) {
+          setGateIdData(response.data);
+        } else {
+          setGateIdData((prev) => [...prev, ...response.data]);
+        }
+
+        setGatesPagination((prev) => ({
+          ...prev,
+          totalItems: response.meta?.totalItems || response.data.length,
+          hasMore: response.data.length === limit,
+          isLoading: false,
+        }));
       } else {
         setGateIdData([]);
+        setGatesPagination((prev) => ({
+          ...prev,
+          hasMore: false,
+          isLoading: false,
+        }));
       }
     } catch (error) {
       console.error("Error fetching gates:", error);
       setGateIdData([]);
-    } finally {
-      setIsGateDataLoading(false);
+      setGatesPagination((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
-  const fetchDescriptionsDataByCategoryId = async (categoryId: number) => {
+  const handleLoadMoreGates = useCallback(() => {
+    const locationId = parseInt(formFieldValues.idLocation);
+    if (!gatesPagination.isLoading && gatesPagination.hasMore && locationId) {
+      const newLimit = gateIdData.length + 5;
+      fetchAllGates(locationId, newLimit, false);
+    }
+  }, [
+    gatesPagination.isLoading,
+    gatesPagination.hasMore,
+    gateIdData.length,
+    formFieldValues.idLocation,
+  ]);
+
+  const fetchAllDescriptions = async (
+    categoryId: number,
+    limit: number = 10,
+    reset: boolean = true
+  ) => {
     try {
-      setIsDescriptionsLoading(true);
-      console.log("Fetching descriptions for category ID:", categoryId);
+      setDescriptionsPagination((prev) => ({ ...prev, isLoading: true }));
 
       const response = await fetchDescriptionByCategoryId(categoryId);
-      console.log("Descriptions response:", response);
 
-      if (response) {
-        if (Array.isArray(response)) {
-          setDescriptions(response);
-        } else {
-          setDescriptions([response]);
-        }
-      } else {
-        setDescriptions([]);
+      let descriptions: Description[] = [];
+      if (Array.isArray(response)) {
+        descriptions = response;
+      } else if (response) {
+        descriptions = [response];
       }
+
+      if (reset) {
+        setDescriptions(descriptions);
+      } else {
+        setDescriptions((prev) => [...prev, ...descriptions]);
+      }
+
+      setDescriptionsPagination((prev) => ({
+        ...prev,
+        totalItems: descriptions.length,
+        hasMore: descriptions.length === limit,
+        isLoading: false,
+      }));
     } catch (error) {
       console.error("Error fetching descriptions:", error);
       setDescriptions([]);
-    } finally {
-      setIsDescriptionsLoading(false);
+      setDescriptionsPagination((prev) => ({ ...prev, isLoading: false }));
     }
   };
+
+  const handleLoadMoreDescriptions = useCallback(() => {
+    const categoryId = parseInt(formFieldValues.idCategory);
+    if (
+      !descriptionsPagination.isLoading &&
+      descriptionsPagination.hasMore &&
+      categoryId
+    ) {
+      const newLimit = descriptions.length + 5;
+      fetchAllDescriptions(categoryId, newLimit, false);
+    }
+  }, [
+    descriptionsPagination.isLoading,
+    descriptionsPagination.hasMore,
+    descriptions.length,
+    formFieldValues.idCategory,
+  ]);
 
   const handleAddDescription = async (
     categoryId: number,
@@ -309,7 +474,7 @@ export default function ReportsPage() {
         name: descriptionName,
         idDescription: categoryId,
       });
-      await fetchDescriptionsDataByCategoryId(categoryId);
+      await fetchAllDescriptions(categoryId);
     } catch (error) {
       console.error("Gagal menambahkan deskripsi:", error);
       throw error;
@@ -325,12 +490,15 @@ export default function ReportsPage() {
       if (values.description === "other" && values.customDescription) {
         try {
           await handleAddDescription(
-            parseInt(values.idCategory), 
+            parseInt(values.idCategory),
             values.customDescription
           );
           finalDescription = values.customDescription;
         } catch (error) {
-          console.error("Failed to add new description, continuing with custom description", error);
+          console.error(
+            "Failed to add new description, continuing with custom description",
+            error
+          );
           finalDescription = values.customDescription;
         }
       } else if (values.description !== "other") {
@@ -388,8 +556,8 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchAllIssuesData();
-    fetchCategoriesData();
-    fetchLocationData();
+    fetchAllCategories();
+    fetchAllLocations();
   }, []);
 
   const columns: Column<Report>[] = [
@@ -416,6 +584,10 @@ export default function ReportsPage() {
           })) || [],
         required: true,
         onChange: (value) => handleFieldValueChange("idLocation", value),
+        // Tambahkan props ini:
+        hasMore: locationPagination.hasMore,
+        loading: locationPagination.isLoading,
+        onLoadMore: handleLoadMoreLocations,
       },
       {
         id: "idCategory",
@@ -430,13 +602,16 @@ export default function ReportsPage() {
           })) || [],
         required: true,
         onChange: (value) => handleFieldValueChange("idCategory", value),
+        hasMore: categoriesPagination.hasMore,
+        loading: categoriesPagination.isLoading,
+        onLoadMore: handleLoadMoreCategories,
       },
       {
         id: "idGate",
         label: "ID Gate",
         type: "select" as const,
         value: formFieldValues.idGate || "",
-        placeholder: isGateDataLoading
+        placeholder: gatesPagination.isLoading
           ? "Loading gates..."
           : !formFieldValues.idLocation
           ? "-- Pilih Location dulu --"
@@ -450,15 +625,18 @@ export default function ReportsPage() {
             }))
           : [],
         required: true,
-        disabled: !formFieldValues.idLocation || isGateDataLoading,
+        disabled: !formFieldValues.idLocation || gatesPagination.isLoading,
         onChange: (value) => handleFieldValueChange("idGate", value),
+        hasMore: gatesPagination.hasMore,
+        loading: gatesPagination.isLoading,
+        onLoadMore: handleLoadMoreGates,
       },
       {
         id: "description",
         label: "Object/Description",
         type: "select" as const,
         value: formFieldValues.description || "",
-        placeholder: isDescriptionsLoading
+        placeholder: descriptionsPagination.isLoading
           ? "Loading descriptions..."
           : !formFieldValues.idCategory
           ? "-- Pilih Kategori dulu --"
@@ -478,8 +656,12 @@ export default function ReportsPage() {
             ]
           : [],
         required: true,
-        disabled: !formFieldValues.idCategory || isDescriptionsLoading,
+        disabled:
+          !formFieldValues.idCategory || descriptionsPagination.isLoading,
         onChange: (value) => handleFieldValueChange("description", value),
+        hasMore: descriptionsPagination.hasMore,
+        loading: descriptionsPagination.isLoading,
+        onLoadMore: handleLoadMoreDescriptions,
       },
       {
         id: "TrxNo",
@@ -540,8 +722,10 @@ export default function ReportsPage() {
     categories,
     descriptions,
     locationData,
-    isGateDataLoading,
-    isDescriptionsLoading,
+    locationPagination,
+    categoriesPagination,
+    gatesPagination,
+    descriptionsPagination,
   ]);
 
   return (

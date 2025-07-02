@@ -105,6 +105,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
   const endCallFunction = async () => {
     if (!socket || !activeCall || !isDesktop) return;
+    const userId = Number(localStorage.getItem("admin_user_number"));
+    if (!userId) return;
 
     // Stop the ringtone immediately when ending call
     if (audio) {
@@ -113,7 +115,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const response = await endCall(socket.id);
+      const response = await endCall(userId);
       toast.success(response.message);
       setActiveCall(null);
       setCallInTime(null);

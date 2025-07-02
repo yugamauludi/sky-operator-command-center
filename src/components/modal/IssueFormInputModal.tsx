@@ -22,7 +22,7 @@ export interface Field {
   onChange?: (value: string) => void;
   searchable?: boolean;
   lazyLoad?: boolean;
-  onLoadMore?: (searchTerm: string, page: number) => Promise<FieldOption[]>;
+  onLoadMore?: () => void;
   hasMore?: boolean;
   loading?: boolean;
   validation?: (value: string) => { isValid: boolean; message: string };
@@ -133,6 +133,16 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
     }
   }, [fields, isOpen, formValues]);
 
+  const handleLoadMore = useCallback(
+    (fieldId: string) => {
+      const field = fields.find((f) => f.id === fieldId);
+      if (field?.onLoadMore) {
+        field.onLoadMore();
+      }
+    },
+    [fields]
+  );
+
   const renderField = (field: Field) => {
     const value = formValues[field.id] || "";
     const isReadonly = field.readonly || false;
@@ -151,7 +161,13 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               placeholder={field.placeholder}
               disabled={isDisabled || isReadonly}
               error={validationErrors[field.id]}
-              // label={field.label} // HAPUS baris ini!
+              onLoadMore={field.onLoadMore ? () => handleLoadMore(field.id) : undefined} // Ubah ini
+              hasMoreData={field.hasMore || false}
+              isLoadingMore={field.loading || false}
+              showLoadMoreInfo={true}
+              loadMoreText={`Memuat lebih banyak... (${
+                field.options?.length || 0
+              }${field.hasMore ? "+" : ""})`}
             />
           </div>
         );
@@ -206,10 +222,10 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               spellCheck="false"
             />
             {/* {hasError && (
-              <div className="mt-1 text-sm text-red-600 dark:text-red-400 transition-opacity duration-200">
-                {validationErrors[field.id]}
-              </div>
-            )} */}
+            <div className="mt-1 text-sm text-red-600 dark:text-red-400 transition-opacity duration-200">
+              {validationErrors[field.id]}
+            </div>
+          )} */}
           </div>
         );
 

@@ -19,13 +19,17 @@ export function middleware(request: NextRequest) {
 
   // Ambil token dari cookies
   const token = request.cookies.get("token")?.value;
-
   // Jika tidak ada token, redirect ke login
   if (!token) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
+  if (pathname.startsWith("/login") && token) {
+    // Sudah login, redirect ke halaman sebelumnya jika ada
+    const redirectTo = request.nextUrl.searchParams.get("redirect") || "/";
+    return NextResponse.redirect(new URL(redirectTo, request.url));
+  }
   // (Opsional) Validasi token di sini jika ingin validasi signature/expired di middleware
   // Jika ingin validasi lebih lanjut, lakukan di server component atau API route
 

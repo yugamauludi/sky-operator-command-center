@@ -84,7 +84,7 @@ export const endCall = async (data: any) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                socketId: data
+                userId: data
             })
         });
 
