@@ -12,10 +12,11 @@ import { GateStatusUpdate } from "@/types/gate";
 import { toast } from "react-toastify";
 import { changeStatusGate, endCall } from "@/hooks/useIOT";
 import Image from "next/image";
-import { Category, fetchCategories } from "@/hooks/useCategories";
-import { Description, fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
+import { fetchCategories } from "@/hooks/useCategories";
+import { fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
 import { addIssue } from "@/hooks/useIssues";
 import { formatTanggalLocal } from "@/utils/formatDate";
+import SearchableSelect from "@/components/input/SearchableSelect";
 
 interface SocketContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,17 +28,18 @@ interface SocketContextType {
   endCallFunction: () => void;
 }
 
-const SocketContext = createContext<SocketContextType & {
-  muteRingtone?: () => void;
-  unmuteRingtone?: () => void;
-
-}>({
+const SocketContext = createContext<
+  SocketContextType & {
+    muteRingtone?: () => void;
+    unmuteRingtone?: () => void;
+  }
+>({
   socket: null,
   connectionStatus: "Disconnected",
   activeCall: null,
   userNumber: null,
-  setUserNumber: () => { },
-  endCallFunction: () => { },
+  setUserNumber: () => {},
+  endCallFunction: () => {},
   muteRingtone: undefined,
   unmuteRingtone: undefined,
 });
@@ -78,7 +80,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     }
   }, [isDesktop]);
 
-
   const setUserNumber = (num: number) => {
     setUserNumberState(num);
     localStorage.setItem("admin_user_number", num.toString());
@@ -88,7 +89,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.emit("register", num);
     }
   };
-
 
   const muteRingtone = () => {
     if (audio) {
@@ -183,13 +183,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         setUserNumber,
         endCallFunction,
         muteRingtone,
-        unmuteRingtone
+        unmuteRingtone,
       }}
     >
       {/* Tambahkan notification untuk mobile user */}
-      {!isDesktop && (
-        <></>
-      )}
+      {!isDesktop && <></>}
       {children}
     </SocketContext.Provider>
   );
@@ -207,13 +205,21 @@ interface DataIssue {
 
 // Updated GlobalCallPopup Component with base64 image support
 export function GlobalCallPopup() {
-  const { activeCall, endCallFunction, muteRingtone, unmuteRingtone } = useGlobalSocket();
+  const { activeCall, endCallFunction, muteRingtone, unmuteRingtone } =
+    useGlobalSocket();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDescription, setSelectedDescription] = useState("");
-  const [description, setDescription] = useState<Description[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [descriptionOptions, setDescriptionOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+
+  // const [description, setDescription] = useState<Description[]>([]);
   const [isOpeningGate, setIsOpeningGate] = useState(false);
   const [isCreateIssue, setIsCreateIssue] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  // const [categories, setCategories] = useState<Category[]>([]);
   const [callInTime] = useState<Date>(new Date());
   const [dataIssue, setDataIssue] = useState<DataIssue>({});
   const [imageErrors, setImageErrors] = useState({
@@ -223,7 +229,6 @@ export function GlobalCallPopup() {
   });
   // console.log(formatTanggalLocal(tryDate), "<<<< tryDate local");
 
-
   // console.log(callInTime, "callInTime in GlobalCallPopup");
 
   // Add mute state
@@ -231,6 +236,18 @@ export function GlobalCallPopup() {
 
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isLoadingDescriptions, setIsLoadingDescriptions] = useState(false);
+
+  const [categoryPagination, setCategoryPagination] = useState({
+    page: 1,
+    hasMore: true,
+    isLoadingMore: false,
+  });
+
+  // const [descriptionPagination, setDescriptionPagination] = useState({
+  //   page: 1,
+  //   hasMore: true,
+  //   isLoadingMore: false,
+  // });
 
   // Check if gate is PM type
   const isPMGate = activeCall?.gate?.toUpperCase().includes("PM") || false;
@@ -248,8 +265,8 @@ export function GlobalCallPopup() {
   // Function to handle modal close and stop audio
   const handleCloseModal = () => {
     // Stop any playing audio (you may need to adjust this based on your audio implementation)
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
+    const audioElements = document.querySelectorAll("audio");
+    audioElements.forEach((audio) => {
       audio.pause();
       audio.currentTime = 0;
     });
@@ -258,62 +275,113 @@ export function GlobalCallPopup() {
     endCallFunction();
   };
 
+  const loadCategories = async (page: number = 1, reset: boolean = false) => {
+    if (page === 1) {
+      setIsLoadingCategories(true);
+    } else {
+      setCategoryPagination((prev) => ({ ...prev, isLoadingMore: true }));
+    }
+
+    try {
+      const response = await fetchCategories(page, 5);
+      const newCategories = response.data;
+
+      if (reset || page === 1) {
+        // setCategories(newCategories);
+        const options = newCategories.map((category) => ({
+          value: category.id.toString(),
+          label: category.category,
+        }));
+        setCategoryOptions(options);
+      } else {
+        // Append new categories
+        // setCategories((prev) => [...prev, ...newCategories]);
+        setCategoryOptions((prev) => [
+          ...prev,
+          ...newCategories.map((category) => ({
+            value: category.id.toString(),
+            label: category.category,
+          })),
+        ]);
+      }
+
+      // Update pagination state
+      setCategoryPagination((prev) => ({
+        ...prev,
+        page: page,
+        hasMore: newCategories.length === 5, // Jika kurang dari limit, berarti sudah habis
+        isLoadingMore: false,
+      }));
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Gagal memuat kategori");
+      setCategoryPagination((prev) => ({ ...prev, isLoadingMore: false }));
+    } finally {
+      if (page === 1) {
+        setIsLoadingCategories(false);
+      }
+    }
+  };
   // Reset all form inputs when modal opens/closes
   useEffect(() => {
     if (activeCall) {
-      // Reset form when modal opens
       setSelectedCategory("");
       setSelectedDescription("");
-      setDescription([]);
+      // setDescription([]);
+      setCategoryOptions([]);
+      setDescriptionOptions([]);
+      // Reset pagination states
+      setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
+      // setDescriptionPagination({
+      //   page: 1,
+      //   hasMore: true,
+      //   isLoadingMore: false,
+      // });
+      // setCategorySearchTerm("");
+      // setDescriptionSearchTerm("");
       setDataIssue({});
       setImageErrors({
         photoIn: false,
         photoOut: false,
         photoCapture: false,
       });
-      // Reset mute state when new call comes in
       setIsMuted(false);
     }
   }, [activeCall]);
 
-  // Fetch categories when component mounts
   useEffect(() => {
-    const fetchDataCategories = async () => {
-      setIsLoadingCategories(true);
-      try {
-        const response = await fetchCategories(1, 1000);
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        toast.error("Gagal memuat kategori");
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
-
     if (activeCall) {
-      fetchDataCategories();
+      setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
+      loadCategories(1, true);
     }
   }, [activeCall]);
+
+  const handleLoadMoreCategories = () => {
+    if (categoryPagination.hasMore && !categoryPagination.isLoadingMore) {
+      const nextPage = categoryPagination.page + 1;
+      loadCategories(nextPage);
+    }
+  };
 
   // Fetch descriptions when category changes
   useEffect(() => {
     const fetchDescriptionsDataByCategoryId = async (categoryId: number) => {
-      // console.log(categoryId, "<<<<ini id category");
-
       setIsLoadingDescriptions(true);
       try {
         const response = await fetchDescriptionByCategoryId(categoryId);
-        // Check if response is array or single object
-        if (Array.isArray(response)) {
-          setDescription(response);
-        } else {
-          setDescription([response]);
-        }
+        const descriptions = Array.isArray(response) ? response : [response];
+        // setDescription(descriptions);
+        // Tambahkan ini untuk SearchableSelect:
+        const options = descriptions.map((desc) => ({
+          value: desc.id.toString(),
+          label: desc.object,
+        }));
+        setDescriptionOptions(options);
       } catch (error) {
         console.error("Error fetching description by category ID:", error);
         toast.error("Gagal memuat deskripsi untuk kategori ini");
-        setDescription([]); // Clear descriptions on error
+        // setDescription([]);
+        setDescriptionOptions([]); // Reset options
       } finally {
         setIsLoadingDescriptions(false);
       }
@@ -323,12 +391,11 @@ export function GlobalCallPopup() {
       const categoryId = parseInt(selectedCategory);
       if (!isNaN(categoryId)) {
         fetchDescriptionsDataByCategoryId(categoryId);
-        // Reset selected description when category changes
-        setSelectedDescription("");
+        setSelectedDescription(""); // Reset description
       }
     } else {
-      // Clear descriptions when no category is selected
-      setDescription([]);
+      // setDescription([]);
+      setDescriptionOptions([]); // Reset options
       setSelectedDescription("");
     }
   }, [selectedCategory]);
@@ -408,14 +475,16 @@ export function GlobalCallPopup() {
   // };
 
   // Check if all required fields are filled for Open Gate button
-  const isOpenGateDisabled = !selectedCategory ||
+  const isOpenGateDisabled =
+    !selectedCategory ||
     !selectedDescription ||
     isOpeningGate ||
     isLoadingCategories ||
     isLoadingDescriptions;
 
   // Check if all required fields are filled for Submit button
-  const isSubmitDisabled = !selectedCategory ||
+  const isSubmitDisabled =
+    !selectedCategory ||
     !selectedDescription ||
     isCreateIssue ||
     isLoadingCategories ||
@@ -453,22 +522,51 @@ export function GlobalCallPopup() {
           {/* Mute Ringtone Button */}
           <button
             onClick={handleMuteRingtone}
-            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isMuted
-              ? 'bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200'
-              : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300'
-              } hover:text-gray-800 dark:hover:text-white`}
-            title={isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+              isMuted
+                ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
+                : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
+            } hover:text-gray-800 dark:hover:text-white`}
+            title={
+              isMuted ? "Nyalakan suara ringtone" : "Matikan suara ringtone"
+            }
           >
             {isMuted ? (
               // Muted icon
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                  clipRule="evenodd"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
+                />
               </svg>
             ) : (
               // Unmuted icon
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                />
               </svg>
             )}
           </button>
@@ -479,8 +577,18 @@ export function GlobalCallPopup() {
             className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
             title="Tutup modal dan hentikan audio"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -493,9 +601,25 @@ export function GlobalCallPopup() {
           {/* Ringtone Status Indicator */}
           {isMuted && (
             <p className="text-xs text-red-500 flex items-center justify-center">
-              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              <svg
+                className="w-3 h-3 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                  clipRule="evenodd"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
+                />
               </svg>
               Ringtone dimatikan
             </p>
@@ -556,8 +680,7 @@ export function GlobalCallPopup() {
                 <span className="font-medium">In Time</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
-                  {callInTime
-                    ? formatTanggalLocal(callInTime.toString()) : "-"}
+                  {callInTime ? formatTanggalLocal(callInTime.toString()) : "-"}
                 </span>
               </div>
 
@@ -627,25 +750,21 @@ export function GlobalCallPopup() {
                 <label className="block text-xs font-medium mb-1">
                   Object <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SearchableSelect
+                  options={categoryOptions}
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  onChange={setSelectedCategory}
+                  placeholder="-- Pilih Kategori --"
                   disabled={isLoadingCategories}
-                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoadingCategories ? (
-                    <option value="">⏳ Memuat kategori...</option>
-                  ) : (
-                    <>
-                      <option value="">-- Pilih Kategori --</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.category}
-                        </option>
-                      ))}
-                    </>
-                  )}
-                </select>
+                  className="text-sm"
+                  onLoadMore={handleLoadMoreCategories}
+                  hasMoreData={categoryPagination.hasMore}
+                  isLoadingMore={categoryPagination.isLoadingMore}
+                  // onSearch={handleSearchCategories}
+                  isSearching={isLoadingCategories}
+                  showLoadMoreInfo={true}
+                  loadMoreText="Memuat kategori..."
+                />
                 {isLoadingCategories && (
                   <div className="flex items-center mt-1 text-xs text-blue-600">
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
@@ -658,29 +777,20 @@ export function GlobalCallPopup() {
                 <label className="block text-xs font-medium mb-1">
                   Description <span className="text-red-500">*</span>
                 </label>
-                <select
+                <SearchableSelect
+                  options={descriptionOptions}
                   value={selectedDescription}
-                  onChange={(e) => setSelectedDescription(e.target.value)}
+                  onChange={setSelectedDescription}
+                  placeholder={
+                    !selectedCategory
+                      ? "-- Pilih kategori terlebih dahulu --"
+                      : descriptionOptions.length === 0
+                      ? "-- Tidak ada deskripsi tersedia --"
+                      : "-- Pilih Deskripsi --"
+                  }
                   disabled={isLoadingDescriptions || !selectedCategory}
-                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoadingDescriptions ? (
-                    <option value="">⏳ Memuat deskripsi...</option>
-                  ) : !selectedCategory ? (
-                    <option value="">-- Pilih kategori terlebih dahulu --</option>
-                  ) : description.length === 0 ? (
-                    <option value="">-- Tidak ada deskripsi tersedia --</option>
-                  ) : (
-                    <>
-                      <option value="">-- Pilih Deskripsi --</option>
-                      {description.map((desc) => (
-                        <option key={desc.id} value={desc.id}>
-                          {desc.object}
-                        </option>
-                      ))}
-                    </>
-                  )}
-                </select>
+                  className="text-sm"
+                />
                 {isLoadingDescriptions && (
                   <div className="flex items-center mt-1 text-xs text-blue-600">
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
@@ -690,9 +800,7 @@ export function GlobalCallPopup() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1">
-                  Action
-                </label>
+                <label className="block text-xs font-medium mb-1">Action</label>
                 <input
                   type="text"
                   value={dataIssue.action || ""}
@@ -713,7 +821,11 @@ export function GlobalCallPopup() {
                   onClick={handleOpenGate}
                   disabled={isOpenGateDisabled}
                   className="w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
-                  title={isOpenGateDisabled ? "Pilih kategori dan deskripsi terlebih dahulu" : ""}
+                  title={
+                    isOpenGateDisabled
+                      ? "Pilih kategori dan deskripsi terlebih dahulu"
+                      : ""
+                  }
                 >
                   {isOpeningGate ? "Opening..." : "Open Gate"}
                 </button>
@@ -732,7 +844,11 @@ export function GlobalCallPopup() {
                     }}
                     disabled={isSubmitDisabled}
                     className="flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
-                    title={isSubmitDisabled ? "Pilih kategori dan deskripsi terlebih dahulu" : ""}
+                    title={
+                      isSubmitDisabled
+                        ? "Pilih kategori dan deskripsi terlebih dahulu"
+                        : ""
+                    }
                   >
                     {isCreateIssue ? "Creating..." : "Submit"}
                   </button>
@@ -766,8 +882,18 @@ export function GlobalCallPopup() {
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full">
-                      <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-12 h-12 text-gray-400 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                       <span className="text-sm">Foto Capture</span>
                     </div>
@@ -799,8 +925,18 @@ export function GlobalCallPopup() {
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full">
-                        <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-12 h-12 text-gray-400 mb-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                         <span className="text-sm">Foto In</span>
                       </div>
@@ -813,7 +949,9 @@ export function GlobalCallPopup() {
                   <p className="text-sm font-medium mb-2">
                     Foto Capture
                     {activeCall?.imageFile?.filename && (
-                      <span className="text-xs text-green-600 ml-1">(Live)</span>
+                      <span className="text-xs text-green-600 ml-1">
+                        (Live)
+                      </span>
                     )}
                   </p>
                   <div className="w-full aspect-video bg-gray-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
@@ -833,8 +971,18 @@ export function GlobalCallPopup() {
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full">
-                        <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-12 h-12 text-gray-400 mb-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                         <span className="text-sm">Foto Capture</span>
                       </div>

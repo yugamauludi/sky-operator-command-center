@@ -43,7 +43,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   onSearch,
   isSearching = false,
   searchDebounceMs = 300,
-  loadMoreThreshold = 50,
+  loadMoreThreshold = 5,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
