@@ -24,7 +24,7 @@ import {
 } from "@/hooks/useDescriptions";
 import formatTanggalUTC from "@/utils/formatDate";
 import NoData from "@/components/NoData";
-import SearchableSelect from "@/components/SearchableSelect";
+import SearchableSelect from "@/components/input/SearchableSelect";
 
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
 

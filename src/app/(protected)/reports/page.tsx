@@ -14,8 +14,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Column } from "@/components/tables/CommonTable";
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
-import IsseFormInputModal from "@/components/IssueFormInputModal";
-import { Field } from "@/components/IssueFormInputModal";
+import IsseFormInputModal from "@/components/modal/IssueFormInputModal";
+import { Field } from "@/components/modal/IssueFormInputModal";
 import { addIssue, fetchIssues } from "@/hooks/useIssues";
 import { Category, fetchCategories } from "@/hooks/useCategories";
 import {

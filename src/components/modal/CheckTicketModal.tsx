@@ -5,7 +5,7 @@ import { fetchTransaction } from "@/hooks/useTransaction";
 import { validateLicensePlate } from "@/utils/validationNumberPlat";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import SearchableSelect from "./SearchableSelect";
+import SearchableSelect from "@/components/input/SearchableSelect";
 import formatTanggalUTC from "@/utils/formatDate";
 import { formatDuration } from "@/utils/formatDuration";
 import { formatCurrency } from "@/utils/formatCurrency";

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 import { fetchLocation, updateLocation } from '@/hooks/useLocation';
-import SearchableSelect from './SearchableSelect';
+import SearchableSelect from '@/components/input/SearchableSelect';
 
 interface Location {
     id: number;

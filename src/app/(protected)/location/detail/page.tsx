@@ -10,7 +10,7 @@ import {
 } from "@/hooks/useLocation";
 import { toast } from "react-toastify";
 import { changeStatusGate } from "@/hooks/useIOT";
-import { ConfirmationModal } from "@/components/ConfirmationModalV2";
+import { ConfirmationModal } from "@/components/modal/ConfirmationModalV2";
 import formatTanggalUTC from "@/utils/formatDate";
 import GreenDownArrow from "@/public/icons/GreenDownArrow"
 import RedCross from "@/public/icons/RedCross";

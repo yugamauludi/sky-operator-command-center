@@ -5,10 +5,10 @@ import { useEffect, useState, lazy, Suspense, useCallback, useMemo } from "react
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-const ConfirmationModal = lazy(() => import("@/components/ConfirmationModal"));
+const ConfirmationModal = lazy(() => import("@/components/modal/ConfirmationModal"));
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
-const DynamicInputModal = lazy(() => import("@/components/DynamicInputModal"));
-const ActivateLocationModal = lazy(() => import("@/components/ActivateLocationModal"));
+const DynamicInputModal = lazy(() => import("@/components/modal/DynamicInputModal"));
+const ActivateLocationModal = lazy(() => import("@/components/modal/ActivateLocationModal"));
 
 import {
   createGate,

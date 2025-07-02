@@ -1,4 +1,4 @@
-import LayoutWrapper from "@/components/LayoutWrapper";
+import LayoutWrapper from "@/components/main/LayoutWrapper";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";

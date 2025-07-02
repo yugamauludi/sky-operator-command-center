@@ -2,8 +2,7 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
-// import TicketModal from './TicketModal';
-import CheckTicketModal from './CheckTicketModal';
+import CheckTicketModal from '@/components/modal/CheckTicketModal';
 // import { fetchTransaction } from '@/hooks/useTransaction';
 // import { toast } from 'react-toastify';
 import { useUser } from '@/contexts/UserContext';

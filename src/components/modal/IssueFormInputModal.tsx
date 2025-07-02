@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "react-toastify";
-import SearchableSelect from "./SearchableSelect"; // Tambahkan import ini
+import SearchableSelect from "@/components/input/SearchableSelect"; // Tambahkan import ini
 
 interface FieldOption {
   value: string;
