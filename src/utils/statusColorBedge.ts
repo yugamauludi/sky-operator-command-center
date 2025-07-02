@@ -6,6 +6,10 @@ export const getStatusColor = (status: string | null | undefined) => {
     case "FREE":
     case "COMPLETED":
       return "bg-green-50 text-green-700 dark:bg-green-900/10 dark:text-green-200";
+    case "IN AREA":
+      return "bg-green-50 text-green-700 dark:bg-green-900/10 dark:text-green-200";
+    case "OUT AREA":
+      return "bg-red-50 text-red-700 dark:bg-red-900/10 dark:text-red-200";
     case "PENDING":
       return "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/10 dark:text-yellow-200";
     case "PAID":

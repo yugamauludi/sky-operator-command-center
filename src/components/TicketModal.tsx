@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { TransactionResponse } from '@/hooks/useTransaction';
 import { formatCurrency } from '@/utils/formatCurrency';
