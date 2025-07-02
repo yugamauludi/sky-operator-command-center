@@ -524,14 +524,16 @@ export default function CheckTicketModal({
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                            Gate Masuk
+                        {ticketData.GateInCode && (
+                          <div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                              Gate Masuk
+                            </div>
+                            <div className="text-sm bg-white dark:bg-gray-800 rounded px-2 py-1">
+                              {ticketData.GateInCode}
+                            </div>
                           </div>
-                          <div className="text-sm bg-white dark:bg-gray-800 rounded px-2 py-1">
-                            {ticketData.GateInCode}
-                          </div>
-                        </div>
+                        )}
                         {ticketData.GateOutCode && (
                           <div>
                             <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
@@ -577,14 +579,16 @@ export default function CheckTicketModal({
                       Waktu
                     </div>
                     <div className="space-y-3">
-                      <div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                          Waktu Masuk
+                      {ticketData.InTime && (
+                        <div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                            Waktu Masuk
+                          </div>
+                          <div className="text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                            {formatTanggalUTC(ticketData.InTime)}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-1 rounded">
-                          {formatTanggalUTC(ticketData.InTime)}
-                        </div>
-                      </div>
+                      )}
                       {ticketData.OutTime && (
                         <div>
                           <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
