@@ -3,8 +3,8 @@ import React from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
+  // ChevronsLeft,
+  // ChevronsRight,
 } from "lucide-react";
 
 export interface Column<T> {
@@ -154,14 +154,14 @@ export default function CommonTable<T>({
             <nav className="flex items-center justify-center">
               <div className="flex items-center space-x-1">
                 {/* First Page */}
-                <button
+                {/* <button
                   onClick={() => onPageChange(1)}
                   disabled={currentPage === 1}
                   className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="First page"
                 >
                   <ChevronsLeft className="w-4 h-4" />
-                </button>
+                </button> */}
 
                 {/* Previous Page */}
                 <button
@@ -208,14 +208,14 @@ export default function CommonTable<T>({
                 </button>
 
                 {/* Last Page */}
-                <button
+                {/* <button
                   onClick={() => onPageChange(totalPages)}
                   disabled={currentPage === totalPages}
                   className="cursor-pointer relative inline-flex items-center rounded-md px-2 py-1.5 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
                   title="Last page"
                 >
                   <ChevronsRight className="w-4 h-4" />
-                </button>
+                </button> */}
               </div>
             </nav>
           </div>
@@ -259,7 +259,7 @@ export default function CommonTable<T>({
               aria-label="Pagination"
             >
               {/* First Page */}
-              <button
+              {/* <button
                 onClick={() => onPageChange(1)}
                 disabled={currentPage === 1}
                 className="cursor-pointer relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
@@ -267,7 +267,7 @@ export default function CommonTable<T>({
               >
                 <span className="sr-only">First</span>
                 <ChevronsLeft className="w-4 h-4" />
-              </button>
+              </button> */}
 
               {/* Previous Page */}
               <button
@@ -314,7 +314,7 @@ export default function CommonTable<T>({
               </button>
 
               {/* Last Page */}
-              <button
+              {/* <button
                 onClick={() => onPageChange(totalPages)}
                 disabled={currentPage === totalPages}
                 className="cursor-pointer relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 transition-colors duration-200"
@@ -322,7 +322,7 @@ export default function CommonTable<T>({
               >
                 <span className="sr-only">Last</span>
                 <ChevronsRight className="w-4 h-4" />
-              </button>
+              </button> */}
             </nav>
           </div>
         </div>

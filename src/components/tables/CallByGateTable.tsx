@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from 'lucide-react';
+import { 
+    ChevronLeft, 
+    // ChevronsLeft, 
+    ChevronRight, 
+    // ChevronsRight 
+} from 'lucide-react';
 
 interface GateData {
     humanError: number;
@@ -403,13 +408,13 @@ const CallByGateTable: React.FC = () => {
                 {totalPages > 1 && (
                     <div className="flex items-center bg-gray-100 dark:bg-[#2A3441] border border-gray-300 dark:border-gray-700 rounded-lg p-1 gap-1">
                         {/* First Page Button */}
-                        <button
+                        {/* <button
                             onClick={() => handlePageChange(1)}
                             disabled={currentPage === 1}
                             className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronsLeft className="w-4 h-4" />
-                        </button>
+                        </button> */}
 
                         {/* Previous Page Button */}
                         <button
@@ -482,13 +487,13 @@ const CallByGateTable: React.FC = () => {
                         </button>
 
                         {/* Last Page Button */}
-                        <button
+                        {/* <button
                             onClick={() => handlePageChange(totalPages)}
                             disabled={currentPage === totalPages}
                             className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronsRight className="w-4 h-4" />
-                        </button>
+                        </button> */}
                     </div>
                 )}
             </div>
