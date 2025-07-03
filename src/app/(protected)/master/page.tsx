@@ -445,14 +445,14 @@ export default function MasterPage() {
       render: (value: any, item: Description) => (
         <div className="flex space-x-2">
           <button
-            className="p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
+            className="cursor-pointer p-2 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400"
             onClick={() => handleEditDescription(item.id)}
           >
             <FiEdit2 size={16} />
           </button>
           <button
             onClick={() => handleDelete(item.id)}
-            className="p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
+            className="cursor-pointer p-2 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg text-red-600 dark:text-red-400"
           >
             <FiTrash2 size={16} />
           </button>
@@ -855,7 +855,7 @@ export default function MasterPage() {
                   </h3>
                   <button
                     onClick={() => setIsConfirmationOpen(false)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                    className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"
                   >
                     <FiX size={24} />
                   </button>
@@ -869,7 +869,7 @@ export default function MasterPage() {
                 <div className="flex justify-end space-x-3">
                   <button
                     onClick={() => setIsConfirmationOpen(false)}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                    className="cursor-pointer px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg text-sm font-medium transition-colors duration-200"
                   >
                     Batal
                   </button>
@@ -881,7 +881,7 @@ export default function MasterPage() {
                         actionDeleteDescription(deleteId);
                       }
                     }}
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+                    className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors duration-200"
                   >
                     Hapus
                   </button>

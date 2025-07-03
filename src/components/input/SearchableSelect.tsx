@@ -306,7 +306,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       ref={isSelected ? selectedRef : null}
                       type="button"
                       onClick={() => handleOptionClick(opt.value)}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 ${
+                      className={`cursor-pointer w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 ${
                         isSelected
                           ? "bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-200"
                           : "text-gray-900 dark:text-white"

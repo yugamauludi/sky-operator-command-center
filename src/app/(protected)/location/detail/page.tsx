@@ -233,7 +233,7 @@ function LocationDetailContent() {
         className={`${isOpen
           ? "bg-red-500 hover:bg-red-600"
           : "bg-green-500 hover:bg-green-600"
-          } text-white px-2 py-1 rounded text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 min-w-0`}
+          } cursor-pointer text-white px-2 py-1 rounded text-xs font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 min-w-0`}
       >
         {isLoading ? (
           <>
@@ -312,7 +312,7 @@ function LocationDetailContent() {
         const isOn = ledArrowStatus[gate.id] ?? true; // default true (hijau)
         return (
           <button
-            className="p-1 rounded hover:bg-green-100 transition"
+            className="p-1 cursor-pointer  rounded hover:bg-green-100 transition"
             title={isOn ? "Matikan LED Arrow" : "Nyalakan LED Arrow"}
             onClick={() => handleLedArrowClick(gate)}
           >
@@ -359,7 +359,7 @@ function LocationDetailContent() {
               <div className="flex items-start mb-4 sm:mb-6">
                 <button
                   onClick={handleBack}
-                  className="mr-3 sm:mr-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
+                  className="cursor-pointer mr-3 sm:mr-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
                 >
                   <svg
                     className="w-5 h-5 sm:w-6 sm:h-6"
@@ -417,7 +417,7 @@ function LocationDetailContent() {
               <div className="mb-4 sm:mb-6 flex justify-end">
                 <button
                   onClick={handleAddGateClick}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+                  className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
                   disabled={isDataLoading}
                 >
                   <svg
@@ -538,14 +538,14 @@ function LocationDetailContent() {
                 <button
                   onClick={handleAddGateCancel}
                   disabled={isAddingGate}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleAddGateConfirm}
                   disabled={isAddingGate || !gateName.trim()}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isAddingGate ? (
                     <>

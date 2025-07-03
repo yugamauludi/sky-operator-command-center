@@ -222,7 +222,7 @@ export default function Sidebar() {
           <div className="flex justify-center items-center py-6 px-4">
             <button
               onClick={() => setIsOpen(true)}
-              className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 dark:text-red-400 transition-all duration-200 hover:scale-105 shadow-md"
+              className="cursor-pointer w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 dark:text-red-400 transition-all duration-200 hover:scale-105 shadow-md"
               aria-label="Buka sidebar"
             >
               <HiOutlineBars3 size={20} />
@@ -260,7 +260,7 @@ export default function Sidebar() {
           <div className="px-2 pb-4 mt-auto">
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center w-full px-2 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 font-medium"
+              className="cursor-pointer flex items-center justify-center w-full px-2 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 font-medium"
               title="Logout"
             >
               <LogoutIcon className="w-6 h-6" />

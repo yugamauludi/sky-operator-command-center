@@ -171,7 +171,7 @@ const CallQuantityTable: React.FC = () => {
           <div className="flex bg-gray-100 dark:bg-[#2A3441] rounded-lg p-1 w-full md:w-auto">
             <button
               onClick={() => setActiveTab('total')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'total'
+              className={`cursor-pointer px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'total'
                 ? 'bg-blue-500 text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
@@ -180,7 +180,7 @@ const CallQuantityTable: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('car')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'car'
+              className={`cursor-pointer px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'car'
                 ? 'bg-blue-500 text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
@@ -189,7 +189,7 @@ const CallQuantityTable: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('bike')}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'bike'
+              className={`cursor-pointer px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'bike'
                 ? 'bg-blue-500 text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
@@ -326,7 +326,7 @@ const CallQuantityTable: React.FC = () => {
             <button
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1}
-              className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronsLeft className="w-4 h-4" />
             </button>
@@ -335,7 +335,7 @@ const CallQuantityTable: React.FC = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -381,7 +381,7 @@ const CallQuantityTable: React.FC = () => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page as number)}
-                    className={`w-8 h-8 flex items-center justify-center text-xs rounded border ${currentPage === page
+                    className={`cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border ${currentPage === page
                       ? 'bg-blue-500 text-white border-blue-500'
                       : 'bg-white dark:bg-[#232B36] text-gray-500 dark:text-gray-300 border-transparent hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300'
                       } transition-colors`}
@@ -396,7 +396,7 @@ const CallQuantityTable: React.FC = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -405,7 +405,7 @@ const CallQuantityTable: React.FC = () => {
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="cursor-pointer w-8 h-8 flex items-center justify-center text-xs rounded border border-transparent text-gray-500 dark:text-gray-300 bg-white dark:bg-[#232B36] hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronsRight className="w-4 h-4" />
             </button>

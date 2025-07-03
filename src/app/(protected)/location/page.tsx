@@ -264,7 +264,7 @@ export default function LocationPage() {
           <div className="flex space-x-2">
             <button
               onClick={() => handleViewDetail(location)}
-              className="text-green-500 hover:text-green-600 transition-colors duration-200"
+              className="cursor-pointer text-green-500 hover:text-green-600 transition-colors duration-200"
               title="Lihat Detail"
               style={{ minWidth: "40px", minHeight: "40px" }}
             >
@@ -319,7 +319,7 @@ export default function LocationPage() {
                     {/* Button untuk aktivasi lokasi */}
                     <button
                       onClick={handleOpenActivateLocationModal}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                      className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                     >
                       <svg
                         className="w-4 h-4 mr-2"

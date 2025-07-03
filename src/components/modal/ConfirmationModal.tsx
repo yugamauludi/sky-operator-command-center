@@ -40,13 +40,13 @@ export default function ConfirmationModal({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+            className="cursor-pointer px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-white rounded-lg transition-colors duration-200 ${getButtonColor()}`}
+            className={`cursor-pointer px-4 py-2 text-white rounded-lg transition-colors duration-200 ${getButtonColor()}`}
           >
             {confirmText}
           </button>

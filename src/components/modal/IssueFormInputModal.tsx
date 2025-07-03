@@ -469,13 +469,13 @@ const IsseFormInputModal: React.FC<IssueInputFormModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                className="cursor-pointer px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
               >
                 {cancelText}
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
+                className="cursor-pointer px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
               >
                 {confirmText}
               </button>

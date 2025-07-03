@@ -679,7 +679,7 @@ export default function CheckTicketModal({
             <button
               type="button"
               onClick={handleClose}
-              className="w-full sm:w-auto px-4 sm:px-6 py-2 rounded-md text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+              className="cursor-pointer w-full sm:w-auto px-4 sm:px-6 py-2 rounded-md text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
             >
               Batal
             </button>
@@ -687,7 +687,7 @@ export default function CheckTicketModal({
               type="submit"
               disabled={loading || !!plateError}
               onClick={handleSubmit}
-              className={`w-full sm:w-auto px-4 sm:px-6 py-2 rounded-md text-sm font-medium text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`cursor-pointer w-full sm:w-auto px-4 sm:px-6 py-2 rounded-md text-sm font-medium text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 loading || plateError
                   ? "bg-blue-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"

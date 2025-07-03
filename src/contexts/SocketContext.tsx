@@ -13,7 +13,10 @@ import { toast } from "react-toastify";
 import { changeStatusGate, endCall } from "@/hooks/useIOT";
 import Image from "next/image";
 import { fetchCategories } from "@/hooks/useCategories";
-import { fetchDescriptionByCategoryId } from "@/hooks/useDescriptions";
+import {
+  addDescription,
+  fetchDescriptionByCategoryId,
+} from "@/hooks/useDescriptions";
 import { addIssue } from "@/hooks/useIssues";
 import { formatTanggalLocal } from "@/utils/formatDate";
 import SearchableSelect from "@/components/input/SearchableSelect";
@@ -243,6 +246,26 @@ export function GlobalCallPopup() {
     isLoadingMore: false,
   });
 
+  const [manualDescription, setManualDescription] = useState("");
+  const [isAddingDescription, setIsAddingDescription] = useState(false);
+
+  // 2. Tambahkan function handleAddDescription
+  const handleAddDescription = async (
+    categoryId: number,
+    descriptionName: string
+  ) => {
+    try {
+      await addDescription({
+        name: descriptionName,
+        idDescription: categoryId,
+      });
+      // Refresh descriptions after adding
+    } catch (error) {
+      console.error("Gagal menambahkan deskripsi:", error);
+      throw error;
+    }
+  };
+
   // const [descriptionPagination, setDescriptionPagination] = useState({
   //   page: 1,
   //   hasMore: true,
@@ -308,7 +331,7 @@ export function GlobalCallPopup() {
       setCategoryPagination((prev) => ({
         ...prev,
         page: page,
-        hasMore: newCategories.length === 5, 
+        hasMore: newCategories.length === 5,
         isLoadingMore: false,
       }));
     } catch (error) {
@@ -325,18 +348,11 @@ export function GlobalCallPopup() {
     if (activeCall) {
       setSelectedCategory("");
       setSelectedDescription("");
-      // setDescription([]);
+      setManualDescription("");
       setCategoryOptions([]);
       setDescriptionOptions([]);
       // Reset pagination states
       setCategoryPagination({ page: 1, hasMore: true, isLoadingMore: false });
-      // setDescriptionPagination({
-      //   page: 1,
-      //   hasMore: true,
-      //   isLoadingMore: false,
-      // });
-      // setCategorySearchTerm("");
-      // setDescriptionSearchTerm("");
       setDataIssue({});
       setImageErrors({
         photoIn: false,
@@ -368,18 +384,24 @@ export function GlobalCallPopup() {
       try {
         const response = await fetchDescriptionByCategoryId(categoryId);
         const descriptions = Array.isArray(response) ? response : [response];
-        // setDescription(descriptions);
-        // Tambahkan ini untuk SearchableSelect:
+
+        // Tambahkan opsi "Other (Input Manual)" di akhir list
         const options = descriptions.map((desc) => ({
           value: desc.object,
           label: desc.object,
         }));
+
+        // Tambahkan opsi Other di akhir
+        options.push({
+          value: "OTHER_MANUAL",
+          label: "Other (Input Manual)",
+        });
+
         setDescriptionOptions(options);
       } catch (error) {
         console.error("Error fetching description by category ID:", error);
         toast.error("Gagal memuat deskripsi untuk kategori ini");
-        // setDescription([]);
-        setDescriptionOptions([]); // Reset options
+        setDescriptionOptions([]);
       } finally {
         setIsLoadingDescriptions(false);
       }
@@ -405,9 +427,9 @@ export function GlobalCallPopup() {
     try {
       const response = await changeStatusGate(activeCall.gateId, "OPEN");
 
-      if (response.message === "Gate opened") {
+      if (response.code === 250003) {
         toast.success("Gate berhasil dibuka");
-        endCallFunction();
+        // endCallFunction();
       } else {
         toast.error("Gagal membuka gate");
       }
@@ -415,7 +437,7 @@ export function GlobalCallPopup() {
       console.error("Error opening gate:", error);
       toast.error("Terjadi kesalahan");
     } finally {
-      setIsOpeningGate(false);
+      setIsOpeningGate(true);
     }
   };
 
@@ -434,16 +456,18 @@ export function GlobalCallPopup() {
   const isOpenGateDisabled =
     !selectedCategory ||
     !selectedDescription ||
+    (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
     isOpeningGate ||
     isLoadingCategories ||
     isLoadingDescriptions ||
     dataIssue.action !== "OPEN_GATE";
 
-  // Check if all required fields are filled for Submit button
   const isSubmitDisabled =
     !selectedCategory ||
     !selectedDescription ||
+    (selectedDescription === "OTHER_MANUAL" && !manualDescription.trim()) ||
     isCreateIssue ||
+    isAddingDescription ||
     isLoadingCategories ||
     isLoadingDescriptions;
 
@@ -474,7 +498,11 @@ export function GlobalCallPopup() {
   const handleCreateIssue = async () => {
     console.log(dataIssue, "<<<<< dataIssue");
 
-    if (!activeCall || !selectedCategory || !selectedDescription) {
+    if (
+      !activeCall ||
+      !selectedCategory ||
+      (!selectedDescription && !manualDescription)
+    ) {
       toast.error("Mohon lengkapi semua field yang wajib diisi");
       return;
     }
@@ -482,15 +510,36 @@ export function GlobalCallPopup() {
     setIsCreateIssue(true);
 
     try {
+      let finalDescription = selectedDescription;
+
+      // If "Other (Input Manual)" is selected, add the new description first
+      if (selectedDescription === "OTHER_MANUAL" && manualDescription.trim()) {
+        try {
+          setIsAddingDescription(true);
+          await handleAddDescription(
+            parseInt(selectedCategory),
+            manualDescription.trim()
+          );
+          finalDescription = manualDescription.trim();
+          toast.success("Deskripsi baru berhasil ditambahkan");
+        } catch (error) {
+          console.error("Error adding description:", error);
+          toast.error("Gagal menambahkan deskripsi baru");
+          return;
+        } finally {
+          setIsAddingDescription(false);
+        }
+      }
+
       const issueData = {
         idCategory: parseInt(selectedCategory),
         idGate: parseInt(activeCall.gateId),
-        description: selectedDescription,
+        description: finalDescription,
         action: dataIssue.action || "",
-        // foto: activeCall.photoIn || "-",
         number_plate: numberPlate,
         TrxNo: ticketNo,
       };
+
       const response = await addIssue(issueData);
 
       if (response && response.message.includes("created")) {
@@ -523,7 +572,7 @@ export function GlobalCallPopup() {
           {/* Mute Ringtone Button */}
           <button
             onClick={handleMuteRingtone}
-            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+            className={`cursor-pointer w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
               isMuted
                 ? "bg-red-200 hover:bg-red-300 dark:bg-red-600 dark:hover:bg-red-500 text-red-600 dark:text-red-200"
                 : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300"
@@ -575,7 +624,7 @@ export function GlobalCallPopup() {
           {/* Close Button */}
           <button
             onClick={handleCloseModal}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
             title="Tutup modal dan hentikan audio"
           >
             <svg
@@ -631,9 +680,7 @@ export function GlobalCallPopup() {
         <div className="grid grid-cols-2 gap-6 mb-4">
           {/* Left Column - Information */}
           <div className="space-y-3">
-            <h3 className="text-base font-semibold border-b pb-1">
-              Informasi
-            </h3>
+            <h3 className="text-base font-semibold border-b pb-1">Informasi</h3>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm">
@@ -726,6 +773,13 @@ export function GlobalCallPopup() {
                           {detailGate.issuer_name || "-"}
                         </span>
                       </div>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Konfirmasi Pembayaran</span>
+                        <span>:</span>
+                        <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
+                          {detailGate.payment_confirmation || "-"}
+                        </span>
+                      </div>
                     </>
                   )}
                   {/* <div className="flex justify-between items-center">
@@ -778,10 +832,17 @@ export function GlobalCallPopup() {
                 <label className="block text-xs font-medium mb-1">
                   Deskripsi <span className="text-red-500">*</span>
                 </label>
+
                 <SearchableSelect
                   options={descriptionOptions}
                   value={selectedDescription}
-                  onChange={setSelectedDescription}
+                  onChange={(value) => {
+                    setSelectedDescription(value);
+                    // Reset manual description jika bukan "Other"
+                    if (value !== "OTHER_MANUAL") {
+                      setManualDescription("");
+                    }
+                  }}
                   placeholder={
                     isLoadingDescriptions
                       ? "Memuat data deskripsi..."
@@ -794,6 +855,25 @@ export function GlobalCallPopup() {
                   disabled={isLoadingDescriptions || !selectedCategory}
                   className="text-sm"
                 />
+
+                {/* Manual input field - hanya muncul jika "Other (Input Manual)" dipilih */}
+                {selectedDescription === "OTHER_MANUAL" && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={manualDescription}
+                      onChange={(e) => setManualDescription(e.target.value)}
+                      placeholder="Masukkan deskripsi baru..."
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      autoFocus
+                    />
+                    {manualDescription.trim() && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Deskripsi baru akan dibuat: {manualDescription.trim()}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -839,7 +919,7 @@ export function GlobalCallPopup() {
                 <button
                   onClick={handleOpenGate}
                   disabled={isOpenGateDisabled}
-                  className="w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+                  className="cursor-pointer w-full px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
                   title={
                     isOpenGateDisabled
                       ? "Pilih kategori dan deskripsi terlebih dahulu"
@@ -852,7 +932,7 @@ export function GlobalCallPopup() {
                 <div className="flex space-x-2">
                   <button
                     onClick={endCallFunction}
-                    className="flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                    className="cursor-pointer flex-1 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
                   >
                     End Call
                   </button>
@@ -862,7 +942,7 @@ export function GlobalCallPopup() {
                       endCallFunction();
                     }}
                     disabled={isSubmitDisabled}
-                    className="flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+                    className="cursor-pointer flex-1 px-4 py-2 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-md transition-colors"
                     title={
                       isSubmitDisabled
                         ? "Pilih kategori dan deskripsi terlebih dahulu"

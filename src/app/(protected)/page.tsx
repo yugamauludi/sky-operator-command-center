@@ -355,7 +355,7 @@ export default function Dashboard() {
               <button
                 onClick={fetchMonthlyComplaintData}
                 disabled={isLoadingMonthlyData}
-                className="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 rounded text-white transition-colors"
+                className="cursor-pointer px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 rounded text-white transition-colors"
               >
                 {isLoadingMonthlyData ? "Loading..." : "Refresh"}
               </button>

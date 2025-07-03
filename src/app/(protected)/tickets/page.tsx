@@ -100,7 +100,7 @@ export default function TicketsPage() {
               {/* Export Button */}
               <button
                 onClick={handleExport}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full ml-auto flex items-center space-x-2"
+                className="cursor-pointer bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full ml-auto flex items-center space-x-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +120,7 @@ export default function TicketsPage() {
               {/* Add Ticket Button */}
               <button
                 onClick={handleAddTicket}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center space-x-2"
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center space-x-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

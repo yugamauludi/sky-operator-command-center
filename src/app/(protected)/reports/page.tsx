@@ -852,7 +852,7 @@ export default function ReportsPage() {
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap h-fit"
+                  className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap h-fit"
                   title="Clear all filters"
                 >
                   ✕ Clear
