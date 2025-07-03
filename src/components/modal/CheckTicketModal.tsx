@@ -55,6 +55,7 @@ export default function CheckTicketModal({
     null
   );
   const [notFound, setNotFound] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false); // New state to track if search has been performed
 
   useEffect(() => {
     if (isOpen) {
@@ -65,6 +66,7 @@ export default function CheckTicketModal({
       setPlateError("");
       setTicketData(null);
       setNotFound(false);
+      setHasSearched(false); // Reset search state when modal opens
       fetchAllLocations();
     }
   }, [isOpen]);
@@ -102,6 +104,7 @@ export default function CheckTicketModal({
   const clearTicketData = () => {
     setTicketData(null);
     setNotFound(false);
+    setHasSearched(false); // Reset search state when inputs change
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,6 +137,7 @@ export default function CheckTicketModal({
     setLoading(true);
     setTicketData(null);
     setNotFound(false);
+    setHasSearched(true); // Mark that search has been performed
 
     try {
       const normalizedPlate = normalizeLicensePlate(trimmedKeyword);
@@ -197,6 +201,7 @@ export default function CheckTicketModal({
     setPlateError("");
     setTicketData(null);
     setNotFound(false);
+    setHasSearched(false); // Reset search state when closing
     onClose();
   };
 
@@ -217,7 +222,8 @@ export default function CheckTicketModal({
     ticketData?.PaymentStatus
   );
 
-  const detailData = ticketData || notFound;
+  // Determine what to show in the results section
+  const shouldShowResults = hasSearched || loading;
 
   if (!isOpen) return null;
 
@@ -345,11 +351,18 @@ export default function CheckTicketModal({
         </form>
 
         {/* Results Section */}
-        {detailData && (
+        {shouldShowResults ? (
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 mt-6">
             {loading ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                Memuat data tiket...
+              <div className="text-center py-4 p-6">
+                <div className="three-body">
+                  <div className="three-body__dot"></div>
+                  <div className="three-body__dot"></div>
+                  <div className="three-body__dot"></div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 blink-smooth">
+                  Memuat data...
+                </p>
               </div>
             ) : notFound ? (
               <div className="text-center text-red-500 dark:text-red-400 font-semibold py-8">
@@ -616,6 +629,35 @@ export default function CheckTicketModal({
                 </div>
               </div>
             ) : null}
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 mt-6">
+            <div className="text-center py-8">
+              <div className="flex flex-col items-center space-y-3">
+                <svg
+                  className="w-16 h-16 text-gray-400 dark:text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <div className="text-gray-500 dark:text-gray-400">
+                  <div className="text-lg font-medium mb-1">
+                    Silakan Masukkan Data Pencarian
+                  </div>
+                  <div className="text-sm">
+                    Masukkan nomor polisi, pilih lokasi, dan tanggal untuk
+                    mencari transaksi parkir
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

@@ -737,10 +737,10 @@ export default function ReportsPage() {
             <h1 className="text-2xl font-bold">Laporan</h1>
           </div>
           {/* Wrap DatePicker with Suspense */}
-          <div className="flex flex-col lg:flex-row items-start lg:items-center mb-4 space-y-4 lg:space-y-0 lg:space-x-4 justify-between">
+          <div className="flex flex-col space-y-4 mb-4">
             {/* Filter Section */}
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center flex-wrap lg:flex-nowrap">
-              <div className="relative z-30 w-full sm:w-auto min-w-[200px]">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+              <div className="relative z-30 flex-1 min-w-[200px] max-w-xs">
                 <DatePicker
                   selected={searchDate}
                   onChange={(date) => setSearchDate(date)}
@@ -822,7 +822,7 @@ export default function ReportsPage() {
                 </span>
               </div>
 
-              <div className="relative w-full sm:w-auto min-w-[150px]">
+              <div className="relative flex-1 min-w-[150px] max-w-xs">
                 <input
                   type="text"
                   placeholder="Cari Lokasi"
@@ -835,7 +835,7 @@ export default function ReportsPage() {
                 </span>
               </div>
 
-              <div className="relative w-full sm:w-auto min-w-[150px]">
+              <div className="relative flex-1 min-w-[150px] max-w-xs">
                 <input
                   type="text"
                   placeholder="Cari Kategori"
@@ -852,7 +852,7 @@ export default function ReportsPage() {
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap flex-shrink-0"
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap h-fit"
                   title="Clear all filters"
                 >
                   ✕ Clear
@@ -860,11 +860,11 @@ export default function ReportsPage() {
               )}
             </div>
 
-            {/* Action Buttons - Pastikan selalu terlihat */}
-            <div className="flex-shrink-0 w-full lg:w-auto">
+            {/* Action Buttons - Pisahkan ke baris terpisah */}
+            <div className="flex justify-end">
               <button
                 onClick={handleModalOpen}
-                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 w-full lg:w-auto whitespace-nowrap"
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 whitespace-nowrap"
               >
                 <span>➕</span>
                 <span>Tambah Laporan</span>

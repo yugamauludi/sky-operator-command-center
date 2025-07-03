@@ -305,11 +305,10 @@ export function GlobalCallPopup() {
         ]);
       }
 
-      // Update pagination state
       setCategoryPagination((prev) => ({
         ...prev,
         page: page,
-        hasMore: newCategories.length === 5, // Jika kurang dari limit, berarti sudah habis
+        hasMore: newCategories.length === 5, 
         isLoadingMore: false,
       }));
     } catch (error) {
@@ -322,7 +321,6 @@ export function GlobalCallPopup() {
       }
     }
   };
-  // Reset all form inputs when modal opens/closes
   useEffect(() => {
     if (activeCall) {
       setSelectedCategory("");
