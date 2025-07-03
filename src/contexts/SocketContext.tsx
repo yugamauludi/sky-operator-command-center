@@ -597,7 +597,7 @@ export function GlobalCallPopup() {
         {/* Header */}
         <div className="text-center mb-4 pr-16">
           <h2 className="text-lg font-semibold text-red-600 mb-1">
-            📞 Incoming Call!
+            📞 Panggilan Masuk!
           </h2>
           {/* Ringtone Status Indicator */}
           {isMuted && (
@@ -632,12 +632,12 @@ export function GlobalCallPopup() {
           {/* Left Column - Information */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold border-b pb-1">
-              Information
+              Informasi
             </h3>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm">
-                <span className="font-medium">Location Name</span>
+                <span className="font-medium">Lokasi</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                   {locationName || "-"}
@@ -661,7 +661,7 @@ export function GlobalCallPopup() {
               </div> */}
               {!isPMGate && (
                 <div className="flex justify-between items-center">
-                  <span className="font-medium">No Transaction</span>
+                  <span className="font-medium">Nomor Transaksi</span>
                   <span>:</span>
                   <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                     {ticketNo || "-"}
@@ -670,7 +670,7 @@ export function GlobalCallPopup() {
               )}
 
               <div className="flex justify-between items-center">
-                <span className="font-medium">No Plat Number</span>
+                <span className="font-medium">Plat Nomor Kendaraan</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                   {numberPlate || "-"}
@@ -678,7 +678,7 @@ export function GlobalCallPopup() {
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="font-medium">In Time</span>
+                <span className="font-medium">Waktu Masuk</span>
                 <span>:</span>
                 <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                   {callInTime ? formatTanggalLocal(callInTime.toString()) : "-"}
@@ -688,14 +688,14 @@ export function GlobalCallPopup() {
               {!isPMGate && (
                 <>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Out Time</span>
+                    <span className="font-medium">Waktu Keluar</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                       -
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Payment Status</span>
+                    <span className="font-medium">Status Pembayaran</span>
                     <span>:</span>
                     <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                       {detailGate.payment_status === "PAID" ? "Paid" : "Unpaid"}
@@ -704,7 +704,7 @@ export function GlobalCallPopup() {
                   {detailGate.payment_status === "PAID" && (
                     <>
                       <div className="flex justify-between items-center">
-                        <span className="font-medium">Payment Time</span>
+                        <span className="font-medium">Waktu Pembayaran</span>
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                           {detailGate.payment_time
@@ -713,7 +713,7 @@ export function GlobalCallPopup() {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="font-medium">Payment Method</span>
+                        <span className="font-medium">Metode Pembayaran</span>
                         <span>:</span>
                         <span className="text-gray-600 dark:text-gray-400 flex-1 text-right">
                           {detailGate.payment_method || "-"}
@@ -749,7 +749,7 @@ export function GlobalCallPopup() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium mb-1">
-                  Object <span className="text-red-500">*</span>
+                  Kategori <span className="text-red-500">*</span>
                 </label>
                 <SearchableSelect
                   options={categoryOptions}
@@ -776,7 +776,7 @@ export function GlobalCallPopup() {
 
               <div>
                 <label className="block text-xs font-medium mb-1">
-                  Description <span className="text-red-500">*</span>
+                  Deskripsi <span className="text-red-500">*</span>
                 </label>
                 <SearchableSelect
                   options={descriptionOptions}
@@ -797,7 +797,7 @@ export function GlobalCallPopup() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-2">Action</label>
+                <label className="block text-xs font-medium mb-2">Aksi</label>
                 <div className="flex gap-4">
                   <label className="flex items-center space-x-2 text-sm">
                     <input

@@ -211,14 +211,18 @@ export default function CheckTicketModal({
   ): string => {
     if (outTime === null) {
       return "IN AREA";
-    } else if ((outTime !== null && paymentStatus === "PAID") || "FREE") {
+    } else if (
+      (outTime !== null && paymentStatus === "PAID") ||
+      "FREE" ||
+      null
+    ) {
       return "OUT AREA";
     }
     return "UNKNOWN";
   };
 
   const vehicleStatus = getVehicleStatus(
-    ticketData?.TimeOut,
+    ticketData?.OutTime,
     ticketData?.PaymentStatus
   );
 
@@ -427,6 +431,14 @@ export default function CheckTicketModal({
                       </div>
                       {ticketData.PaymentStatus === "PAID" && (
                         <>
+                          <div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                              Waktu Pembayaran
+                            </div>
+                            <div className="text-sm font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                              {ticketData?.paymentTIme}
+                            </div>
+                          </div>
                           <div>
                             <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                               Metode Pembayaran
