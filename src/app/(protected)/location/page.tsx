@@ -1,19 +1,29 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState, lazy, Suspense, useCallback, useMemo } from "react";
+import {
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useCallback,
+  useMemo,
+} from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-const ConfirmationModal = lazy(() => import("@/components/modal/ConfirmationModal"));
+const ConfirmationModal = lazy(
+  () => import("@/components/modal/ConfirmationModal")
+);
 const CommonTable = lazy(() => import("@/components/tables/CommonTable"));
-const DynamicInputModal = lazy(() => import("@/components/modal/DynamicInputModal"));
-const ActivateLocationModal = lazy(() => import("@/components/modal/ActivateLocationModal"));
+const DynamicInputModal = lazy(
+  () => import("@/components/modal/DynamicInputModal")
+);
+const ActivateLocationModal = lazy(
+  () => import("@/components/modal/ActivateLocationModal")
+);
 
-import {
-  createGate,
-  fetchLocationActive,
-} from "@/hooks/useLocation";
+import { createGate, fetchLocationActive } from "@/hooks/useLocation";
 
 import type { Column } from "@/components/tables/CommonTable";
 
@@ -83,37 +93,47 @@ export default function LocationPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [isActivateLocationModalOpen, setIsActivateLocationModalOpen] = useState(false);
+  const [isActivateLocationModalOpen, setIsActivateLocationModalOpen] =
+    useState(false);
 
-  const fields = useMemo(() => [
-    {
-      id: "name",
-      label: "Nama Lokasi",
-      type: "text",
-      value: "",
-      placeholder: "Masukkan nama lokasi",
+  const fields = useMemo(
+    () => [
+      {
+        id: "name",
+        label: "Nama Lokasi",
+        type: "text",
+        value: "",
+        placeholder: "Masukkan nama lokasi",
+      },
+    ],
+    []
+  );
+
+  const handleViewDetail = useCallback(
+    async (location: Location) => {
+      try {
+        router.push(
+          `/location/detail?id=${location.id}&name=${encodeURIComponent(
+            location.name
+          )}`
+        );
+      } catch (error) {
+        console.error("Error navigating to detail:", error);
+        toast.error("Gagal membuka detail lokasi");
+      }
     },
-  ], []);
-
-  const handleViewDetail = useCallback(async (location: Location) => {
-    try {
-      router.push(
-        `/location/detail?id=${location.id}&name=${encodeURIComponent(
-          location.name
-        )}`
-      );
-    } catch (error) {
-      console.error("Error navigating to detail:", error);
-      toast.error("Gagal membuka detail lokasi");
-    }
-  }, [router]);
+    [router]
+  );
 
   const handleOpenActivateLocationModal = useCallback(() => {
     setIsActivateLocationModalOpen(true);
   }, []);
 
   const handleActivateLocationSuccess = useCallback(() => {
-    fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
+    fetchLocationActiveData(
+      locationPagination.currentPage,
+      locationPagination.itemsPerPage
+    );
     toast.success("Data lokasi aktif telah diperbarui");
   }, []);
 
@@ -162,18 +182,28 @@ export default function LocationPage() {
     }
   }, []);
 
-  const handleSubmit = useCallback(async (values: Record<string, string>) => {
-    try {
-      await createGate(values);
-      setIsAddModalOpen(false);
-      toast.success("gate baru berhasil ditambahkan!");
-      fetchLocationActiveData(locationPagination.currentPage, locationPagination.itemsPerPage);
-    } catch (error) {
-      setIsAddModalOpen(false);
-      console.error("Gagal menambahkan gate baru:", error);
-      toast.error("gate baru gagal ditambahkan!");
-    }
-  }, [fetchLocationActiveData, locationPagination.currentPage, locationPagination.itemsPerPage]);
+  const handleSubmit = useCallback(
+    async (values: Record<string, string>) => {
+      try {
+        await createGate(values);
+        setIsAddModalOpen(false);
+        toast.success("gate baru berhasil ditambahkan!");
+        fetchLocationActiveData(
+          locationPagination.currentPage,
+          locationPagination.itemsPerPage
+        );
+      } catch (error) {
+        setIsAddModalOpen(false);
+        console.error("Gagal menambahkan gate baru:", error);
+        toast.error("gate baru gagal ditambahkan!");
+      }
+    },
+    [
+      fetchLocationActiveData,
+      locationPagination.currentPage,
+      locationPagination.itemsPerPage,
+    ]
+  );
 
   const handleConfirmAdd = useCallback(() => {
     setIsConfirmationModalOpen(false);
@@ -195,60 +225,69 @@ export default function LocationPage() {
   // }, []);
 
   // Optimized page change handler
-  const handleLocationPageChange = useCallback((page: number) => {
-    setLocationPagination((prev) => ({ ...prev, currentPage: page }));
-    fetchLocationActiveData(page, locationPagination.itemsPerPage);
-  }, [fetchLocationActiveData, locationPagination.itemsPerPage]);
+  const handleLocationPageChange = useCallback(
+    (page: number) => {
+      setLocationPagination((prev) => ({ ...prev, currentPage: page }));
+      fetchLocationActiveData(page, locationPagination.itemsPerPage);
+    },
+    [fetchLocationActiveData, locationPagination.itemsPerPage]
+  );
 
-  const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
-    setLocationPagination((prev) => ({
-      ...prev,
-      itemsPerPage: newItemsPerPage,
-      currentPage: 1,
-    }));
-    fetchLocationActiveData(1, newItemsPerPage);
-  }, [fetchLocationActiveData]);
+  const handleItemsPerPageChange = useCallback(
+    (newItemsPerPage: number) => {
+      setLocationPagination((prev) => ({
+        ...prev,
+        itemsPerPage: newItemsPerPage,
+        currentPage: 1,
+      }));
+      fetchLocationActiveData(1, newItemsPerPage);
+    },
+    [fetchLocationActiveData]
+  );
 
-  const columns: Column<Location>[] = useMemo(() => [
-    {
-      header: "No",
-      accessor: "id",
-      render: (value, item) => {
-        const index = locations.findIndex((cat) => cat.id === item.id);
-        return index + 1;
+  const columns: Column<Location>[] = useMemo(
+    () => [
+      {
+        header: "No",
+        accessor: "id",
+        render: (value, item) => {
+          const index = locations.findIndex((cat) => cat.id === item.id);
+          return index + 1;
+        },
       },
-    },
-    { header: "Name", accessor: "name" },
-    { header: "Address", accessor: "address", maxWidth: "720px" },
-    {
-      header: "Aksi",
-      accessor: "id",
-      render: (_: Location[keyof Location], location: Location) => (
-        <div className="flex space-x-2">
-          <button
-            onClick={() => handleViewDetail(location)}
-            className="text-green-500 hover:text-green-600 transition-colors duration-200"
-            title="Lihat Detail"
-            style={{ minWidth: "40px", minHeight: "40px" }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+      { header: "Name", accessor: "name" },
+      { header: "Address", accessor: "address", maxWidth: "720px" },
+      {
+        header: "Aksi",
+        accessor: "id",
+        render: (_: Location[keyof Location], location: Location) => (
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleViewDetail(location)}
+              className="text-green-500 hover:text-green-600 transition-colors duration-200"
+              title="Lihat Detail"
+              style={{ minWidth: "40px", minHeight: "40px" }}
             >
-              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-              <path
-                fillRule="evenodd"
-                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      ),
-    },
-  ], [locations, handleViewDetail]);
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path
+                  fillRule="evenodd"
+                  d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [locations, handleViewDetail]
+  );
 
   useEffect(() => {
     const initializeData = async () => {
@@ -273,7 +312,9 @@ export default function LocationPage() {
               <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
-                  <h1 className="text-xl sm:text-2xl font-bold">Daftar Lokasi</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold">
+                    Daftar Lokasi
+                  </h1>
                   <div className="flex space-x-3">
                     {/* Button untuk aktivasi lokasi */}
                     <button
@@ -305,12 +346,13 @@ export default function LocationPage() {
                       Manajemen Lokasi
                     </h2>
                     <p className="text-indigo-600/80 dark:text-indigo-300/80">
-                      Halaman ini digunakan untuk mengelola informasi lokasi gerbang
-                      parkir yang tersedia. Setiap lokasi mencakup detail seperti nama
-                      lokasi, alamat, dan informasi terkait lainnya. Anda dapat
-                      melihat detail lengkap setiap lokasi dengan mengklik tombol
-                      lihat detail pada tabel. Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk
-                      mengaktifkan lokasi yang belum aktif.
+                      Halaman ini digunakan untuk mengelola informasi lokasi
+                      gerbang parkir yang tersedia. Setiap lokasi mencakup
+                      detail seperti nama lokasi, alamat, dan informasi terkait
+                      lainnya. Anda dapat melihat detail lengkap setiap lokasi
+                      dengan mengklik tombol lihat detail pada tabel. Gunakan
+                      tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan
+                      lokasi yang belum aktif.
                     </p>
                   </div>
                 </div>
@@ -350,7 +392,8 @@ export default function LocationPage() {
                           Tidak ada lokasi ditemukan
                         </p>
                         <p className="mt-2 text-xs text-gray-400">
-                          Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk mengaktifkan lokasi baru
+                          Gunakan tombol &quot;Aktifkan Lokasi&quot; untuk
+                          mengaktifkan lokasi baru
                         </p>
                       </div>
                     ) : (

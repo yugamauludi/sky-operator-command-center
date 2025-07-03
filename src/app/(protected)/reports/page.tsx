@@ -736,20 +736,20 @@ export default function ReportsPage() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Laporan</h1>
           </div>
-
           {/* Wrap DatePicker with Suspense */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 space-y-2 sm:space-y-0 justify-between">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center mb-4 space-y-4 lg:space-y-0 lg:space-x-4 justify-between">
             {/* Filter Section */}
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center w-full sm:w-auto">
-              <div className="relative z-40 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 items-start sm:items-center flex-wrap lg:flex-nowrap">
+              <div className="relative z-30 w-full sm:w-auto min-w-[200px]">
                 <DatePicker
                   selected={searchDate}
                   onChange={(date) => setSearchDate(date)}
-                  className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
+                  className="px-4 py-2 border rounded-lg pl-10 w-full"
                   placeholderText="Cari Tanggal"
                   dateFormat="dd MMM yyyy"
                   isClearable
                   maxDate={new Date()}
+                  popperClassName="z-50"
                   renderCustomHeader={({
                     date,
                     changeYear,
@@ -821,25 +821,27 @@ export default function ReportsPage() {
                   📅
                 </span>
               </div>
-              <div className="relative w-full sm:w-auto">
+
+              <div className="relative w-full sm:w-auto min-w-[150px]">
                 <input
                   type="text"
                   placeholder="Cari Lokasi"
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
-                  className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
+                  className="px-4 py-2 border rounded-lg pl-10 w-full"
                 />
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   📍
                 </span>
               </div>
-              <div className="relative w-full sm:w-auto">
+
+              <div className="relative w-full sm:w-auto min-w-[150px]">
                 <input
                   type="text"
                   placeholder="Cari Kategori"
                   value={searchCategory}
                   onChange={(e) => setSearchCategory(e.target.value)}
-                  className="px-4 py-2 border rounded-lg pl-10 w-full sm:w-auto"
+                  className="px-4 py-2 border rounded-lg pl-10 w-full"
                 />
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   🔍
@@ -850,7 +852,7 @@ export default function ReportsPage() {
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm w-full sm:w-auto whitespace-nowrap"
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap flex-shrink-0"
                   title="Clear all filters"
                 >
                   ✕ Clear
@@ -858,18 +860,17 @@ export default function ReportsPage() {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+            {/* Action Buttons - Pastikan selalu terlihat */}
+            <div className="flex-shrink-0 w-full lg:w-auto">
               <button
                 onClick={handleModalOpen}
-                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2"
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 w-full lg:w-auto whitespace-nowrap"
               >
                 <span>➕</span>
                 <span>Tambah Laporan</span>
               </button>
             </div>
           </div>
-
           {/* Filter Results Info */}
           {hasActiveFilters && (
             <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -899,7 +900,6 @@ export default function ReportsPage() {
               </div>
             </div>
           )}
-
           {/* Wrap Table with Suspense */}
           <Suspense fallback={<LoadingSpinner />}>
             <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">
@@ -941,7 +941,6 @@ export default function ReportsPage() {
               )}
             </div>
           </Suspense>
-
           {/* Wrap Modal with Suspense */}
           <Suspense fallback={null}>
             <IsseFormInputModal
