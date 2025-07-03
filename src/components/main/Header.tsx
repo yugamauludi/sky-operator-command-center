@@ -30,7 +30,7 @@ export default function Header({
                 onClick={() => setIsCheckModalOpen(true)}
                 className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow whitespace-nowrap"
               >
-                Cek Tiket
+                Cek Transaksi
               </button>
             </div>
           </div>

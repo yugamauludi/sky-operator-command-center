@@ -373,7 +373,7 @@ export function GlobalCallPopup() {
         // setDescription(descriptions);
         // Tambahkan ini untuk SearchableSelect:
         const options = descriptions.map((desc) => ({
-          value: desc.id.toString(),
+          value: desc.object,
           label: desc.object,
         }));
         setDescriptionOptions(options);
@@ -399,48 +399,6 @@ export function GlobalCallPopup() {
       setSelectedDescription("");
     }
   }, [selectedCategory]);
-
-  const handleCreateIssue = async () => {
-    if (!activeCall || !selectedCategory || !selectedDescription) {
-      toast.error("Mohon lengkapi semua field yang wajib diisi");
-      return;
-    }
-
-    setIsCreateIssue(true);
-
-    try {
-      const issueData = {
-        idCategory: parseInt(selectedCategory),
-        idGate: parseInt(activeCall.gateId),
-        description: selectedDescription,
-        action: "CREATE_ISSUE",
-        // foto: activeCall.photoIn || "-",
-        number_plate: dataIssue.number_plate?.toUpperCase() || "DUM 111 YYY",
-        TrxNo: dataIssue.TrxNo || "123DUMYYY345",
-      };
-      const response = await addIssue(issueData);
-
-      if (response && response.message.includes("created")) {
-        toast.success("Issue berhasil dibuat");
-        setDataIssue({
-          idCategory: 0,
-          idGate: 0,
-          description: "",
-          action: "",
-          foto: "",
-          number_plate: "",
-          TrxNo: "",
-        });
-      } else {
-        toast.error("Gagal membuat issue report");
-      }
-    } catch (error) {
-      console.error("Error create issue:", error);
-      toast.error("Terjadi kesalahan saat membuat issue report");
-    } finally {
-      setIsCreateIssue(false);
-    }
-  };
 
   const handleOpenGate = async () => {
     if (!activeCall || !selectedCategory) return;
@@ -480,7 +438,8 @@ export function GlobalCallPopup() {
     !selectedDescription ||
     isOpeningGate ||
     isLoadingCategories ||
-    isLoadingDescriptions;
+    isLoadingDescriptions ||
+    dataIssue.action !== "OPEN_GATE";
 
   // Check if all required fields are filled for Submit button
   const isSubmitDisabled =
@@ -497,12 +456,12 @@ export function GlobalCallPopup() {
   // };
 
   // Mapping for detailGate
-  const detailGate = activeCall?.detailGate || {};
+  const detailGate = activeCall?.detailGate.data || {};
   const locationName = activeCall?.location?.Name || "Unknown Location";
   const gateName = activeCall?.gate || detailGate.gate || "-";
   // const gateId = activeCall?.gateId || detailGate.id || "-";
-  const ticketNo = detailGate.ticket || "-";
-  const numberPlate = detailGate.number_plate.toUpperCase() || "-";
+  const ticketNo = detailGate?.ticket || "-";
+  const numberPlate = detailGate?.plateNumber?.toUpperCase() || "-";
 
   // Foto In
   const fotoInUrl = detailGate.foto_in
@@ -513,6 +472,50 @@ export function GlobalCallPopup() {
   const photoCaptureUrl = activeCall?.imageFile?.filename
     ? `https://devtest09.skyparking.online/uploads/${activeCall.imageFile.filename}`
     : "/images/Plat-Nomor-Motor-875.png";
+
+  const handleCreateIssue = async () => {
+    console.log(dataIssue, "<<<<< dataIssue");
+
+    if (!activeCall || !selectedCategory || !selectedDescription) {
+      toast.error("Mohon lengkapi semua field yang wajib diisi");
+      return;
+    }
+
+    setIsCreateIssue(true);
+
+    try {
+      const issueData = {
+        idCategory: parseInt(selectedCategory),
+        idGate: parseInt(activeCall.gateId),
+        description: selectedDescription,
+        action: dataIssue.action || "",
+        // foto: activeCall.photoIn || "-",
+        number_plate: numberPlate,
+        TrxNo: ticketNo,
+      };
+      const response = await addIssue(issueData);
+
+      if (response && response.message.includes("created")) {
+        toast.success("Issue berhasil dibuat");
+        setDataIssue({
+          idCategory: 0,
+          idGate: 0,
+          description: "",
+          action: "",
+          foto: "",
+          number_plate: "",
+          TrxNo: "",
+        });
+      } else {
+        toast.error("Gagal membuat issue report");
+      }
+    } catch (error) {
+      console.error("Error create issue:", error);
+      toast.error("Terjadi kesalahan saat membuat issue report");
+    } finally {
+      setIsCreateIssue(false);
+    }
+  };
 
   return (
     <div className="modal fixed inset-0 backdrop-blur-md flex items-center justify-center z-100 p-4">
@@ -782,7 +785,9 @@ export function GlobalCallPopup() {
                   value={selectedDescription}
                   onChange={setSelectedDescription}
                   placeholder={
-                    !selectedCategory
+                    isLoadingDescriptions
+                      ? "Memuat data deskripsi..."
+                      : !selectedCategory
                       ? "-- Pilih kategori terlebih dahulu --"
                       : descriptionOptions.length === 0
                       ? "-- Tidak ada deskripsi tersedia --"
@@ -791,28 +796,44 @@ export function GlobalCallPopup() {
                   disabled={isLoadingDescriptions || !selectedCategory}
                   className="text-sm"
                 />
-                {isLoadingDescriptions && (
-                  <div className="flex items-center mt-1 text-xs text-blue-600">
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
-                    Memuat data deskripsi...
-                  </div>
-                )}
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1">Action</label>
-                <input
-                  type="text"
-                  value={dataIssue.action || ""}
-                  onChange={(e) =>
-                    setDataIssue((prev) => ({
-                      ...prev,
-                      action: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter action"
-                  className="w-full p-2 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600 bg-gray-50"
-                />
+                <label className="block text-xs font-medium mb-2">Action</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center space-x-2 text-sm">
+                    <input
+                      type="radio"
+                      name="action"
+                      value="CREATE_ISSUE"
+                      checked={dataIssue.action === "CREATE_ISSUE"}
+                      onChange={(e) =>
+                        setDataIssue((prev) => ({
+                          ...prev,
+                          action: e.target.value,
+                        }))
+                      }
+                      className="accent-blue-600 cursor-pointer"
+                    />
+                    <span>Create Issue</span>
+                  </label>
+                  <label className="flex items-center space-x-2 text-sm">
+                    <input
+                      type="radio"
+                      name="action"
+                      value="OPEN_GATE"
+                      checked={dataIssue.action === "OPEN_GATE"}
+                      onChange={(e) =>
+                        setDataIssue((prev) => ({
+                          ...prev,
+                          action: e.target.value,
+                        }))
+                      }
+                      className="accent-blue-600 cursor-pointer"
+                    />
+                    <span>Open Gate</span>
+                  </label>
+                </div>
               </div>
 
               {/* Action Buttons - Updated with proper disable logic */}
