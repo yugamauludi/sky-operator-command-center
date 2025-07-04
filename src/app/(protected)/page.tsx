@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import React from 'react';
 import { fetchIssuesMonthly } from "@/hooks/useIssues";
-import { ComplaintModal } from "@/components/tables/ComplaintModal";
+import { ComplaintModal } from "@/components/modal/ComplaintModal";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
