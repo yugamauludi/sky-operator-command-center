@@ -235,7 +235,7 @@ export default function CheckTicketModal({
     <div className="fixed inset-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-[1100px] shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col max-h-[95vh] sm:max-h-[90vh]">
         {/* Header - Fixed */}
-        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="flex justify-between items-center p- sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
             Cek Transaksi Parkir
           </h2>
@@ -261,7 +261,7 @@ export default function CheckTicketModal({
 
         {/* Content - Scrollable */}
         {/* Form input - Responsive Stack */}
-        <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
+        <form onSubmit={handleSubmit} className="space-y-4 p-2 sm:p-4 sm:mb-4">
           <div className="space-y-4 lg:space-y-0 lg:flex lg:gap-4">
             {/* Nomor Polisi */}
             <div className="flex-1 space-y-1">
@@ -356,7 +356,7 @@ export default function CheckTicketModal({
 
         {/* Results Section */}
         {shouldShowResults ? (
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 mt-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-4">
             {loading ? (
               <div className="text-center py-4 p-6">
                 <div className="three-body">
@@ -436,7 +436,7 @@ export default function CheckTicketModal({
                               Waktu Pembayaran
                             </div>
                             <div className="text-sm font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded">
-                              {ticketData?.paymentTIme}
+                              {ticketData?.paymentTIme ?? "-"}
                             </div>
                           </div>
                           <div>
@@ -444,7 +444,7 @@ export default function CheckTicketModal({
                               Metode Pembayaran
                             </div>
                             <div className="text-sm font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded">
-                              {ticketData.paymentMethod}
+                              {ticketData.paymentMethod ?? "-"}
                             </div>
                           </div>
                           <div>
@@ -452,7 +452,7 @@ export default function CheckTicketModal({
                               Issuer Name
                             </div>
                             <div className="text-sm font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded break-all">
-                              {ticketData.issuerInfo || "-"}
+                              {ticketData.issuerInfo.IssuerLongName || "-"}
                             </div>
                           </div>
                         </>
@@ -687,7 +687,7 @@ export default function CheckTicketModal({
               type="submit"
               disabled={loading || !!plateError}
               onClick={handleSubmit}
-              className={`cursor-pointer w-full sm:w-auto px-4 sm:px-6 py-2 rounded-md text-sm font-medium text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`cursor-pointer disabled:cursor-not-allowed w-full sm:w-auto px-4 sm:px-6 py-2 rounded-md text-sm font-medium text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 loading || plateError
                   ? "bg-blue-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"

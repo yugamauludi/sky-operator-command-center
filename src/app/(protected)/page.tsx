@@ -67,7 +67,7 @@ export default function Dashboard() {
       foreColor: "inherit",
       events: {
         dataPointSelection: handlePieChartClick
-      }
+      },
     },
     labels: ["Informasi", "Teknikal", "Fasilitas", "Layanan"],
     colors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"],
@@ -99,7 +99,7 @@ export default function Dashboard() {
       enabled: true,
       style: {
         colors: ["#ffffff"],
-        fontSize: '12px',
+        fontSize: '14px',
         fontWeight: 'bold',
       },
       dropShadow: {
@@ -112,9 +112,9 @@ export default function Dashboard() {
     },
     plotOptions: {
       pie: {
-        customScale: 0.8,
+        customScale: 1,
         dataLabels: {
-          minAngleToShowLabel: 5,
+          minAngleToShowLabel: 7,
         }
       }
     },
@@ -126,7 +126,7 @@ export default function Dashboard() {
         },
         legend: {
           position: 'bottom',
-          fontSize: '11px',
+          fontSize: '20px',
           itemMargin: {
             horizontal: 3,
             vertical: 2
@@ -135,7 +135,7 @@ export default function Dashboard() {
         dataLabels: {
           enabled: true,
           style: {
-            fontSize: '10px'
+            fontSize: '14px'
           }
         },
         plotOptions: {

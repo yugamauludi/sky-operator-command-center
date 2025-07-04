@@ -31,7 +31,7 @@ import {
   GateByLocation,
   Location,
 } from "@/hooks/useLocation";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+// import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 
 interface Report {
@@ -733,11 +733,11 @@ export default function ReportsPage() {
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
         <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="px-6 flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Laporan</h1>
           </div>
           {/* Wrap DatePicker with Suspense */}
-          <div className="flex flex-col space-y-4 mb-4">
+          <div className="flex flex-col space-y-4 mb-4 px-6">
             {/* Filter Section */}
             <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
               <div className="relative z-30 flex-1 min-w-[200px] max-w-xs">
@@ -750,72 +750,6 @@ export default function ReportsPage() {
                   isClearable
                   maxDate={new Date()}
                   popperClassName="z-50"
-                  renderCustomHeader={({
-                    date,
-                    changeYear,
-                    changeMonth,
-                    decreaseMonth,
-                    increaseMonth,
-                    prevMonthButtonDisabled,
-                    nextMonthButtonDisabled,
-                  }) => (
-                    <div className="flex items-center justify-between px-2 py-2">
-                      <button
-                        onClick={decreaseMonth}
-                        disabled={prevMonthButtonDisabled}
-                      >
-                        <IoIosArrowBack />
-                      </button>
-                      <select
-                        value={date.getMonth()}
-                        onChange={({ target: { value } }) =>
-                          changeMonth(Number(value))
-                        }
-                        className="mx-1 px-2 py-1 border rounded"
-                      >
-                        {[
-                          "Jan",
-                          "Feb",
-                          "Mar",
-                          "Apr",
-                          "May",
-                          "Jun",
-                          "Jul",
-                          "Aug",
-                          "Sep",
-                          "Oct",
-                          "Nov",
-                          "Dec",
-                        ].map((month, index) => (
-                          <option key={month} value={index}>
-                            {month}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={date.getFullYear()}
-                        onChange={({ target: { value } }) =>
-                          changeYear(Number(value))
-                        }
-                        className="mx-1 px-2 py-1 border rounded"
-                      >
-                        {Array.from(
-                          { length: 10 },
-                          (_, i) => new Date().getFullYear() - i
-                        ).map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={increaseMonth}
-                        disabled={nextMonthButtonDisabled}
-                      >
-                        <IoIosArrowForward />
-                      </button>
-                    </div>
-                  )}
                 />
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   📅

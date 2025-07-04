@@ -21,7 +21,11 @@ export interface TransactionData {
   LicensePlateOut: string;
   LocationCode: string;
   IssuerID: string;
-  issuerInfo: null;
+  issuerInfo: {
+    issuerId: string;
+    issuerName: string;
+    IssuerLongName: string;
+  } | null;
   gracePeriod?: number;
   paymentMethod?: string;
   locationInfo: {
