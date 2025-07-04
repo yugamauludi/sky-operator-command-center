@@ -599,8 +599,6 @@ export default function MasterPage() {
     fetchDescriptionData(1, newItemsPerPage);
   };
 
-  console.log(categories, descriptions);
-
   return (
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">

@@ -496,8 +496,6 @@ export function GlobalCallPopup() {
     : "/images/Plat-Nomor-Motor-875.png";
 
   const handleCreateIssue = async () => {
-    console.log(dataIssue, "<<<<< dataIssue");
-
     if (
       !activeCall ||
       !selectedCategory ||

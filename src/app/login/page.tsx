@@ -24,7 +24,6 @@ export default function Login() {
         password: formData.password,
         remember: true,
       });
-      console.log(response.user.username, "<<<< username dari response");
 
       setUser({ username: response.user.username });
       localStorage.setItem("username", response.user.username);
