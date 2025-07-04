@@ -255,8 +255,8 @@ export default function LocationPage() {
           return index + 1;
         },
       },
-      { header: "Name", accessor: "name" },
-      { header: "Address", accessor: "address", maxWidth: "720px" },
+      { header: "Nama Lokasi", accessor: "name" },
+      { header: "Alamat", accessor: "address", maxWidth: "720px" },
       {
         header: "Aksi",
         accessor: "id",

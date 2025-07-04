@@ -373,7 +373,7 @@ const TrafficCallTable: React.FC = () => {
                 </div>
 
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Showing data for: <span className="font-semibold text-gray-900 dark:text-white">
+                    Menampilkan data untuk: <span className="font-semibold text-gray-900 dark:text-white">
                         {periods.find(p => p.value === selectedPeriod)?.label} {selectedYear}
                     </span> |
                     Region: <span className="font-semibold text-gray-900 dark:text-white">
@@ -517,7 +517,7 @@ const TrafficCallTable: React.FC = () => {
             {/* Pagination */}
             <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} results
+                    Menampilkan {startIndex + 1} - {Math.min(endIndex, filteredData.length)} dari {filteredData.length} hasil
                 </div>
 
                 {/* Pagination Controls */}

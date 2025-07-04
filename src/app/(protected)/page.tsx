@@ -342,6 +342,10 @@ export default function Dashboard() {
                 <span className="text-gray-500">User Number: </span>
                 <span className="font-semibold">{userNumber}</span>
               </div>
+              <div className="text-sm">
+                <span className="text-gray-500">Total Panggilan: </span>
+                <span className="font-semibold">11</span>
+              </div>
             </div>
           </div>
         </div>

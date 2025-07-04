@@ -282,7 +282,7 @@ const CallByGateTable: React.FC = () => {
                 </div>
 
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Showing data for: <span className="font-semibold text-gray-900 dark:text-white">{selectedMonth} {selectedYear}</span> |
+                    Menampilkan data untuk: <span className="font-semibold text-gray-900 dark:text-white">{selectedMonth} {selectedYear}</span> |
                     Region: <span className="font-semibold text-gray-900 dark:text-white">{regions.find(r => r.value === selectedRegion)?.label}</span>
                 </p>
             </div>
@@ -297,7 +297,7 @@ const CallByGateTable: React.FC = () => {
                                     rowSpan={3}
                                     className="sticky left-0 z-20 border border-gray-400 dark:border-gray-600 bg-gray-800 dark:bg-gray-900 text-white p-2 min-w-[120px] font-bold"
                                 >
-                                    LOCATION
+                                    LOKASI
                                 </th>
                                 {gateNames.map((gateName) => (
                                     <th
@@ -315,10 +315,10 @@ const CallByGateTable: React.FC = () => {
                                 {gateNames.map((gateName) => (
                                     <React.Fragment key={gateName}>
                                         <th colSpan={3} className="border border-gray-400 dark:border-gray-600 bg-blue-200 dark:bg-blue-700 text-gray-900 dark:text-white p-1 text-center font-medium">
-                                            CAR
+                                            MOBIL
                                         </th>
                                         <th colSpan={3} className="border border-gray-400 dark:border-gray-600 bg-green-200 dark:bg-green-700 text-gray-900 dark:text-white p-1 text-center font-medium">
-                                            BIKE
+                                            MOTOR
                                         </th>
                                     </React.Fragment>
                                 ))}
@@ -401,7 +401,7 @@ const CallByGateTable: React.FC = () => {
             {/* Pagination */}
             <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Showing {startIndex + 1} to {Math.min(endIndex, allLocations.length)} of {allLocations.length} results
+                    Menampilkan {startIndex + 1} - {Math.min(endIndex, allLocations.length)} dari {allLocations.length} hasil
                 </div>
 
                 {/* Location Pagination Controls */}

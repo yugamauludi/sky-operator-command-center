@@ -119,10 +119,10 @@ export default function CommonTable<T>({
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex flex-col gap-3">
               <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
-                Showing <span className="font-medium">{startItem}</span> to{" "}
-                <span className="font-medium">{endItem}</span> of{" "}
+                Menampilkan <span className="font-medium">{startItem}</span> -{" "}
+                <span className="font-medium">{endItem}</span> dari{" "}
                 <span className="font-medium">{totalItems || data.length}</span>{" "}
-                results
+                hasil
               </p>
               {onItemsPerPageChange && (
                 <div className="flex items-center justify-center gap-2">
@@ -130,7 +130,7 @@ export default function CommonTable<T>({
                     htmlFor="itemsPerPage-mobile"
                     className="text-sm text-gray-700 dark:text-gray-300"
                   >
-                    Per page:
+                    Per halaman:
                   </label>
                   <select
                     id="itemsPerPage-mobile"
@@ -225,10 +225,10 @@ export default function CommonTable<T>({
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Showing <span className="font-medium">{startItem}</span> to{" "}
-              <span className="font-medium">{endItem}</span> of{" "}
+              Menampilkan <span className="font-medium">{startItem}</span> -{" "}
+              <span className="font-medium">{endItem}</span> dari{" "}
               <span className="font-medium">{totalItems || data.length}</span>{" "}
-              results
+              hasil
             </p>
             {onItemsPerPageChange && (
               <div className="flex items-center gap-2">
@@ -236,7 +236,7 @@ export default function CommonTable<T>({
                   htmlFor="itemsPerPage"
                   className="text-sm text-gray-700 dark:text-gray-300"
                 >
-                  Items per page:
+                  Item per halaman:
                 </label>
                 <select
                   id="itemsPerPage"
