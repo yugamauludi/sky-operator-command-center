@@ -12,6 +12,7 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { getStatusColor } from "@/utils/statusColorBedge";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 interface Location {
   Code: string;
@@ -340,6 +341,84 @@ export default function CheckTicketModal({
                 <DatePicker
                   selected={dateObj}
                   onChange={handleDateChange}
+                  className="w-full h-11 px-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                  placeholderText="Cari Tanggal"
+                  dateFormat="dd MMM yyyy"
+                  isClearable
+                  maxDate={new Date()}
+                  popperClassName="z-50"
+                  renderCustomHeader={({
+                    date,
+                    changeYear,
+                    changeMonth,
+                    decreaseMonth,
+                    increaseMonth,
+                    prevMonthButtonDisabled,
+                    nextMonthButtonDisabled,
+                  }) => (
+                    <div className="flex items-center justify-between px-2 py-2">
+                      <button
+                        onClick={decreaseMonth}
+                        disabled={prevMonthButtonDisabled}
+                      >
+                        <IoIosArrowBack />
+                      </button>
+                      <select
+                        value={date.getMonth()}
+                        onChange={({ target: { value } }) =>
+                          changeMonth(Number(value))
+                        }
+                        className="mx-1 px-2 py-1 border rounded"
+                      >
+                        {[
+                          "Jan",
+                          "Feb",
+                          "Mar",
+                          "Apr",
+                          "May",
+                          "Jun",
+                          "Jul",
+                          "Aug",
+                          "Sep",
+                          "Oct",
+                          "Nov",
+                          "Dec",
+                        ].map((month, index) => (
+                          <option key={month} value={index}>
+                            {month}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={date.getFullYear()}
+                        onChange={({ target: { value } }) =>
+                          changeYear(Number(value))
+                        }
+                        className="mx-1 px-2 py-1 border rounded"
+                      >
+                        {Array.from(
+                          { length: 10 },
+                          (_, i) => new Date().getFullYear() - i
+                        ).map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={increaseMonth}
+                        disabled={nextMonthButtonDisabled}
+                      >
+                        <IoIosArrowForward />
+                      </button>
+                    </div>
+                  )}
+                  autoComplete="off"
+                  wrapperClassName="block w-full h-11"
+                />
+                {/* <DatePicker
+                  selected={dateObj}
+                  onChange={handleDateChange}
                   dateFormat="dd MMM yyyy"
                   className="w-full h-11 px-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
                   placeholderText="Pilih tanggal"
@@ -348,7 +427,7 @@ export default function CheckTicketModal({
                   showPopperArrow={true}
                   autoComplete="off"
                   wrapperClassName="block w-full h-11"
-                />
+                /> */}
               </div>
             </div>
           </div>

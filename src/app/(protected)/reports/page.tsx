@@ -31,7 +31,7 @@ import {
   GateByLocation,
   Location,
 } from "@/hooks/useLocation";
-// import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { validateIndonesianLicensePlate } from "@/utils/validationNumberPlat";
 
 interface Report {
@@ -733,107 +733,176 @@ export default function ReportsPage() {
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
         <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
           {/* Header */}
-          <div className="px-6 flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Laporan</h1>
-          </div>
-          {/* Wrap DatePicker with Suspense */}
-          <div className="flex flex-col space-y-4 mb-4 px-6">
-            {/* Filter Section */}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
-              <div className="relative z-30 flex-1 min-w-[200px] max-w-xs">
-                <DatePicker
-                  selected={searchDate}
-                  onChange={(date) => setSearchDate(date)}
-                  className="px-4 py-2 border rounded-lg pl-10 w-full"
-                  placeholderText="Cari Tanggal"
-                  dateFormat="dd MMM yyyy"
-                  isClearable
-                  maxDate={new Date()}
-                  popperClassName="z-50"
-                />
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  📅
-                </span>
+          <div className="px-6">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Laporan</h1>
+            </div>
+            {/* Wrap DatePicker with Suspense */}
+            <div className="flex flex-col space-y-4 mb-4">
+              {/* Filter Section */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+                <div className="relative z-30 flex-1 min-w-[200px] max-w-xs">
+                  <DatePicker
+                    selected={searchDate}
+                    onChange={(date) => setSearchDate(date)}
+                    className="px-4 py-2 border rounded-lg pl-10 w-full"
+                    placeholderText="Cari Tanggal"
+                    dateFormat="dd MMM yyyy"
+                    isClearable
+                    maxDate={new Date()}
+                    popperClassName="z-50"
+                    renderCustomHeader={({
+                      date,
+                      changeYear,
+                      changeMonth,
+                      decreaseMonth,
+                      increaseMonth,
+                      prevMonthButtonDisabled,
+                      nextMonthButtonDisabled,
+                    }) => (
+                      <div className="flex items-center justify-between px-2 py-2">
+                        <button
+                          onClick={decreaseMonth}
+                          disabled={prevMonthButtonDisabled}
+                        >
+                          <IoIosArrowBack />
+                        </button>
+                        <select
+                          value={date.getMonth()}
+                          onChange={({ target: { value } }) =>
+                            changeMonth(Number(value))
+                          }
+                          className="mx-1 px-2 py-1 border rounded"
+                        >
+                          {[
+                            "Jan",
+                            "Feb",
+                            "Mar",
+                            "Apr",
+                            "May",
+                            "Jun",
+                            "Jul",
+                            "Aug",
+                            "Sep",
+                            "Oct",
+                            "Nov",
+                            "Dec",
+                          ].map((month, index) => (
+                            <option key={month} value={index}>
+                              {month}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          value={date.getFullYear()}
+                          onChange={({ target: { value } }) =>
+                            changeYear(Number(value))
+                          }
+                          className="mx-1 px-2 py-1 border rounded"
+                        >
+                          {Array.from(
+                            { length: 10 },
+                            (_, i) => new Date().getFullYear() - i
+                          ).map((year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={increaseMonth}
+                          disabled={nextMonthButtonDisabled}
+                        >
+                          <IoIosArrowForward />
+                        </button>
+                      </div>
+                    )}
+                  />
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    📅
+                  </span>
+                </div>
+
+                <div className="relative flex-1 min-w-[150px] max-w-xs">
+                  <input
+                    type="text"
+                    placeholder="Cari Lokasi"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    className="px-4 py-2 border rounded-lg pl-10 w-full"
+                  />
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    📍
+                  </span>
+                </div>
+
+                <div className="relative flex-1 min-w-[150px] max-w-xs">
+                  <input
+                    type="text"
+                    placeholder="Cari Kategori"
+                    value={searchCategory}
+                    onChange={(e) => setSearchCategory(e.target.value)}
+                    className="px-4 py-2 border rounded-lg pl-10 w-full"
+                  />
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    🔍
+                  </span>
+                </div>
+
+                {/* Clear Filters Button */}
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap h-fit"
+                    title="Clear all filters"
+                  >
+                    ✕ Clear
+                  </button>
+                )}
               </div>
 
-              <div className="relative flex-1 min-w-[150px] max-w-xs">
-                <input
-                  type="text"
-                  placeholder="Cari Lokasi"
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  className="px-4 py-2 border rounded-lg pl-10 w-full"
-                />
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  📍
-                </span>
-              </div>
-
-              <div className="relative flex-1 min-w-[150px] max-w-xs">
-                <input
-                  type="text"
-                  placeholder="Cari Kategori"
-                  value={searchCategory}
-                  onChange={(e) => setSearchCategory(e.target.value)}
-                  className="px-4 py-2 border rounded-lg pl-10 w-full"
-                />
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  🔍
-                </span>
-              </div>
-
-              {/* Clear Filters Button */}
-              {hasActiveFilters && (
+              {/* Action Buttons - Pisahkan ke baris terpisah */}
+              <div className="flex justify-end">
                 <button
-                  onClick={handleClearFilters}
-                  className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap h-fit"
-                  title="Clear all filters"
+                  onClick={handleModalOpen}
+                  className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 whitespace-nowrap"
                 >
-                  ✕ Clear
+                  <span>➕</span>
+                  <span>Tambah Laporan</span>
                 </button>
-              )}
-            </div>
-
-            {/* Action Buttons - Pisahkan ke baris terpisah */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleModalOpen}
-                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full flex items-center justify-center space-x-2 whitespace-nowrap"
-              >
-                <span>➕</span>
-                <span>Tambah Laporan</span>
-              </button>
-            </div>
-          </div>
-          {/* Filter Results Info */}
-          {hasActiveFilters && (
-            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-blue-800 dark:text-blue-200">
-                  <span className="font-medium">Filter aktif:</span>
-                  {searchDate && (
-                    <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                      Tanggal: {searchDate.toLocaleDateString("id-ID")}
-                    </span>
-                  )}
-                  {searchLocation && (
-                    <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                      Lokasi: {searchLocation}
-                    </span>
-                  )}
-                  {searchCategory && (
-                    <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
-                      Kategori: {searchCategory}
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-blue-600 dark:text-blue-300">
-                  Menampilkan {filteredReports.length} dari {reports.length}{" "}
-                  data
-                </div>
               </div>
             </div>
-          )}
+            {/* Filter Results Info */}
+            {hasActiveFilters && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-blue-800 dark:text-blue-200">
+                    <span className="font-medium">Filter aktif:</span>
+                    {searchDate && (
+                      <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                        Tanggal: {searchDate.toLocaleDateString("id-ID")}
+                      </span>
+                    )}
+                    {searchLocation && (
+                      <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                        Lokasi: {searchLocation}
+                      </span>
+                    )}
+                    {searchCategory && (
+                      <span className="ml-2 inline-block bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs">
+                        Kategori: {searchCategory}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-blue-600 dark:text-blue-300">
+                    Menampilkan {filteredReports.length} dari {reports.length}{" "}
+                    data
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Wrap Table with Suspense */}
           <Suspense fallback={<LoadingSpinner />}>
             <div className="bg-white dark:bg-[#222B36] rounded-lg p-6">

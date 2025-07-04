@@ -13,7 +13,7 @@ interface DatePickerProps {
   popperClassName?: string;
 }
 
-export const DatePicker: React.FC<DatePickerProps> = ({
+export const CustomDatePicker: React.FC<DatePickerProps> = ({
   selected,
   onChange,
   className = "",
