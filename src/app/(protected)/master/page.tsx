@@ -605,65 +605,67 @@ export default function MasterPage() {
     <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
       <main className="flex-1 overflow-hidden bg-white rounded-lg shadow-lg dark:bg-[#222B36]">
         <div className="w-full px-4 sm:px-6 py-4 sm:py-8">
-          <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-            Master Data
-          </h1>
+          <div className="px-6">
+            <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+              Master Data
+            </h1>
 
-          {/* Tab Navigation */}
-          <ul className="flex border-b border-gray-200 dark:border-gray-900 mb-6">
-            <li className="w-full mr-2">
-              <button
-                onClick={() => handleTabChange("category")}
-                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${
-                  activeTab === "category"
-                    ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
-                    : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-                }`}
-              >
-                Kategori
-              </button>
-            </li>
-            <li className="w-full">
-              <button
-                onClick={() => handleTabChange("description")}
-                className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${
-                  activeTab === "description"
-                    ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
-                    : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
-                }`}
-              >
-                Deskripsi
-              </button>
-            </li>
-          </ul>
+            {/* Tab Navigation */}
+            <ul className="flex border-b border-gray-200 dark:border-gray-900 mb-6">
+              <li className="w-full mr-2">
+                <button
+                  onClick={() => handleTabChange("category")}
+                  className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${
+                    activeTab === "category"
+                      ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+                      : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+                  }`}
+                >
+                  Kategori
+                </button>
+              </li>
+              <li className="w-full">
+                <button
+                  onClick={() => handleTabChange("description")}
+                  className={`cursor-pointer shadow-md w-full inline-block px-6 py-3 rounded-t-lg transition-colors ${
+                    activeTab === "description"
+                      ? "bg-white dark:bg-[#222B36] text-blue-500 border-b-2 border-blue-500"
+                      : "bg-gray-200 dark:bg-[#2A3441] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#2F3B4B]"
+                  }`}
+                >
+                  Deskripsi
+                </button>
+              </li>
+            </ul>
 
-          {/* Description Text */}
-          <div className="mb-6">
-            {activeTab === "category" ? (
-              <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded">
-                <h2 className="text-lg font-medium text-blue-700 dark:text-blue-400 mb-2">
-                  Manajemen Kategori
-                </h2>
-                <p className="text-blue-600/80 dark:text-blue-300/80">
-                  Halaman ini digunakan untuk mengelola kategori permasalahan
-                  yang dapat terjadi di gerbang. Setiap kategori akan menjadi
-                  pengelompokan utama untuk berbagai jenis permasalahan yang
-                  mungkin dihadapi.
-                </p>
-              </div>
-            ) : (
-              <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
-                <h2 className="text-lg font-medium text-green-700 dark:text-green-400 mb-2">
-                  Manajemen Deskripsi Permasalahan
-                </h2>
-                <p className="text-green-600/80 dark:text-green-300/80">
-                  Halaman ini memungkinkan Anda mengelola deskripsi detail dari
-                  setiap permasalahan. Setiap deskripsi terhubung dengan
-                  kategori tertentu dan memberikan penjelasan spesifik tentang
-                  jenis masalah yang dapat terjadi.
-                </p>
-              </div>
-            )}
+            {/* Description Text */}
+            <div className="mb-6">
+              {activeTab === "category" ? (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded">
+                  <h2 className="text-lg font-medium text-blue-700 dark:text-blue-400 mb-2">
+                    Manajemen Kategori
+                  </h2>
+                  <p className="text-blue-600/80 dark:text-blue-300/80">
+                    Halaman ini digunakan untuk mengelola kategori permasalahan
+                    yang dapat terjadi di gerbang. Setiap kategori akan menjadi
+                    pengelompokan utama untuk berbagai jenis permasalahan yang
+                    mungkin dihadapi.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
+                  <h2 className="text-lg font-medium text-green-700 dark:text-green-400 mb-2">
+                    Manajemen Deskripsi Permasalahan
+                  </h2>
+                  <p className="text-green-600/80 dark:text-green-300/80">
+                    Halaman ini memungkinkan Anda mengelola deskripsi detail
+                    dari setiap permasalahan. Setiap deskripsi terhubung dengan
+                    kategori tertentu dan memberikan penjelasan spesifik tentang
+                    jenis masalah yang dapat terjadi.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Content Container */}
