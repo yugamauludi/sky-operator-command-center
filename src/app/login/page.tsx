@@ -5,6 +5,7 @@ import Image from "next/image";
 import { LoginAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function Login() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { setUser } = useUser();
 
   const handleSubmit = async () => {
@@ -119,22 +121,38 @@ export default function Login() {
                   }
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label htmlFor="password" className="sr-only">
                   Password
                 </label>
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
-                  className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  autoComplete="current-password"
+                  className="appearance-none rounded-lg relative block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-colors duration-200"
                   placeholder="Password"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
+                  style={{
+                    WebkitBoxShadow: "0 0 0 30px transparent inset",
+                    transition: "background-color 5000s ease-in-out 0s",
+                  }}
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 z-20"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 
